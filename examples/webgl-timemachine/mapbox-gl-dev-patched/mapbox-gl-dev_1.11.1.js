@@ -1903,14 +1903,14 @@ Point.convert = function (a) {
     return a;
 };
 
-//      
+//
 /* eslint-env browser */
-                                               
+
 
 // shim window for the case of requiring the browser bundle in Node
 var window$1 = typeof self !== 'undefined' ? (self        ) : (({}     )        );
 
-//      
+//
 
 /**
  * Deeply compares two object literals.
@@ -1937,9 +1937,9 @@ function deepEqual(a        , b        )          {
     return a === b;
 }
 
-//      
+//
 
-                                                
+
 
 /**
  * @module util
@@ -2027,7 +2027,7 @@ function wrap(n        , min        , max        )         {
 function asyncAll              (
     array             ,
     fn                                                    ,
-    callback                         
+    callback
 ) {
     if (!array.length) { return callback(null, []); }
     var remaining = array.length;
@@ -2444,7 +2444,7 @@ function b64DecodeUnicode(str        ) {
 }
 
 //       strict
-                                                    
+
 
 var now = window$1.performance && window$1.performance.now ?
     window$1.performance.now.bind(window$1.performance) :
@@ -2514,14 +2514,14 @@ var exported = {
 
 //       strict
 
-                
-                  
-                      
-                       
-                                
-                        
-                                     
-   
+
+
+
+
+
+
+
+
 
 var config         = {
     API_URL: 'https://api.mapbox.com',
@@ -2607,7 +2607,7 @@ function testWebpTextureUpload(gl                       ) {
     webpCheckComplete = true;
 }
 
-//      
+//
 
 /***** START WARNING - IF YOU USE THIS CODE WITH MAPBOX MAPPING APIS, REMOVAL OR
 * MODIFICATION OF THE FOLLOWING CODE VIOLATES THE MAPBOX TERMS OF SERVICE  ******
@@ -2622,10 +2622,10 @@ function testWebpTextureUpload(gl                       ) {
 * and the Mapbox Terms of Service are available at https://www.mapbox.com/tos/
 ******************************************************************************/
 
-                        
-                  
-                          
-   
+
+
+
+
 
 var SKU_ID = '01';
 
@@ -2648,21 +2648,21 @@ function createSkuToken()                 {
 /***** END WARNING - REMOVAL OR MODIFICATION OF THE
 PRECEDING CODE VIOLATES THE MAPBOX TERMS OF SERVICE  ******/
 
-//      
+//
 
-                                              
-                                                    
-                                                
 
-                                                   
-                                                                                                           
 
-                   
-                     
-                      
-                 
-                         
-   
+
+
+
+
+
+
+
+
+
+
+
 
 var RequestManager = function RequestManager(transformRequestFn                        , customAccessToken      ) {
      this._transformRequestFn = transformRequestFn;
@@ -2878,7 +2878,7 @@ function parseAccessToken(accessToken         ) {
     }
 }
 
-                                                          
+
 
 var TelemetryEvent = function TelemetryEvent(type                 ) {
      this.type = type;
@@ -3115,9 +3115,9 @@ var postMapLoadEvent = mapLoadEvent_.postMapLoadEvent.bind(mapLoadEvent_);
 /***** END WARNING - REMOVAL OR MODIFICATION OF THE
 PRECEDING CODE VIOLATES THE MAPBOX TERMS OF SERVICE  ******/
 
-//      
+//
 
-                                           
+
 
 var CACHE_NAME = 'mapbox-tiles';
 var cacheLimit = 500; // 50MB / (100KB/tile) ~= 500 tiles
@@ -3125,11 +3125,11 @@ var cacheCheckThreshold = 50;
 
 var MIN_TIME_UNTIL_EXPIRY = 1000 * 60 * 7; // 7 minutes. Skip caching tiles with a short enough max age.
 
-                               
-                   
-                       
-                           
-  
+
+
+
+
+
 
 // We're using a global shared cache object. Normally, requesting ad-hoc Cache objects is fine, but
 // Safari has a memory leak in which it fails to release memory when requesting keys() from a Cache
@@ -3285,7 +3285,7 @@ function setCacheLimits(limit        , checkThreshold        ) {
     cacheCheckThreshold = checkThreshold;
 }
 
-//      
+//
 
 var supportsOffscreenCanvas          ;
 
@@ -3299,10 +3299,10 @@ function offscreenCanvasSupported()          {
     return supportsOffscreenCanvas;
 }
 
-//      
+//
 
-                                                
-                                                    
+
+
 
 /**
  * The type of a resource.
@@ -3348,17 +3348,17 @@ if (typeof Object.freeze == 'function') {
  *  }
  *
  */
-                                 
-                
-                     
-                                    
-                  
-                                             
-                                            
-                                   
-  
 
-                                                                                                             
+
+
+
+
+
+
+
+
+
+
 
 var AJAXError = /*@__PURE__*/(function (Error) {
   function AJAXError(message        , status        , url        ) {
@@ -3679,10 +3679,10 @@ var getVideo = function(urls               , callback                           
     return {cancel: function () {}};
 };
 
-//      
+//
 
-                                
-                                                 
+
+
 
 function _addEventListener(type        , listener          , listenerList           ) {
     var listenerExists = listenerList[type] && listenerList[type].indexOf(listener) !== -1;
@@ -3708,9 +3708,9 @@ var Event = function Event(type    , data) {
     this.type = type;
 };
 
-                     
-                    
- 
+
+
+
 
 var ErrorEvent = /*@__PURE__*/(function (Event) {
     function ErrorEvent(error           , data) {
@@ -7054,7 +7054,7 @@ var spec = {
 	promoteId: promoteId
 };
 
-//      
+//
 
 // Note: Do not inherit from Error. It breaks when transpiling to ES5.
 
@@ -7078,7 +7078,7 @@ function validateConstants(options) {
     }
 }
 
-//      
+//
 
 function extend$1 (output            ) {
     var inputs = [], len = arguments.length - 1;
@@ -7094,7 +7094,7 @@ function extend$1 (output            ) {
     return output;
 }
 
-//      
+//
 
 // Turn jsonlint-lines-primitives objects into primitive objects
 function unbundle(value       ) {
@@ -7119,7 +7119,7 @@ function deepUnbundle(value       )        {
     return unbundle(value);
 }
 
-//      
+//
 
 var ParsingError = /*@__PURE__*/(function (Error) {
     function ParsingError(key        , message        ) {
@@ -7135,9 +7135,9 @@ var ParsingError = /*@__PURE__*/(function (Error) {
     return ParsingError;
 }(Error));
 
-//      
+//
 
-                                             
+
 
 /**
  * Tracks `let` bindings during expression parsing.
@@ -7172,43 +7172,43 @@ Scope.prototype.has = function has (name    )      {
     return this.parent ? this.parent.has(name) : false;
 };
 
-//      
+//
 
-                                         
-                                             
-                                             
-                                               
-                                           
-                                             
-                                           
-                                           
-                                                 
-                                                   
-                                                           
 
-                                                                            
 
-                  
-               
-                 
-                 
-                  
-                
-                 
-                
-                                                           
-                
-                   
-                    
-                      
 
-                         
-                  
-                   
-              
- 
 
-                                                                                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var NullType = {kind: 'null'};
 var NumberType = {kind: 'number'};
@@ -7506,7 +7506,7 @@ try { exports.parseCSSColor = parseCSSColor; } catch(e) { }
 });
 var csscolorparser_1 = csscolorparser.parseCSSColor;
 
-//      
+//
 
 /**
  * An RGBA color value. Create instances from color strings using the static
@@ -7528,10 +7528,10 @@ var Color = function Color(r    , g    , b    , a) {
     this.a = a;
 };
 
-                        
-                        
-                              
-                      
+
+
+
+
 
 /**
  * Parses valid CSS color strings and returns a `Color` instance.
@@ -7601,39 +7601,39 @@ Color.white = new Color(1, 1, 1, 1);
 Color.transparent = new Color(0, 0, 0, 0);
 Color.red = new Color(1, 0, 0, 1);
 
-//      
+//
 
 // Flow type declarations for Intl cribbed from
 // https://github.com/facebook/flow/issues/1270
 
-                   
-                                  
-  
 
-                             
-                 
-                                    
-                                 
-                     
 
-            
-                                    
-                                 
-                     
 
-                                           
 
-                           
- 
 
-                        
-                                          
-                              
-                                                         
-                                
-                      
-                                           
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var Collator = function Collator(caseSensitive       , diacriticSensitive       , locale             ) {
       if (caseSensitive)
@@ -7657,9 +7657,9 @@ var Collator = function Collator(caseSensitive       , diacriticSensitive       
           .resolvedOptions().locale;
   };
 
-//      
-                                          
-                                                         
+//
+
+
 
 var FormattedSection = function FormattedSection(text    , image                  , scale           , fontStack           , textColor          ) {
     this.text = text;
@@ -7721,12 +7721,12 @@ Formatted.prototype.serialize = function serialize ()           {
     return serialized;
 };
 
-//      
+//
 
-                                    
-                 
-                      
-  
+
+
+
+
 
 var ResolvedImage = function ResolvedImage(options                    ) {
       this.name = options.name;
@@ -7746,9 +7746,9 @@ var ResolvedImage = function ResolvedImage(options                    ) {
       return ["image", this.name];
   };
 
-//      
+//
 
-                                  
+
 
 function validateRGBA(r       , g       , b       , a        )                {
     if (!(
@@ -7769,7 +7769,7 @@ function validateRGBA(r       , g       , b       , a        )                {
     return null;
 }
 
-                                                                                                                                                  
+
 
 function isValue(mixed       )          {
     if (mixed === null) {
@@ -7864,12 +7864,12 @@ function toString$1(value       ) {
     }
 }
 
-//      
+//
 
-                                   
-                                      
-                                              
-                                                     
+
+
+
+
 
 var Literal = function Literal(type  , value   ) {
     this.type = type;
@@ -7931,7 +7931,7 @@ Literal.prototype.serialize = function serialize ()           {
     }
 };
 
-//      
+//
 
 var RuntimeError = function RuntimeError(message    ) {
     this.name = 'ExpressionEvaluationError';
@@ -7942,12 +7942,12 @@ RuntimeError.prototype.toJSON = function toJSON () {
     return this.message;
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var types = {
     string: StringType,
@@ -8051,21 +8051,21 @@ Assertion.prototype.serialize = function serialize ()           {
     return serialized.concat(this.args.map(function (arg) { return arg.serialize(); }));
 };
 
-//      
+//
 
-                                              
-                                                           
-                                                     
-                                   
 
-                                   
-                                                            
-                                                        
-                        
-                             
-                            
-                                 
- 
+
+
+
+
+
+
+
+
+
+
+
+
 
 var FormatExpression = function FormatExpression(sections                               ) {
     this.type = FormattedType;
@@ -8191,12 +8191,12 @@ FormatExpression.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
-                                              
-                                                           
-                                                     
-                                   
+
+
+
+
 
 var ImageExpression = function ImageExpression(input        ) {
     this.type = ResolvedImageType;
@@ -8236,12 +8236,12 @@ ImageExpression.prototype.serialize = function serialize () {
     return ["image", this.input.serialize()];
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var types$1 = {
     'to-boolean': BooleanType,
@@ -8357,10 +8357,10 @@ Coercion.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
-                                                        
-                                                                     
-                                                          
+//
+
+
+
 
 var geometryTypes = ['Unknown', 'Point', 'LineString', 'Polygon'];
 
@@ -8402,17 +8402,17 @@ EvaluationContext.prototype.parseColor = function parseColor (input    )     {
     return cached;
 };
 
-//      
+//
 
-                                                                 
-                                  
-                                    
 
-                                       
-                                       
-                                                                
-                                               
-                                                            
+
+
+
+
+
+
+
+
 
 var CompoundExpression = function CompoundExpression(name    , type  , evaluate      , args               ) {
     this.name = name;
@@ -8545,7 +8545,7 @@ CompoundExpression.parse = function parse (args                   , context     
 
 CompoundExpression.register = function register (
     registry                ,
-    definitions                            
+    definitions
 ) {
     assert_1(!CompoundExpression.definitions);
     CompoundExpression.definitions = definitions;
@@ -8562,12 +8562,12 @@ function stringifySignature(signature           )         {
     }
 }
 
-//      
+//
 
-                                              
-                                                           
-                                                     
-                                   
+
+
+
+
 
 var CollatorExpression = function CollatorExpression(caseSensitive        , diacriticSensitive        , locale               ) {
     this.type = CollatorType;
@@ -8631,13 +8631,13 @@ CollatorExpression.prototype.serialize = function serialize () {
     return ["collator", options];
 };
 
-//      
-                                                             
+//
 
-                                                             
+
+
 
 // minX, minY, maxX, maxY
-                                             
+
 var EXTENT = 8192;
 
 function updateBBox(bbox      , coord       ) {
@@ -8978,8 +8978,8 @@ Within.prototype.serialize = function serialize ()           {
     return ["within", this.geojson];
 };
 
-//      
-                                                
+//
+
 
 function isFeatureConstant(e            ) {
     if (e instanceof CompoundExpression) {
@@ -9033,12 +9033,12 @@ function isGlobalPropertyConstant(e            , properties               ) {
     return result;
 }
 
-//      
+//
 
-                                   
-                                              
-                                                     
-                                                            
+
+
+
+
 
 var Var = function Var(name    , boundExpression        ) {
     this.type = boundExpression.type;
@@ -9072,10 +9072,10 @@ Var.prototype.serialize = function serialize () {
     return ["var", this.name];
 };
 
-//      
+//
 
-                                                                 
-                                  
+
+
 
 /**
  * State associated parsing at a given point in an expression tree.
@@ -9286,11 +9286,11 @@ function isConstant(expression            ) {
         isGlobalPropertyConstant(expression, ['zoom', 'heatmap-density', 'line-progress', 'accumulated', 'is-supported-script']);
 }
 
-//      
+//
 
-                                             
 
-                                                
+
+
 
 /**
  * Returns the index of the last stop <= input, or 0 if it doesn't exist.
@@ -9324,13 +9324,13 @@ function findStopLessThanOrEqualTo(stops               , input        ) {
     return 0;
 }
 
-//      
+//
 
-                                    
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
+
 
 var Step = function Step(type  , input        , stops   ) {
     this.type = type;
@@ -9437,7 +9437,7 @@ Step.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
 function number(a        , b        , t        ) {
     return (a * (1 - t)) + (b * t);
@@ -9465,21 +9465,21 @@ color: color,
 array: array$1
 });
 
-//      
+//
 
-                 
-              
-              
-              
-                 
-  
 
-                 
-              
-              
-              
-                 
-  
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Constants
 var Xn = 0.950470, // D65 standard referent
@@ -9610,18 +9610,18 @@ lab: lab,
 hcl: hcl
 });
 
-//      
+//
 
-                                    
-                                              
-                                                     
-                                                           
-                                   
 
-                               
-                        
-                                           
-                                                                              
+
+
+
+
+
+
+
+
+
 
 var Interpolate = function Interpolate(type  , operator                                                   , interpolation               , input        , stops   ) {
     this.type = type;
@@ -9868,12 +9868,12 @@ function exponentialInterpolation(input, base, lowerValue, upperValue) {
     }
 }
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var Coalesce = function Coalesce(type  , args               ) {
     this.type = type;
@@ -9954,12 +9954,12 @@ Coalesce.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
-                                   
-                                              
-                                                     
-                                                            
+
+
+
+
 
 var Let = function Let(bindings                         , result        ) {
     this.type = result.type;
@@ -10025,13 +10025,13 @@ Let.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                              
-                                     
+
+
+
+
+
 
 var At = function At(type  , index        , input        ) {
     this.type = type;
@@ -10084,12 +10084,12 @@ At.prototype.serialize = function serialize () {
     return ["at", this.index.serialize(), this.input.serialize()];
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var In = function In(needle        , haystack        ) {
     this.type = BooleanType;
@@ -10145,12 +10145,12 @@ In.prototype.serialize = function serialize () {
     return ["in", this.needle.serialize(), this.haystack.serialize()];
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var IndexOf = function IndexOf(needle        , haystack        , fromIndex         ) {
     this.type = NumberType;
@@ -10222,14 +10222,14 @@ IndexOf.prototype.serialize = function serialize () {
     return ["index-of", this.needle.serialize(), this.haystack.serialize()];
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
+
+
+
 
 // Map input label values to output expression index
-                                         
+
 
 var Match = function Match(inputType  , outputType  , input        , cases   , outputs               , otherwise        ) {
     this.inputType = inputType;
@@ -10374,14 +10374,14 @@ Match.prototype.serialize = function serialize ()           {
     return serialized;
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
 
-                                                
+
+
+
+
+
 
 var Case = function Case(type  , branches      , otherwise        ) {
     this.type = type;
@@ -10460,12 +10460,12 @@ Case.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var Slice = function Slice(type  , input        , beginIndex        , endIndex         ) {
     this.type = type;
@@ -10534,14 +10534,14 @@ Slice.prototype.serialize = function serialize () {
     return ["slice", this.input.serialize(), this.beginIndex.serialize()];
 };
 
-//      
+//
 
-                                              
-                                                           
-                                                     
-                                   
 
-                                                                 
+
+
+
+
+
 
 function isComparableType(op                    , type      ) {
     if (op === '==' || op === '!=') {
@@ -10710,39 +10710,39 @@ var GreaterThan = makeComparison('>', gt, gtCollate);
 var LessThanOrEqual = makeComparison('<=', lteq, lteqCollate);
 var GreaterThanOrEqual = makeComparison('>=', gteq, gteqCollate);
 
-//      
+//
 
-                                              
-                                                           
-                                                     
-                                   
 
-                   
-                                          
-  
 
-                                 
-                 
-                                    
-                                     
-                         
 
-            
-                                    
-                                     
-                         
 
-                              
 
-                           
- 
 
-                            
-                                               
-                             
-                                          
-                                          
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var NumberFormat = function NumberFormat(number          ,
               locale                 ,
@@ -10842,12 +10842,12 @@ var NumberFormat = function NumberFormat(number          ,
       return ["number-format", this.number.serialize(), options];
   };
 
-//      
+//
 
-                                              
-                                                     
-                                                           
-                                   
+
+
+
+
 
 var Length = function Length(input        ) {
     this.type = NumberType;
@@ -10892,10 +10892,10 @@ Length.prototype.serialize = function serialize () {
     return serialized;
 };
 
-//      
+//
 
-                                                    
-                                                      
+
+
 
 var expressions                     = {
     // special forms
@@ -11614,7 +11614,7 @@ CompoundExpression.register(expressions, {
     ]
 });
 
-//      
+//
 
 /**
  * A type used for returning and propagating errors. The first element of the union
@@ -11622,9 +11622,9 @@ CompoundExpression.register(expressions, {
  * contains an error value.
  * @private
  */
-                          
-                                       
-                                      
+
+
+
 
 function success      (value   )               {
     return {result: 'success', value: value};
@@ -11634,9 +11634,9 @@ function error      (value   )               {
     return {result: 'error', value: value};
 }
 
-//      
+//
 
-                                                              
+
 
 function supportsPropertyExpression(spec                            )          {
     return spec['property-type'] === 'data-driven' || spec['property-type'] === 'cross-faded-data-driven';
@@ -11650,7 +11650,7 @@ function supportsInterpolation(spec                            )          {
     return !!spec.expression && spec.expression.interpolated;
 }
 
-//      
+//
 
 function getType(val       )         {
     if (val instanceof Number) {
@@ -11932,36 +11932,36 @@ function interpolationFactor(input, base, lowerValue, upperValue) {
     }
 }
 
-//      
+//
 
-                                                  
-                                    
-                                             
-                                                              
-                                           
-                                                                 
-                                                         
-                                                        
-                                                
-                                                          
 
-                       
-                                                                                                                          
-              
-                                    
-                                                                             
-                                   
-  
 
-                                              
 
-                                          
-                 
-                            
-                          
-                                               
-                       
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var StyleExpression = function StyleExpression(expression          , propertySpec                           ) {
       this.expression = expression;
@@ -12078,39 +12078,39 @@ var ZoomDependentExpression = function ZoomDependentExpression(kind    , express
       }
   };
 
-                                  
-                     
-                                                                                                                                                                
- 
 
-                                
-                   
-                              
-                                                                                                                                                                                                     
-  
 
-                                
-                   
-                                                                                                                                                                
-                                                                                  
-                             
-                                         
-  
 
-                                   
-                      
-                              
-                                                                                                                                                                                                     
-                                                                                  
-                             
-                                         
-  
 
-                                     
-                        
-                      
-                      
-                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function createPropertyExpression(expression       , propertySpec                            )                                                       {
     expression = createExpression(expression, propertySpec);
@@ -12595,7 +12595,7 @@ function validateFunction(options) {
     }
 }
 
-//      
+//
 
 function validateExpression(options     )                         {
     var expression = (options.expressionContext === 'property' ? createPropertyExpression : createExpression)(deepUnbundle(options.value), options.valueSpec);
@@ -12679,7 +12679,7 @@ function validateEnum(options) {
     return errors;
 }
 
-//      
+//
 
 function isExpressionFilter(filter     ) {
     if (filter === true || filter === false) {
@@ -13309,7 +13309,7 @@ function validateLight(options) {
     return errors;
 }
 
-//      
+//
 
 function validateFormatted(options     ) {
     if (validateString(options).length === 0) {
@@ -13319,7 +13319,7 @@ function validateFormatted(options     ) {
     return validateExpression(options);
 }
 
-//      
+//
 
 function validateImage(options     ) {
     if (validateString(options).length === 0) {
@@ -13469,27 +13469,27 @@ function wrapCleanErrors(inner) {
     };
 }
 
-//      
+//
 
-                                             
 
-                        
-                    
-                 
-                       
-  
 
-                                                                    
 
-                      
-                                                       
-                      
-                     
-                     
-                      
-                             
-                             
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var validateStyle = (validateStyleMin               );
 
@@ -13684,42 +13684,42 @@ GridIndex.prototype.toArrayBuffer = function() {
     return array.buffer;
 };
 
-//      
+//
 var ImageData = window$1.ImageData;
 var ImageBitmap = window$1.ImageBitmap;
 
-                                                        
+
 
                                                     // eslint-disable-line
-                        
-          
-          
-             
-            
-            
-             
-            
-            
-          
-            
-                 
-                      
-               
-                       
-                       
 
-                 
-                  
-                          
-                                     
-                                       
-     
-  
 
-                           
-                                    
-                                      
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var registry           = {};
 
@@ -13749,7 +13749,7 @@ function register        (name        , klass          , options) {
 
 register('Object', Object);
 
-                                              
+
 
 gridIndex.serialize = function serialize(grid      , transferables                      )                 {
     var buffer = grid.toArrayBuffer();
@@ -13949,7 +13949,7 @@ function deserialize(input            )        {
     throw new Error(("can't deserialize object of type " + (typeof input)));
 }
 
-//      
+//
 
 var ZoomHistory = function ZoomHistory() {
     this.first = true;
@@ -13984,12 +13984,12 @@ ZoomHistory.prototype.update = function update (z    , now    ) {
     return false;
 };
 
-//      
+//
 
 // The following table comes from <http://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
 // Keep it synchronized with <http://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
 
-                                                                     
+
 
 var unicodeBlockLookup                     = {
     // 'Basic Latin': (char) => char >= 0x0000 && char <= 0x007F,
@@ -14294,7 +14294,7 @@ var unicodeBlockLookup                     = {
     // 'Supplementary Private Use Area-B': (char) => char >= 0x100000 && char <= 0x10FFFF,
 };
 
-//      
+//
 
 function allowsIdeographicBreaking(chars        ) {
     for (var i = 0, list = chars; i < list.length; i += 1) {
@@ -14629,7 +14629,7 @@ function isStringInSupportedScript(chars        , canRenderRTL         ) {
     return true;
 }
 
-//      
+//
 
 var status = {
     unavailable: 'unavailable', // Not loaded
@@ -14639,13 +14639,13 @@ var status = {
     error: 'error'
 };
 
-                           
-                                         
-                      
-  
 
-                                             
-                                                            
+
+
+
+
+
+
 var _completionCallback = null;
 
 //Variables defining the current state of the plugin
@@ -14721,15 +14721,15 @@ var downloadRTLTextPlugin = function() {
     }
 };
 
-var plugin   
-                                  
-                                                                        
-                                                                                                              
-                            
-                             
-                                           
-                            
-                               
+var plugin
+
+
+
+
+
+
+
+
   = {
     applyArabicShaping: null,
     processBidirectionalText: null,
@@ -14769,15 +14769,15 @@ var lazyLoadRTLTextPlugin = function() {
     }
 };
 
-//      
+//
 
-                                                                 
 
-                                   
-                      
-                    
-             
-  
+
+
+
+
+
+
 
 var EvaluationParameters = function EvaluationParameters(zoom      , options  ) {
       this.zoom = zoom;
@@ -14817,29 +14817,29 @@ var EvaluationParameters = function EvaluationParameters(zoom      , options  ) 
           {fromScale: 0.5, toScale: 1, t: 1 - (1 - t) * fraction};
   };
 
-//      
+//
 
-                                                       
-                                                                         
-             
-                            
-                              
-                             
 
-             
-            
-                 
-                            
-                     
-                       
-                                  
 
-                        
 
-                             
-          
-           
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Implements a number of classes that define state and behavior for paint and layout properties, most
@@ -14876,11 +14876,11 @@ var EvaluationParameters = function EvaluationParameters(zoom      , options  ) 
  *
  * @private
  */
-                                 
-                                              
-                                                                                                                                                    
-                                          
- 
+
+
+
+
+
 
 /**
  *  `PropertyValue` represents the value part of a property key-value unit. It's used to represent both
@@ -14917,10 +14917,10 @@ var PropertyValue = function PropertyValue(property              , value        
 
 // ------- Transitionable -------
 
-                                    
-                   
-                                       
-  
+
+
+
+
 
 /**
  * Paint properties are _transitionable_: they can change in a fluid manner, interpolating or cross-fading between
@@ -14955,8 +14955,8 @@ var TransitionablePropertyValue = function TransitionablePropertyValue(property 
  *
  * @private
  */
-                                                
-                                                                                            
+
+
 
 /**
  * `Transitionable` stores a map of all (property name, `TransitionablePropertyValue`) pairs for paint properties of a
@@ -15090,8 +15090,8 @@ var TransitioningPropertyValue = function TransitioningPropertyValue(property   
  *
  * @private
  */
-                                               
-                                                                                           
+
+
 
 /**
  * `Transitioning` stores a map of all (property name, `TransitioningPropertyValue`) pairs for paint properties of a
@@ -15134,8 +15134,8 @@ var Transitioning = function Transitioning(properties                 ) {
  *
  * @private
  */
-                                  
-                                                                              
+
+
 
 /**
  * Because layout properties are not transitionable, they have a simpler representation and evaluation chain than
@@ -15207,10 +15207,10 @@ var Layout = function Layout(properties                 ) {
  *
  * @private
  */
-                                
-                                  
-                      
-                          
+
+
+
+
 
 /**
  * `PossiblyEvaluatedPropertyValue` is used for data-driven paint and layout property values. It holds a
@@ -15259,8 +15259,8 @@ var PossiblyEvaluatedPropertyValue = function PossiblyEvaluatedPropertyValue(pro
  *
  * @private
  */
-                                                   
-                                                            
+
+
 
 /**
  * `PossiblyEvaluated` stores a map of all (property name, `R`) pairs for paint or layout properties of a
@@ -15514,22 +15514,22 @@ register('CrossFadedDataDrivenProperty', CrossFadedDataDrivenProperty);
 register('CrossFadedProperty', CrossFadedProperty);
 register('ColorRampProperty', ColorRampProperty);
 
-//      
+//
 
-                                                           
-                                           
-                                                
-                                                                
-                                                                      
-                                                                                       
-                                              
-             
-                       
-                       
-                             
-                                                                           
-                                 
-                                                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var TRANSITION_SUFFIX = '-transition';
 
@@ -15762,9 +15762,9 @@ var StyleLayer = /*@__PURE__*/(function (Evented) {
     return StyleLayer;
 }(Evented));
 
-//      
+//
 
-                                                        
+
 
 var viewTypes = {
     'Int8': Int8Array,
@@ -15776,7 +15776,7 @@ var viewTypes = {
     'Float32': Float32Array
 };
 
-                                               
+
 
 /**
  * @private
@@ -15792,23 +15792,23 @@ var Struct = function Struct(structArray           , index      ) {
 var DEFAULT_CAPACITY = 128;
 var RESIZE_MULTIPLIER = 5;
 
-                                 
-                 
-                   
-                       
-                  
-  
 
-                                 
-                                      
-                 
-                      
- 
 
-                                     
-                   
-                            
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * `StructArray` provides an abstraction over `ArrayBuffer` and `TypedArray`
@@ -16990,7 +16990,7 @@ var CollisionBoxStruct = /*@__PURE__*/(function (Struct) {
 
 CollisionBoxStruct.prototype.size = 20;
 
-                                              
+
 
 /**
  * @private
@@ -17053,7 +17053,7 @@ var PlacedSymbolStruct = /*@__PURE__*/(function (Struct) {
 
 PlacedSymbolStruct.prototype.size = 48;
 
-                                              
+
 
 /**
  * @private
@@ -17125,7 +17125,7 @@ var SymbolInstanceStruct = /*@__PURE__*/(function (Struct) {
 
 SymbolInstanceStruct.prototype.size = 68;
 
-                                                  
+
 
 /**
  * @private
@@ -17211,7 +17211,7 @@ var FeatureIndexStruct = /*@__PURE__*/(function (Struct) {
 
 FeatureIndexStruct.prototype.size = 8;
 
-                                              
+
 
 /**
  * @private
@@ -17235,7 +17235,7 @@ var FeatureIndexArray = /*@__PURE__*/(function (StructArrayLayout1ul2ui8) {
 
 register('FeatureIndexArray', FeatureIndexArray);
 
-//      
+//
 
 var layout$1 = createLayout([
     {name: 'a_pos', components: 2, type: 'Int16'}
@@ -17244,19 +17244,19 @@ var members = layout$1.members;
 var size = layout$1.size;
 var alignment = layout$1.alignment;
 
-//      
+//
 
-                                                                   
-                                                      
 
-                       
-                           
-                         
-                            
-                         
-                            
-                                          
- 
+
+
+
+
+
+
+
+
+
+
 
 var SegmentVector = function SegmentVector(segments) {
     if ( segments === void 0 ) segments              = [];
@@ -17315,7 +17315,7 @@ SegmentVector.MAX_VERTEX_ARRAY_LENGTH = Math.pow(2, 16) - 1;
 
 register('SegmentVector', SegmentVector);
 
-//      
+//
 
 /**
  * Packs two numbers, interpreted as 8-bit unsigned integers, into a single
@@ -17331,7 +17331,7 @@ function packUint8ToFloat(a        , b        ) {
     return 256 * a + b;
 }
 
-//      
+//
 
 var patternAttributes = createLayout([
     // [tl.x, tl.y, br.x, br.y]
@@ -17343,35 +17343,35 @@ var patternAttributes = createLayout([
 var murmurhash3_gc = createCommonjsModule(function (module) {
 /**
  * JS Implementation of MurmurHash3 (r136) (as of May 20, 2011)
- * 
+ *
  * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
  * @see http://github.com/garycourt/murmurhash-js
  * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
  * @see http://sites.google.com/site/murmurhash/
- * 
+ *
  * @param {string} key ASCII only
  * @param {number} seed Positive integer only
- * @return {number} 32-bit positive integer hash 
+ * @return {number} 32-bit positive integer hash
  */
 
 function murmurhash3_32_gc(key, seed) {
 	var remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i;
-	
+
 	remainder = key.length & 3; // key.length % 4
 	bytes = key.length - remainder;
 	h1 = seed;
 	c1 = 0xcc9e2d51;
 	c2 = 0x1b873593;
 	i = 0;
-	
+
 	while (i < bytes) {
-	  	k1 = 
+	  	k1 =
 	  	  ((key.charCodeAt(i) & 0xff)) |
 	  	  ((key.charCodeAt(++i) & 0xff) << 8) |
 	  	  ((key.charCodeAt(++i) & 0xff) << 16) |
 	  	  ((key.charCodeAt(++i) & 0xff) << 24);
 		++i;
-		
+
 		k1 = ((((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16))) & 0xffffffff;
 		k1 = (k1 << 15) | (k1 >>> 17);
 		k1 = ((((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16))) & 0xffffffff;
@@ -17381,20 +17381,20 @@ function murmurhash3_32_gc(key, seed) {
 		h1b = ((((h1 & 0xffff) * 5) + ((((h1 >>> 16) * 5) & 0xffff) << 16))) & 0xffffffff;
 		h1 = (((h1b & 0xffff) + 0x6b64) + ((((h1b >>> 16) + 0xe654) & 0xffff) << 16));
 	}
-	
+
 	k1 = 0;
-	
+
 	switch (remainder) {
 		case 3: k1 ^= (key.charCodeAt(i + 2) & 0xff) << 16;
 		case 2: k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
 		case 1: k1 ^= (key.charCodeAt(i) & 0xff);
-		
+
 		k1 = (((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
 		k1 = (k1 << 15) | (k1 >>> 17);
 		k1 = (((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
 		h1 ^= k1;
 	}
-	
+
 	h1 ^= key.length;
 
 	h1 ^= h1 >>> 16;
@@ -17414,12 +17414,12 @@ if('object' !== "undefined") {
 var murmurhash2_gc = createCommonjsModule(function (module) {
 /**
  * JS Implementation of MurmurHash2
- * 
+ *
  * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
  * @see http://github.com/garycourt/murmurhash-js
  * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
  * @see http://sites.google.com/site/murmurhash/
- * 
+ *
  * @param {string} str ASCII only
  * @param {number} seed Positive integer only
  * @return {number} 32-bit positive integer hash
@@ -17431,14 +17431,14 @@ function murmurhash2_32_gc(str, seed) {
     h = seed ^ l,
     i = 0,
     k;
-  
+
   while (l >= 4) {
-  	k = 
+  	k =
   	  ((str.charCodeAt(i) & 0xff)) |
   	  ((str.charCodeAt(++i) & 0xff) << 8) |
   	  ((str.charCodeAt(++i) & 0xff) << 16) |
   	  ((str.charCodeAt(++i) & 0xff) << 24);
-    
+
     k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
     k ^= k >>> 24;
     k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
@@ -17448,7 +17448,7 @@ function murmurhash2_32_gc(str, seed) {
     l -= 4;
     ++i;
   }
-  
+
   switch (l) {
   case 3: h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
   case 2: h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
@@ -17474,18 +17474,18 @@ var murmur2_1 = murmurhash2_gc;
 murmurhashJs.murmur3 = murmur3_1;
 murmurhashJs.murmur2 = murmur2_1;
 
-//      
+//
 
-                                     
-                      
-                           
-  
 
-                        
-                  
-                  
-                
-  
+
+
+
+
+
+
+
+
+
 
 // A transferable data structure that maps feature ids to their indices and buffer offsets
 var FeaturePositionMap = function FeaturePositionMap() {
@@ -17596,13 +17596,13 @@ function swap(arr, i, j) {
 
 register('FeaturePositionMap', FeaturePositionMap);
 
-//      
+//
 
-                                         
 
-                                     
-                                                   
-                                                                   
+
+
+
+
 
 var Uniform = function Uniform(context     , location                  ) {
     this.gl = context.gl;
@@ -17763,31 +17763,31 @@ var UniformMatrix4f = /*@__PURE__*/(function (Uniform) {
     return UniformMatrix4f;
 }(Uniform));
 
-//      
+//
 
-                                                       
-                                         
-                                                                            
-                                                                        
-                                                                         
-                                                    
-                                                         
-             
-            
-                 
-                     
-                     
-                       
-                                  
-                                                           
-                                                          
-                                                                               
 
-                             
-                 
-                     
-                         
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function packColor(color       )                   {
     return [
@@ -17824,18 +17824,18 @@ function packColor(color       )                   {
  * @private
  */
 
-                           
-                                                                                                                                                                               
-                                                                                                                                                      
-                          
-                    
- 
 
-                         
-                                
-                                                                                                                                           
-                                                                                                   
- 
+
+
+
+
+
+
+
+
+
+
+
 
 var ConstantBinder = function ConstantBinder(value     , names             , type      ) {
       this.value = value;
@@ -18410,7 +18410,7 @@ register('ProgramConfigurationSet', ProgramConfigurationSet);
 
 //
 
-//      
+//
 
 /**
  * The maximum value of a coordinate in the internal tile coordinate system. Coordinates of
@@ -18429,9 +18429,9 @@ register('ProgramConfigurationSet', ProgramConfigurationSet);
  */
 var EXTENT$1 = 8192;
 
-//      
+//
 
-                                                
+
 
 // These bounds define the minimum and maximum supported coordinate values.
 // While visible coordinates are within [0, EXTENT], tiles may theoretically
@@ -18472,24 +18472,24 @@ function loadGeometry(feature                   )                      {
     return geometry;
 }
 
-//      
+//
 
-                                                          
-             
-           
-                     
-                  
-                   
-                      
-                   
-                                                                               
-                                                                                 
-                                            
-                                                     
-                                                       
-                                                
-                                                             
-                                                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function addCircleVertex(layoutVertexArray, x, y, extrudeX, extrudeY) {
     layoutVertexArray.emplaceBack(
@@ -18658,13 +18658,13 @@ CircleBucket.prototype.addFeature = function addFeature (feature           , geo
 
 register('CircleBucket', CircleBucket, {omit: ['layers']});
 
-//      
+//
 
-                         
-                             
-                         
-                            
-                                   
+
+
+
+
+
 
 function polygonIntersectsPolygon(polygonA         , polygonB         ) {
     for (var i = 0; i < polygonA.length; i++) {
@@ -18865,12 +18865,12 @@ function edgeIntersectsBox(e1       , e2       , corners              ) {
         dir !== isCounterClockwise(e1, e2, corners[3]);
 }
 
-//      
+//
 
-                                                                 
-                                                   
-                                                             
-                                                         
+
+
+
+
 
 function getMaximumPaintValue(property        , layer            , bucket                              )         {
     var value = ((layer.paint     ).get(property)                                     ).value;
@@ -18909,33 +18909,33 @@ function translate(queryGeometry              ,
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
 
-                                                                         
 
-                                                                                  
 
-                            
-                                                  
-   
+
+
+
+
+
+
 
 var layout$2                          = new Properties({
     "circle-sort-key": new DataDrivenProperty(spec["layout_circle"]["circle-sort-key"]),
 });
 
-                           
-                                                
-                                              
-                                              
-                                                 
-                                                               
-                                                                        
-                                                                   
-                                                                       
-                                                      
-                                                     
-                                                        
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$1                         = new Properties({
     "circle-radius": new DataDrivenProperty(spec["paint_circle"]["circle-radius"]),
@@ -18954,8 +18954,8 @@ var paint$1                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties = ({ paint: paint$1, layout: layout$2 }          
-                                                                
+var properties = ({ paint: paint$1, layout: layout$2 }
+
   );
 
 /**
@@ -26135,13 +26135,13 @@ var forEach$2 = function () {
   };
 }();
 
-//      
+//
 
-                                                              
-                                                 
-                                                                
-                                                                             
-                                                               
+
+
+
+
+
 
 var CircleStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function CircleStyleLayer(layer                    ) {
@@ -26225,9 +26225,9 @@ function projectQueryGeometry(queryGeometry              , pixelPosMatrix       
     });
 }
 
-//      
+//
 
-                                                                                 
+
 
 var HeatmapBucket = /*@__PURE__*/(function (CircleBucket) {
     function HeatmapBucket () {
@@ -26236,24 +26236,24 @@ var HeatmapBucket = /*@__PURE__*/(function (CircleBucket) {
     HeatmapBucket.prototype = Object.create( CircleBucket && CircleBucket.prototype );
     HeatmapBucket.prototype.constructor = HeatmapBucket;
 
-    
+
 
     return HeatmapBucket;
 }(CircleBucket));
 
 register('HeatmapBucket', HeatmapBucket, {omit: ['layers']});
 
-//      
+//
 
-                    
-                  
-                  
-  
 
-              
-              
-             
-  
+
+
+
+
+
+
+
+
 
 function createImage(image   , ref      , channels        , data                                 ) {
     var width = ref.width;
@@ -26375,20 +26375,20 @@ register('RGBAImage', RGBAImage);
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
-
-                                                                         
-
-                                                                                  
 
 
-                           
-                                                 
-                                                 
-                                                      
-                                       
-                                                    
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$2                         = new Properties({
     "heatmap-radius": new DataDrivenProperty(spec["paint_heatmap"]["heatmap-radius"]),
@@ -26401,13 +26401,13 @@ var paint$2                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$1 = ({ paint: paint$2 }          
-                               
+var properties$1 = ({ paint: paint$2 }
+
   );
 
-//      
+//
 
-                                                                            
+
 
 /**
  * Given an expression that should evaluate to a color ramp, return
@@ -26432,12 +26432,12 @@ function renderColorRamp(expression                         , colorRampEvaluatio
     return new RGBAImage({width: 256, height: 1}, colorRampData);
 }
 
-//      
+//
 
-                                                
-                                                    
-                                                                 
-                                                               
+
+
+
+
 
 var HeatmapStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function HeatmapStyleLayer(layer                    ) {
@@ -26491,21 +26491,21 @@ var HeatmapStyleLayer = /*@__PURE__*/(function (StyleLayer) {
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
-
-                                                                         
-
-                                                                                  
 
 
-                           
-                                                                     
-                                                                              
-                                                           
-                                                          
-                                                             
-                                                          
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$3                         = new Properties({
     "hillshade-illumination-direction": new DataConstantProperty(spec["paint_hillshade"]["hillshade-illumination-direction"]),
@@ -26519,14 +26519,14 @@ var paint$3                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$2 = ({ paint: paint$3 }          
-                               
+var properties$2 = ({ paint: paint$3 }
+
   );
 
-//      
+//
 
-                                                                   
-                                                               
+
+
 
 var HillshadeStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function HillshadeStyleLayer(layer                    ) {
@@ -26544,7 +26544,7 @@ var HillshadeStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     return HillshadeStyleLayer;
 }(StyleLayer));
 
-//      
+//
 
 var layout$3 = createLayout([
     {name: 'a_pos', components: 2, type: 'Int16'}
@@ -27288,9 +27288,9 @@ function defaultCompare(a, b) {
     return a < b ? -1 : a > b ? 1 : 0;
 }
 
-//      
+//
 
-                                                
+
 
 // classifies an array of rings into polygons with outer rings and holes
 function classifyRings(rings                     , maxRings        ) {
@@ -27337,20 +27337,20 @@ function compareAreas(a, b) {
     return b.area - a.area;
 }
 
-//      
-                                                                           
-                                                                                              
-                                                                           
+//
 
-             
-                  
-                      
-                   
 
-                         
-                           
-                           
-                                   
+
+
+
+
+
+
+
+
+
+
+
 
 function hasPattern(type        , layers                    , options                    ) {
     var patterns = options.patternDependencies;
@@ -27402,24 +27402,24 @@ function addPatternDependencies(type        , layers                    , patter
     return patternFeature;
 }
 
-//      
+//
 var EARCUT_MAX_RINGS = 500;
 
-                                                          
-             
-           
-                     
-                  
-                   
-                      
-                   
-                                                                           
-                                            
-                                                     
-                                                       
-                                                
-                                                             
-                                                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var FillBucket = function FillBucket(options                              ) {
     this.zoom = options.zoom;
@@ -27615,29 +27615,29 @@ register('FillBucket', FillBucket, {omit: ['layers', 'patternFeatures']});
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
 
-                                                                         
 
-                                                                                  
 
-                            
-                                                
-   
+
+
+
+
+
+
 
 var layout$4                          = new Properties({
     "fill-sort-key": new DataDrivenProperty(spec["layout_fill"]["fill-sort-key"]),
 });
 
-                           
-                                                    
-                                               
-                                            
-                                                    
-                                                             
-                                                                      
-                                                                
-   
+
+
+
+
+
+
+
+
+
 
 var paint$4                         = new Properties({
     "fill-antialias": new DataConstantProperty(spec["paint_fill"]["fill-antialias"]),
@@ -27652,19 +27652,19 @@ var paint$4                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$3 = ({ paint: paint$4, layout: layout$4 }          
-                                                                
+var properties$3 = ({ paint: paint$4, layout: layout$4 }
+
   );
 
-//      
+//
 
-                                                              
-                                                        
-                                                
-                                                                           
-                                                                 
-                                                 
-                                                               
+
+
+
+
+
+
+
 
 var FillStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function FillStyleLayer(layer                    ) {
@@ -27713,7 +27713,7 @@ var FillStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     return FillStyleLayer;
 }(StyleLayer));
 
-//      
+//
 
 var layout$5 = createLayout([
     {name: 'a_pos',          components: 2, type: 'Int16'},
@@ -28045,26 +28045,26 @@ var vectorTile = {
 	VectorTileLayer: VectorTileLayer$1
 };
 
-//      
+//
 var vectorTileFeatureTypes = vectorTile.VectorTileFeature.types;
 var EARCUT_MAX_RINGS$1 = 500;
 
-                                                          
-             
-           
-                     
-                  
-                   
-                      
-                   
 
-                                                                                              
-                                            
-                                                     
-                                                       
-                                                
-                                                             
-                                                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var FACTOR = Math.pow(2, 13);
 
@@ -28313,23 +28313,23 @@ function isEntirelyOutside(ring) {
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
-
-                                                                         
-
-                                                                                  
 
 
-                           
-                                                           
-                                                      
-                                                                       
-                                                                                
-                                                                          
-                                                        
-                                                      
-                                                                      
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$5                         = new Properties({
     "fill-extrusion-opacity": new DataConstantProperty(spec["paint_fill-extrusion"]["fill-extrusion-opacity"]),
@@ -28345,17 +28345,17 @@ var paint$5                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$4 = ({ paint: paint$5 }          
-                               
+var properties$4 = ({ paint: paint$5 }
+
   );
 
-//      
+//
 
-                                                              
-                                                        
-                                                                        
-                                                 
-                                                               
+
+
+
+
+
 
 var FillExtrusionStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function FillExtrusionStyleLayer(layer                    ) {
@@ -28572,7 +28572,7 @@ function projectQueryGeometry$1(queryGeometry              , pixelPosMatrix     
     return projectedQueryGeometry;
 }
 
-//      
+//
 
 var lineLayoutAttributes = createLayout([
     {name: 'a_pos_normal', components: 2, type: 'Int16'},
@@ -28582,25 +28582,25 @@ var members$3 = lineLayoutAttributes.members;
 var size$3 = lineLayoutAttributes.size;
 var alignment$3 = lineLayoutAttributes.alignment;
 
-//      
+//
 var vectorTileFeatureTypes$1 = vectorTile.VectorTileFeature.types;
 
-                                                          
-             
-           
-                     
-                  
-                   
-                      
-                   
-                                                                           
-                                                
-                                        
-                                            
-                                                     
-                                                       
-                                                             
-                                                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // NOTE ON EXTRUDE SCALE:
 // scale the extrusion vector so that the normal length is this value.
@@ -29115,19 +29115,19 @@ register('LineBucket', LineBucket, {omit: ['layers', 'patternFeatures']});
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
 
-                                                                         
 
-                                                                                  
 
-                            
-                                                                  
-                                                                 
-                                                     
-                                                     
-                                                
-   
+
+
+
+
+
+
+
+
+
+
 
 var layout$6                          = new Properties({
     "line-cap": new DataConstantProperty(spec["layout_line"]["line-cap"]),
@@ -29137,19 +29137,19 @@ var layout$6                          = new Properties({
     "line-sort-key": new DataDrivenProperty(spec["layout_line"]["line-sort-key"]),
 });
 
-                           
-                                               
-                                            
-                                                             
-                                                                      
-                                             
-                                                 
-                                              
-                                            
-                                                        
-                                                                
-                                       
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$6                         = new Properties({
     "line-opacity": new DataDrivenProperty(spec["paint_line"]["line-opacity"]),
@@ -29168,18 +29168,18 @@ var paint$6                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$5 = ({ paint: paint$6, layout: layout$6 }          
-                                                                
+var properties$5 = ({ paint: paint$6, layout: layout$6 }
+
   );
 
-//      
+//
 
-                                                              
-                                                                
-                                                                           
-                                                 
-                                                
-                                                               
+
+
+
+
+
+
 
 var LineFloorwidthProperty = /*@__PURE__*/(function (DataDrivenProperty) {
     function LineFloorwidthProperty () {
@@ -29313,7 +29313,7 @@ function offsetLine(rings, offset) {
     return newRings;
 }
 
-//      
+//
 
 var symbolLayoutAttributes = createLayout([
     {name: 'a_pos_offset',  components: 4, type: 'Int16'},
@@ -29426,7 +29426,7 @@ var lineVertex = createLayout([
     {type: 'Int16', name: 'tileUnitDistanceFromAnchor'}
 ]);
 
-//      
+//
 
 function transformText(text        , layer                  , feature         ) {
     var transform = layer.layout.get('text-transform').evaluate(feature, {});
@@ -29450,9 +29450,9 @@ function transformText$1(text           , layer                  , feature      
     return text;
 }
 
-//      
+//
 
-                                                                
+
 
 function mergeLines (features                      )                       {
     var leftIndex                        = {};
@@ -29533,7 +29533,7 @@ function mergeLines (features                      )                       {
     return mergedFeatures.filter(function (f) { return f.geometry; });
 }
 
-//      
+//
 
 var verticalizedCharacterMap = {
     '!': '︕',
@@ -29643,7 +29643,7 @@ function verticalizePunctuation(input        ) {
     return output;
 }
 
-//      
+//
 // ONE_EM constant used to go between "em" units used in style spec and "points" used internally for layout
 
 var ONE_EM = 24;
@@ -30381,10 +30381,10 @@ function writeUtf8(buf, str, pos) {
     return pos;
 }
 
-//      
+//
 var border = 3;
 
-                                              
+
 
 function readFontstacks(tag        , glyphs                   , pbf          ) {
     if (tag === 1) {
@@ -30527,20 +30527,20 @@ function potpack(boxes) {
     };
 }
 
-//      
+//
 
-                                                     
-                                                
-                                     
+
+
+
 
 var IMAGE_PADDING         = 1;
 
-             
-              
-              
-              
-             
-  
+
+
+
+
+
+
 
 var ImagePosition = function ImagePosition(paddedRect    , ref          ) {
       var pixelRatio = ref.pixelRatio;
@@ -30668,7 +30668,7 @@ var ImageAtlas = function ImageAtlas(icons                         , patterns   
 register('ImagePosition', ImagePosition);
 register('ImageAtlas', ImageAtlas);
 
-//      
+//
 
 var WritingMode = {
     horizontal: 1,
@@ -30679,36 +30679,36 @@ var WritingMode = {
 var SHAPING_DEFAULT_OFFSET = -17;
 
 // The position of a glyph relative to the text's anchor point.
-                               
-                  
-                             
-              
-              
-                      
-                  
-                      
-                         
-                          
-                     
-  
 
-                              
-                                             
-                      
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // A collection of positioned glyphs and some metadata
-                       
-                                           
-                
-                   
-                 
-                  
-                       
-                 
-                         
-                           
-  
+
+
+
+
+
+
+
+
+
+
+
 
 function isEmpty(positionedLines                       ) {
     for (var i = 0, list = positionedLines; i < list.length; i += 1) {
@@ -30721,8 +30721,8 @@ function isEmpty(positionedLines                       ) {
     return true;
 }
 
-                                                                                                                                      
-                                                      
+
+
 
 // Max number of images in label is 6401 U+E000–U+F8FF that covers
 // Basic Multilingual Plane Unicode Private Use Area (PUA).
@@ -31063,12 +31063,12 @@ function calculatePenalty(codePoint        , nextCodePoint        , penalizableI
     return penalty;
 }
 
-              
-                  
-              
-                       
-                   
-  
+
+
+
+
+
+
 
 function evaluateBreak(breakIndex        ,
                        breakX        ,
@@ -31391,14 +31391,14 @@ function align$1(positionedLines                       ,
     }
 }
 
-                              
-                         
-                
-                   
-                 
-                  
-                                                       
-  
+
+
+
+
+
+
+
+
 
 function shapeIcon(image               , iconOffset                  , iconAnchor              )                 {
     var ref = getAnchorAlignment(iconAnchor);
@@ -31468,7 +31468,7 @@ function fitIconToText(shapedIcon                , shapedText         ,
     return {image: image, top: top, right: right, bottom: bottom, left: left, collisionPadding: collisionPadding};
 }
 
-//      
+//
 
 var Anchor = /*@__PURE__*/(function (Point) {
     function Anchor(x        , y        , angle        , segment         ) {
@@ -31492,31 +31492,31 @@ var Anchor = /*@__PURE__*/(function (Point) {
 
 register('Anchor', Anchor);
 
-//      
+//
 
-                                                                                       
-                                                                                        
+
+
 
 var SIZE_PACK_FACTOR = 128;
 
-                        
-                     
-                      
-     
-                  
-     
-                   
-                    
-                    
-                    
-                    
-                                         
-     
-                      
-                    
-                    
-                                         
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // For {text,icon}-size, get the bucket-level data that will be needed by
 // the painter to set symbol-size-related uniforms
@@ -31615,10 +31615,10 @@ evaluateSizeForZoom: evaluateSizeForZoom,
 SIZE_PACK_FACTOR: SIZE_PACK_FACTOR
 });
 
-//      
+//
 
-                                                
-                                   
+
+
 
 /**
  * Labels placed around really sharp angles aren't readable. Check if any
@@ -31695,7 +31695,7 @@ function checkMaxAngle(line              , anchor        , labelLength        , 
     return true;
 }
 
-//      
+//
 
 function getLineLength(line              )         {
     var lineLength = 0;
@@ -31853,7 +31853,7 @@ function resample(line, offset, spacing, angleWindowSize, maxAngle, labelLength,
     return anchors;
 }
 
-//      
+//
 
 /**
  * Returns the part of a multiline that intersects with the provided rectangular box.
@@ -31921,7 +31921,7 @@ function clipLine(lines                     , x1        , y1        , x2        
     return clippedLines;
 }
 
-//      
+//
 
 /**
  * A textured quad for rendering a single icon or glyph.
@@ -31936,26 +31936,26 @@ function clipLine(lines                     , x1        , y1        , x2        
  *
  * @private
  */
-                          
-              
-              
-              
-              
-          
-                  
-                  
-                  
-                 
-      
-                         
-                         
-                            
-                                  
-                         
-                   
-                          
-                         
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // If you have a 10px icon that isn't perfectly aligned to the pixel grid it will cover 11 actual
 // pixels. The quad needs to be padded to account for this, otherwise they'll look slightly clipped
@@ -32253,8 +32253,8 @@ function getGlyphQuads(anchor        ,
     return quads;
 }
 
-//      
-                                   
+//
+
 
 /**
  * A CollisionFeature represents the area of the tile covered by a single label.
@@ -32425,7 +32425,7 @@ function defaultCompare$1(a, b) {
     return a < b ? -1 : a > b ? 1 : 0;
 }
 
-//      
+//
 
 /**
  * Finds an approximation of a polygon's Pole Of Inaccessibiliy https://en.wikipedia.org/wiki/Pole_of_inaccessibility
@@ -32553,7 +32553,7 @@ function getCentroidCell(polygon) {
     return new Cell(x / area, y / area, 0, polygon);
 }
 
-//      
+//
 
 // The symbol layout process needs `text-size` evaluated at up to five different zoom levels, and
 // `icon-size` at up to three:
@@ -32569,15 +32569,15 @@ function getCentroidCell(polygon) {
 //
 // (1) and (2) are stored in `bucket.layers[0].layout`. The remainder are below.
 //
-              
-                                                                  
-                                                                  
-                                                                  
-                                                                                                                
-                                                                                                                
-  
 
-                                                                                                                                    
+
+
+
+
+
+
+
+
 
 // The radial offset is to the edge of the text box
 // In the horizontal direction, the edge of the text box is where glyphs start
@@ -33342,53 +33342,53 @@ function anchorIsTooClose(bucket     , text        , repeatDistance        , anc
     return false;
 }
 
-//      
+//
 var vectorTileFeatureTypes$2 = vectorTile.VectorTileFeature.types;
-                                            
-                                                     
-                                                       
-                                                   
-                                                       
-                                                             
-                                                            
 
-                                  
-               
-               
-               
-               
-                         
-                         
-  
 
-                               
-                                 
-                                         
-                                 
-                                         
-                              
-                                      
-                              
-                                      
-  
 
-                              
-                           
-                           
-                         
-                  
-                             
-                                  
-                       
-                                             
-            
-   
 
-                            
-                    
-                                
-                             
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Opacity arrays are frequently updated but don't contain a lot of information, so we pack them
 // tight. Each Uint32 is actually four duplicate Uint8s for the four corners of a glyph
@@ -34161,7 +34161,7 @@ SymbolBucket.MAX_GLYPHS = 65535;
 
 SymbolBucket.addDynamicAttributes = addDynamicAttributes;
 
-//      
+//
 
 /**
  * Replace tokens in a string template with values in an object
@@ -34179,49 +34179,49 @@ function resolveTokens(properties                    , text        )         {
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                            
-                                                                               
-                                                   
-                                                        
-                                                  
-                                                                             
-                                                        
-                                                           
-                                                   
-                                                                                 
-                                            
-                                                                                
-                                                                                    
-                                                    
-                                              
-                                                 
-                                                       
-                                                        
-                                                                                                                                                  
-                                                                              
-                                                                              
-                                                                                 
-                                                
-                                                   
-                                            
-                                                 
-                                                     
-                                                      
-                                                                             
-                                                     
-                                                                                                                                                                    
-                                                                                                                                                  
-                                                   
-                                                                                
-                                              
-                                                 
-                                                       
-                                                                             
-                                                        
-                                                        
-                                                           
-                                                   
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var layout$7                          = new Properties({
     "symbol-placement": new DataConstantProperty(spec["layout_symbol"]["symbol-placement"]),
@@ -34267,22 +34267,22 @@ var layout$7                          = new Properties({
     "text-optional": new DataConstantProperty(spec["layout_symbol"]["text-optional"]),
 });
 
-                           
-                                               
-                                            
-                                                 
-                                                  
-                                                 
-                                                             
-                                                                      
-                                               
-                                            
-                                                 
-                                                  
-                                                 
-                                                             
-                                                                      
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$7                         = new Properties({
     "icon-opacity": new DataDrivenProperty(spec["paint_symbol"]["icon-opacity"]),
@@ -34304,11 +34304,11 @@ var paint$7                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$6 = ({ paint: paint$7, layout: layout$7 }          
-                                                                
+var properties$6 = ({ paint: paint$7, layout: layout$7 }
+
   );
 
-//      
+//
 
 // This is an internal expression class. It is only used in GL JS and
 // has GL JS dependencies which can break the standalone style-spec module
@@ -34351,7 +34351,7 @@ FormatSectionOverride.prototype.serialize = function serialize () {
 
 register('FormatSectionOverride', FormatSectionOverride, {omit: ['defaultValue']});
 
-//      
+//
 
 var SymbolStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function SymbolStyleLayer(layer                    ) {
@@ -34510,18 +34510,18 @@ var SymbolStyleLayer = /*@__PURE__*/(function (StyleLayer) {
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
-
-                                                                         
-
-                                                                                  
 
 
-                           
-                                                    
-                                                            
-                                                       
-   
+
+
+
+
+
+
+
+
+
+
 
 var paint$8                         = new Properties({
     "background-color": new DataConstantProperty(spec["paint_background"]["background-color"]),
@@ -34532,14 +34532,14 @@ var paint$8                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$7 = ({ paint: paint$8 }          
-                               
+var properties$7 = ({ paint: paint$8 }
+
   );
 
-//      
+//
 
-                                                                    
-                                                               
+
+
 
 var BackgroundStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function BackgroundStyleLayer(layer                    ) {
@@ -34555,23 +34555,23 @@ var BackgroundStyleLayer = /*@__PURE__*/(function (StyleLayer) {
 
 // This file is generated. Edit build/generate-style-code.js, then run `yarn run codegen`.
 
-                                                     
-
-                                                                         
-
-                                                                                  
 
 
-                           
-                                                   
-                                                      
-                                                          
-                                                          
-                                                      
-                                                    
-                                                                    
-                                                         
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var paint$9                         = new Properties({
     "raster-opacity": new DataConstantProperty(spec["paint_raster"]["raster-opacity"]),
@@ -34587,14 +34587,14 @@ var paint$9                         = new Properties({
 // Note: without adding the explicit type annotation, Flow infers weaker types
 // for these objects from their use in the constructor to StyleLayer, as
 // {layout?: Properties<...>, paint: Properties<...>}
-var properties$8 = ({ paint: paint$9 }          
-                               
+var properties$8 = ({ paint: paint$9 }
+
   );
 
-//      
+//
 
-                                                                
-                                                               
+
+
 
 var RasterStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     function RasterStyleLayer(layer                    ) {
@@ -34608,9 +34608,9 @@ var RasterStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     return RasterStyleLayer;
 }(StyleLayer));
 
-//      
+//
 
-                                                                                     
+
 
 /**
  * Interface for custom style layers. This is a specification for
@@ -34751,15 +34751,15 @@ var RasterStyleLayer = /*@__PURE__*/(function (StyleLayer) {
  * lengths in mercator units would be rendered as a cube. {@link MercatorCoordinate}.fromLatLng
  * can be used to project a `LngLat` to a mercator coordinate.
  */
-                                    
-               
-                   
-                               
-                               
-                                   
-                                                          
-                                                            
- 
+
+
+
+
+
+
+
+
+
 
 function validateCustomStyleLayer(layerObject                      ) {
     var errors = [];
@@ -34829,10 +34829,10 @@ var CustomStyleLayer = /*@__PURE__*/(function (StyleLayer) {
     return CustomStyleLayer;
 }(StyleLayer));
 
-//      
-                                                                           
+//
 
-                                                            
+
+
 
 var subclasses = {
     circle: CircleStyleLayer,
@@ -34854,43 +34854,43 @@ function createStyleLayer(layer                                           ) {
     }
 }
 
-//      
+//
 var HTMLImageElement = window$1.HTMLImageElement;
 var HTMLCanvasElement = window$1.HTMLCanvasElement;
 var HTMLVideoElement = window$1.HTMLVideoElement;
 var ImageData$1 = window$1.ImageData;
 var ImageBitmap$1 = window$1.ImageBitmap;
 
-                                         
-                                                         
 
-                           
-                                                  
-                                                    
-                           
-                                                    
-                                                                   
-                                                      
-                         
-                                                    
-                                                           
-                                                              
 
-                   
-                  
-                   
-              
- 
 
-                          
-               
-                
-                      
-                       
-                      
-               
-                
-                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var Texture = function Texture(context     , image          , format           , options                                             ) {
     this.context = context;
@@ -34973,7 +34973,7 @@ Texture.prototype.destroy = function destroy () {
     this.texture = (null );
 };
 
-//      
+//
 
 /**
  * Invokes the wrapped function in a non-blocking way when trigger() is called. Invocation requests
@@ -35016,10 +35016,10 @@ ThrottledInvoker.prototype.remove = function remove () {
     this._callback = function () {};
 };
 
-//      
+//
 
-                                                        
-                                                    
+
+
 
 /**
  * An implementation of the [Actor design pattern](http://en.wikipedia.org/wiki/Actor_model)
@@ -35290,9 +35290,9 @@ function getMercCoords(x, y, z) {
     return [merc_x, merc_y];
 }
 
-//      
+//
 
-                                          
+
 
 /**
  * A `LngLatBounds` object represents a geographical bounding box,
@@ -35544,7 +35544,7 @@ LngLatBounds.convert = function convert (input              )           {
     return new LngLatBounds(input);
 };
 
-//      
+//
 
 /*
 * Approximate radius of the earth in meters.
@@ -35693,8 +35693,8 @@ LngLat.convert = function convert (input        )     {
     throw new Error("`LngLatLike` argument must be specified as a LngLat instance, an object {lng: <lng>, lat: <lat>}, an object {lon: <lng>, lat: <lat>}, or an array of [<lng>, <lat>]");
 };
 
-//      
-                                               
+//
+
 
 /*
  * The average circumference of the world in meters.
@@ -35837,7 +35837,7 @@ MercatorCoordinate.prototype.meterInMercatorCoordinateUnits = function meterInMe
     return 1 / earthCircumfrence * mercatorScale(latFromMercatorY(this.y));
 };
 
-//      
+//
 
 var CanonicalTileID = function CanonicalTileID(z    , x    , y    ) {
     assert_1(z >= 0 && z <= 25);
@@ -36008,7 +36008,7 @@ function getQuadkey(z, x, y) {
 register('CanonicalTileID', CanonicalTileID);
 register('OverscaledTileID', OverscaledTileID, {omit: ['posMatrix']});
 
-//      
+//
 
 // DEMData is a data structure for decoding, backfilling, and storing elevation data for processing in the hillshade shaders
 // data can be populated either from a pngraw image tile or from serliazed data sent back from a worker. When data is initially
@@ -36120,53 +36120,53 @@ DEMData.prototype.backfillBorder = function backfillBorder (borderTile     , dx 
 
 register('DEMData', DEMData);
 
-//      
+//
 
-                                                     
-                                        
-                                                                            
-                                                
-                                         
-                                                          
-                                                         
-                                                       
 
-                                                        
-                  
-                         
-                 
-                       
-                        
-                                         
-                             
-                    
- 
 
-                                  
-                               
-                         
-                            
-                          
-                                  
- 
 
-                              
-                               
-                        
-                  
-                             
- 
 
-                              
-                  
-                             
-                                  
-                       
-                    
-             
-                                                                            
-                    
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * The `Bucket` interface is the single point of knowledge about turning vector
@@ -36191,28 +36191,28 @@ register('DEMData', DEMData);
  *
  * @private
  */
-                         
-                            
-                        
-                        
-                                      
-                                           
-                                                                                                             
-                                                                                                                
-                       
 
-                                   
-                             
 
-       
-                                                                                 
-                                                                                
-                                                                                   
-      
-               
-       
-                    
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function deserialize$1(input               , style       )                        {
     var output = {};
@@ -36272,8 +36272,8 @@ DictionaryCoder.prototype.decode = function decode (n    ) {
     return this._numberToString[n];
 };
 
-//      
-                                                           
+//
+
 
 var Feature = function Feature(vectorTileFeature               , z    , x    , y    , id                    ) {
     this.type = 'Feature';
@@ -36316,11 +36316,11 @@ Feature.prototype.toJSON = function toJSON () {
 
 Object.defineProperties( Feature.prototype, prototypeAccessors$1 );
 
-//      
-                                                           
+//
 
-                                                                 
-                                                                  
+
+
+
 
 /**
  * SourceFeatureState manages the state and pending changes
@@ -36467,22 +36467,22 @@ SourceFeatureState.prototype.coalesceChanges = function coalesceChanges (tiles  
     }
 };
 
-//      
+//
 
-                        
-                  
-                                 
-                         
-                     
-                                
-                                      
-                         
-             
-                                    
-                              
-                                      
-     
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var FeatureIndex = function FeatureIndex(tileID              , promoteId                      ) {
     this.tileID = tileID;
@@ -36753,32 +36753,32 @@ function topDownFeatureComparator(a, b) {
     return b - a;
 }
 
-//      
+//
 
 var CLOCK_SKEW_RETRY_TIMEOUT = 30000;
 
-                                           
-                                                   
-                                                      
-                                       
-                                            
-                                              
-                                                    
-                                                        
-                                         
-                                                
-                                                 
-                                              
-                                                       
-                                                    
-                                                             
 
-                       
-                                                            
-                                                                     
-                                                                                          
-                                                
-                                                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   /* Tile data was previously loaded, but has expired per its
                    * HTTP headers and is in the process of refreshing. */
 
@@ -37155,17 +37155,17 @@ Tile.prototype.hasDependency = function hasDependency (namespaces           , ke
 
 var refProperties = ['type', 'source', 'source-layer', 'minzoom', 'maxzoom', 'filter', 'layout'];
 
-//      
-                                                    
+//
+
 
 var performance = window$1.performance;
 
-                                  
-                     
-                         
-                
-                                
- 
+
+
+
+
+
+
 
 var PerformanceMarkers = {
     create: 'create',
@@ -37502,13 +37502,13 @@ function groupByLayout(layers, cachedKeys) {
     return result;
 }
 
-//      
+//
 
-                                                                     
-                                                            
 
-                                                              
-                                                          
+
+
+
+
 
 var StyleLayerIndex = function StyleLayerIndex(layerConfigs                        ) {
     this.keyCache = {};
@@ -37574,25 +37574,25 @@ StyleLayerIndex.prototype.update = function update (layerConfigs                
     }
 };
 
-//      
+//
 
-                                                                   
+
 
 var padding = 1;
 
-                    
-              
-              
-              
-             
-  
 
-                             
-               
-                         
-  
 
-                                                                          
+
+
+
+
+
+
+
+
+
+
+
 
 var GlyphAtlas = function GlyphAtlas(stacks                                           ) {
       var positions = {};
@@ -37639,19 +37639,19 @@ var GlyphAtlas = function GlyphAtlas(stacks                                     
 
 performance.register('GlyphAtlas', GlyphAtlas);
 
-//      
+//
 
-                                           
-                                       
-                                                   
-                                                              
-                                                     
-                                                     
-             
-                         
-                       
-                                 
-                                                                
+
+
+
+
+
+
+
+
+
+
+
 
 var WorkerTile = function WorkerTile(params                  ) {
     this.tileID = new performance.OverscaledTileID(params.tileID.overscaledZ, params.tileID.wrap, params.tileID.canonical.z, params.tileID.canonical.x, params.tileID.canonical.y);
@@ -37830,26 +37830,26 @@ function recalculateLayers(layers                            , zoom        , ava
     }
 }
 
-//      
+//
 
-             
-                 
-                         
-                       
-                  
-                                 
 
-                                       
-                                                              
-                                                
 
-                                    
-                           
-                         
-                  
-                       
-                                                      
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * @callback LoadVectorDataCallback
@@ -37857,10 +37857,10 @@ function recalculateLayers(layers                            , zoom        , ava
  * @param vectorTile
  * @private
  */
-                                                                     
 
-                                         
-                                                                                                                  
+
+
+
 
 /**
  * @private
@@ -38025,14 +38025,14 @@ var VectorTileWorkerSource = function VectorTileWorkerSource(actor     , layerIn
       callback();
   };
 
-//      
+//
 
-                                       
-             
-                            
-                          
-                  
-                         
+
+
+
+
+
+
 var ImageBitmap = performance.window.ImageBitmap;
 
 var RasterDEMTileWorkerSource = function RasterDEMTileWorkerSource() {
@@ -38118,22 +38118,22 @@ function rewindRing(ring, dir) {
     if (area >= 0 !== !!dir) { ring.reverse(); }
 }
 
-//      
+//
 var toGeoJSON = performance.vectorTile.VectorTileFeature.prototype.toGeoJSON;
 
 // The feature type used by geojson-vt and supercluster. Should be extracted to
 // global type and used in module definitions for those two modules.
-                
-            
-              
-                                                   
-                                      
-     
-                
-              
-                                                   
-                                             
- 
+
+
+
+
+
+
+
+
+
+
+
 
 var FeatureWrapper = function FeatureWrapper(feature     ) {
     this._feature = feature;
@@ -39935,41 +39935,41 @@ function extend$1(dest, src) {
     return dest;
 }
 
-//      
+//
 
-             
-                         
-                       
-                                 
 
-                                       
-                                                              
 
-                                                                        
-                                                                      
-                                                
-                                                          
 
-                                     
-                                
-                  
-                   
-                     
-                                 
-                              
-                              
-  
 
-                                                                                                      
 
-                               
-                                                     
 
-                           
-                                                       
-                                                          
-                                                                                       
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function loadGeoJSONTile(params                      , callback                        ) {
     var canonical = params.tileID.canonical;
@@ -40000,9 +40000,9 @@ function loadGeoJSONTile(params                      , callback                 
     });
 }
 
-                         
-                                                      
-                                                                                                             
+
+
+
                         // 'loadData' received while coalescing, trigger one more 'loadData' on receiving 'coalesced'
 
 /**
@@ -40044,8 +40044,8 @@ var GeoJSONWorkerSource = /*@__PURE__*/(function (VectorTileWorkerSource) {
      * @param callback
      * @private
      */
-    GeoJSONWorkerSource.prototype.loadData = function loadData (params                       , callback            
-                                                                         
+    GeoJSONWorkerSource.prototype.loadData = function loadData (params                       , callback
+
                               ) {
         if (this._pendingCallback) {
             // Tell the foreground the previous call has been abandoned
@@ -40283,21 +40283,21 @@ function getSuperclusterOptions(ref) {
     return superclusterOptions;
 }
 
-//      
+//
 
-             
-                 
-                         
-                            
-                       
-                          
-                  
-                                 
 
-                                                                   
-                                                
-                                                            
-                                                   
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * @private
@@ -40846,12 +40846,12 @@ DOM.remove = function(node             ) {
     }
 };
 
-//      
+//
 
-                                              
-                                                   
-                                                
-                                                    
+
+
+
+
 
 function loadSprite(baseURL        ,
                           requestManager                ,
@@ -40918,35 +40918,35 @@ function loadSprite(baseURL        ,
     };
 }
 
-//      
+//
 
-                                 
 
-                              
-                    
-                    
-                                
-                                   
-  
 
-                                  
-                       
-                 
-                                       
-                                       
-                                              
-  
 
-                                                             
 
-                                   
-                  
-                   
-                                         
-                           
-                                           
-                         
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function renderStyleImage(image            ) {
     var userImage = image.userImage;
@@ -41054,17 +41054,17 @@ function renderStyleImage(image            ) {
  * @name onRemove
  */
 
-//      
+//
 
-                                                     
-                                         
-                                 
-                                                
 
-                
-             
-                           
-  
+
+
+
+
+
+
+
+
 
 // When copied into the atlas texture, image data is padded by one pixel on each side. Icon
 // images are padded with fully transparent pixels, while pattern images are padded with a
@@ -41361,11 +41361,11 @@ var ImageManager = /*@__PURE__*/(function (Evented) {
   return ImageManager;
 }(performance.Evented));
 
-//      
+//
 
-                                              
-                                                   
-                                                
+
+
+
 
 function loadGlyphRange (fontstack        ,
                            range        ,
@@ -41505,19 +41505,19 @@ function edt1d(f, d, v, z, n) {
 }
 tinySdf.default = default_1;
 
-//      
+//
 
-                                                     
-                                                   
-                                                
 
-              
-                                                                                         
-                                              
-                                                                                   
-                                              
-                     
-  
+
+
+
+
+
+
+
+
+
+
 
 var GlyphManager = function GlyphManager(requestManager              , localIdeographFontFamily       ) {
       this.requestManager = requestManager;
@@ -41682,21 +41682,21 @@ var GlyphManager = function GlyphManager(requestManager              , localIdeo
 GlyphManager.loadGlyphRange = loadGlyphRange;
 GlyphManager.TinySDF = tinySdf;
 
-//      
+//
 
-             
-             
-                  
-                        
-                      
 
-                                                            
 
-                      
-              
-              
-             
-  
+
+
+
+
+
+
+
+
+
+
+
 
 var LightPositionProperty = function LightPositionProperty() {
       this.specification = performance.styleSpec.light.position;
@@ -41714,12 +41714,12 @@ var LightPositionProperty = function LightPositionProperty() {
       };
   };
 
-               
-                                                       
-                                      
-                                         
-                                              
-   
+
+
+
+
+
+
 
 var properties                    = new performance.Properties({
     "anchor": new performance.DataConstantProperty(performance.styleSpec.light.anchor),
@@ -41794,9 +41794,9 @@ var Light = /*@__PURE__*/(function (Evented) {
   return Light;
 }(performance.Evented));
 
-//      
+//
 
-                                         
+
 
 /**
  * A LineAtlas lets us reuse rendered dashed lines
@@ -41990,9 +41990,9 @@ LineAtlas.prototype.bind = function bind (context     ) {
     }
 };
 
-//      
+//
 
-                                            
+
 
 /**
  * Responsible for sending messages from a {@link Source} to an associated
@@ -42045,12 +42045,12 @@ Dispatcher.prototype.remove = function remove () {
 
 Dispatcher.Actor = performance.Actor;
 
-//      
+//
 
-                                                   
-                                                
-                                                
-                                                    
+
+
+
+
 
 function loadTileJSON(options     , requestManager                , callback                    )             {
     var loaded = function(err        , tileJSON         ) {
@@ -42080,9 +42080,9 @@ function loadTileJSON(options     , requestManager                , callback    
     }
 }
 
-//      
+//
 
-                                               
+
 
 var TileBounds = function TileBounds(bounds                              , minzoom     , maxzoom     ) {
     this.bounds = performance.LngLatBounds.convert(this.validateBounds(bounds));
@@ -42108,16 +42108,16 @@ TileBounds.prototype.contains = function contains (tileID             ) {
     return hit;
 };
 
-//      
+//
 
-                                     
-                                                
-                                 
-                                                 
-                               
-                                                
-                                                    
-                                                                                           
+
+
+
+
+
+
+
+
 
 var VectorTileSource = /*@__PURE__*/(function (Evented) {
     function VectorTileSource(id        , options                                                              , dispatcher            , eventedParent         ) {
@@ -42276,19 +42276,19 @@ var VectorTileSource = /*@__PURE__*/(function (Evented) {
     return VectorTileSource;
 }(performance.Evented));
 
-//      
+//
 
-                                     
-                                                
-                                 
-                                                 
-                               
-                                                
-                                                    
-             
-                              
-                                
-                             
+
+
+
+
+
+
+
+
+
+
+
 
 var RasterTileSource = /*@__PURE__*/(function (Evented) {
     function RasterTileSource(id        , options                                                          , dispatcher            , eventedParent         ) {
@@ -42424,13 +42424,13 @@ var RasterTileSource = /*@__PURE__*/(function (Evented) {
     return RasterTileSource;
 }(performance.Evented));
 
-//      
+//
 
-                                     
-                                                 
-                               
-                                                
-                                                                      
+
+
+
+
+
 
 var RasterDEMTileSource = /*@__PURE__*/(function (RasterTileSource) {
     function RasterDEMTileSource(id        , options                              , dispatcher            , eventedParent         ) {
@@ -42553,16 +42553,16 @@ var RasterDEMTileSource = /*@__PURE__*/(function (RasterTileSource) {
     return RasterDEMTileSource;
 }(RasterTileSource));
 
-//      
+//
 
-                                     
-                                 
-                                                 
-                               
-                                       
-                                                
-                                                                   
-                                                                                            
+
+
+
+
+
+
+
+
 
 /**
  * A source containing GeoJSON.
@@ -42905,28 +42905,28 @@ var GeoJSONSource = /*@__PURE__*/(function (Evented) {
     return GeoJSONSource;
 }(performance.Evented));
 
-//      
+//
 
 var rasterBoundsAttributes = performance.createLayout([
     {name: 'a_pos', type: 'Int16', components: 2},
     {name: 'a_texture_pos', type: 'Int16', components: 2}
 ]);
 
-//      
+//
 
-                                     
-                                                               
-                                 
-                                                 
-                               
-                                                
-                                                    
-             
-                             
-                            
-                             
 
-                                                                                            
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * A data source containing an image.
@@ -43199,12 +43199,12 @@ function getCoordinatesCenterTileID(coords                           ) {
             Math.floor((minY + maxY) / 2 * tilesAtZoom));
 }
 
-//      
+//
 
-                                 
-                                                 
-                                             
-                                                                  
+
+
+
+
 
 /**
  * A data source containing video.
@@ -43394,18 +43394,18 @@ var VideoSource = /*@__PURE__*/(function (ImageSource) {
     return VideoSource;
 }(ImageSource));
 
-//      
+//
 
-                                 
-                                                 
-                                             
 
-                                          
-                     
-                                                                                            
-                        
-                                        
-   
+
+
+
+
+
+
+
+
+
 
 /**
  * Options to add a canvas source type to the map.
@@ -43618,9 +43618,9 @@ var CanvasSource = /*@__PURE__*/(function (ImageSource) {
    return CanvasSource;
 }(ImageSource));
 
-//      
+//
 
-                                                             
+
 
 var sourceTypes = {
     vector: VectorTileSource,
@@ -43661,7 +43661,7 @@ var setType = function (name        , type               ) {
     sourceTypes[name] = type;
 };
 
-//      
+//
 
 /*
  * Returns a matrix that can be used to convert from tile coordinates to viewport pixel coordinates.
@@ -43879,8 +43879,8 @@ function mergeRenderedFeatureLayers(tiles) {
     return result;
 }
 
-//      
-                               
+//
+
 
 /**
  * A [least-recently-used cache](http://en.wikipedia.org/wiki/Cache_algorithms)
@@ -44086,11 +44086,11 @@ TileCache.prototype.filter = function filter (filterFn                     ) {
     }
 };
 
-//      
+//
 
-                                                      
-                                                                                                      
-                                         
+
+
+
 
 var IndexBuffer = function IndexBuffer(context     , array                                                       , dynamicDraw      ) {
     this.context = context;
@@ -44133,15 +44133,15 @@ IndexBuffer.prototype.destroy = function destroy () {
     }
 };
 
-//      
+//
 
-             
-                
-                     
-                              
 
-                                             
-                                         
+
+
+
+
+
+
 
 /**
  * @enum {string} AttributeType
@@ -44236,32 +44236,32 @@ VertexBuffer.prototype.destroy = function destroy () {
     }
 };
 
-//      
+//
 
-                                     
-             
-                  
-                      
-                  
-                   
-                  
-                    
-                  
-                  
-                    
-                 
-                     
-                  
-                 
 
-                           
-               
-               
-                   
-             
-                       
-                        
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var BaseValue = function BaseValue(context     ) {
     this.gl = context.gl;
@@ -45075,9 +45075,9 @@ var DepthAttachment = /*@__PURE__*/(function (FramebufferAttachment) {
     return DepthAttachment;
 }(FramebufferAttachment));
 
-//      
+//
 
-                                     
+
 
 var Framebuffer = function Framebuffer(context     , width    , height    , hasDepth     ) {
     this.context = context;
@@ -45107,8 +45107,8 @@ Framebuffer.prototype.destroy = function destroy () {
     gl.deleteFramebuffer(this.framebuffer);
 };
 
-//      
-                                                                          
+//
+
 
 var ALWAYS = 0x0207;
 
@@ -45123,8 +45123,8 @@ DepthMode.ReadWrite = true;
 
 DepthMode.disabled = new DepthMode(ALWAYS, DepthMode.ReadOnly, [0, 1]);
 
-//      
-                                                            
+//
+
 
 var ALWAYS$1 = 0x0207;
 var KEEP = 0x1E00;
@@ -45141,9 +45141,9 @@ var StencilMode = function StencilMode(test         , ref    , mask    , fail   
 
 StencilMode.disabled = new StencilMode({func: ALWAYS$1, mask: 0}, 0, 0, KEEP, KEEP, KEEP);
 
-//      
+//
 
-                                                          
+
 
 var ZERO = 0x0000;
 var ONE = 0x0001;
@@ -45161,9 +45161,9 @@ ColorMode.disabled = new ColorMode(ColorMode.Replace, performance.Color.transpar
 ColorMode.unblended = new ColorMode(ColorMode.Replace, performance.Color.transparent, [true, true, true, true]);
 ColorMode.alphaBlended = new ColorMode([ONE, ONE_MINUS_SRC_ALPHA], performance.Color.transparent, [true, true, true, true]);
 
-//      
+//
 
-                                                             
+
 
 var BACK = 0x0405;
 var CCW = 0x0901;
@@ -45177,20 +45177,20 @@ var CullFaceMode = function CullFaceMode(enable     , mode              , frontF
 CullFaceMode.disabled = new CullFaceMode(false, BACK, CCW);
 CullFaceMode.backCCW = new CullFaceMode(true, BACK, CCW);
 
-//      
+//
 
-                                                                                                      
-             
-                
-                     
-                              
-                                                  
 
-                  
-                  
-                   
-                    
-  
+
+
+
+
+
+
+
+
+
+
+
 
 var Context = function Context(gl                     ) {
       this.gl = gl;
@@ -45425,16 +45425,16 @@ var Context = function Context(gl                     ) {
       }
   };
 
-//      
+//
 
-                                     
-                                 
-                                        
-                                                 
-                                              
-                                      
-                                                
-                                                             
+
+
+
+
+
+
+
+
 
 /**
  * `SourceCache` is responsible for
@@ -45726,7 +45726,7 @@ var SourceCache = /*@__PURE__*/(function (Evented) {
         idealTiles                              ,
         zoom        ,
         maxCoveringZoom        ,
-        retain                              
+        retain
     ) {
         for (var id in this._tiles) {
             var tile = this._tiles[id];
@@ -46370,15 +46370,15 @@ function isRasterType(type) {
     return type === 'raster' || type === 'image' || type === 'video';
 }
 
-//      
+//
 
-                                                   
+
 
 function WebWorker ()                  {
     return (new performance.window.Worker(exported.workerUrl)     );
 }
 
-//      
+//
 
 var PRELOAD_POOL_ID = 'mapboxgl_preloaded_worker_pool';
 
@@ -46425,7 +46425,7 @@ WorkerPool.prototype.numActive = function numActive ()     {
 var availableLogicalProcessors = Math.floor(performance.browser.hardwareConcurrency / 2);
 WorkerPool.workerCount = Math.max(Math.min(availableLogicalProcessors, 6), 1);
 
-//      
+//
 
 var globalWorkerPool;
 
@@ -46923,7 +46923,7 @@ function diffStyles(before, after) {
     return commands;
 }
 
-//      
+//
 
 var PathInterpolator = function PathInterpolator(points_           , padding_     ) {
     this.reset(points_, padding_);
@@ -46971,7 +46971,7 @@ PathInterpolator.prototype.lerp = function lerp (t    )    {
     return this.points[idxOfPrevPoint].mult(1.0 - segmentT).add(this.points[currentIndex].mult(segmentT));
 };
 
-//      
+//
 
 /**
  * GridIndex is a data structure for testing the intersection of
@@ -47296,7 +47296,7 @@ GridIndex.prototype._circleAndRectCollide = function _circleAndRectCollide (circ
     return (dx * dx + dy * dy <= (radius * radius));
 };
 
-//      
+//
 
 /*
  * # Overview of coordinate spaces
@@ -47732,14 +47732,14 @@ function xyTransformMat4(out      , a      , m      ) {
     return out;
 }
 
-//      
+//
 
-                                              
-                                                                     
-             
-                     
-                         
-                             
+
+
+
+
+
+
 
 // When a symbol crosses the edge that causes it to be included in
 // collision detection, it will cause changes in the symbols around
@@ -48090,9 +48090,9 @@ CollisionIndex.prototype.getViewportMatrix = function getViewportMatrix ()   {
     return m;
 };
 
-//      
+//
 
-                                                
+
 
 /**
  * Converts a pixel value at a the given zoom level to tile units.
@@ -48110,16 +48110,16 @@ function pixelsToTileUnits(tile                                              , p
     return pixelValue * (performance.EXTENT / (tile.tileSize * Math.pow(2, z - tile.tileID.overscaledZ)));
 }
 
-//      
-                                              
-                                                   
+//
 
-                                       
-                                                                                                    
-                                                                                                 
-                                                      
-                                                        
-                                                
+
+
+
+
+
+
+
+
 
 var OpacityState = function OpacityState(prevState             , increment      , placed       , skipFade        ) {
       if (prevState) {
@@ -48165,7 +48165,7 @@ var RetainedQueryData = function RetainedQueryData(bucketInstanceId      ,
       this.tileID = tileID;
   };
 
-                                                      
+
 
 var CollisionGroups = function CollisionGroups(crossSourceCollisions       ) {
       this.crossSourceCollisions = crossSourceCollisions;
@@ -48231,37 +48231,37 @@ function shiftVariableCollisionBox(collisionBox                    ,
     };
 }
 
-                              
-                                 
-                  
-                   
-                       
-                         
-                           
-  
 
-                            
-                         
-                
-                    
-                               
-                              
-                  
-                           
-                            
-                                          
-                                    
-                       
-  
 
-                          
-                            
-                                
-                              
-                                   
-  
 
-                                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var Placement = function Placement(transform         , fadeDuration      , crossSourceCollisions       , prevPlacement          ) {
       this.transform = transform.clone();
@@ -49189,13 +49189,13 @@ function packOpacity(opacityState              )         {
 
 var PACKED_HIDDEN_OPACITY = 0;
 
-//      
+//
 
-                                              
-                                            
-                                                                     
-                                       
-                                                    
+
+
+
+
+
 
 var LayerPlacement = function LayerPlacement(styleLayer              ) {
     this._sortAcrossTiles = styleLayer.layout.get('symbol-z-order') !== 'viewport-y' &&
@@ -49301,13 +49301,13 @@ PauseablePlacement.prototype.commit = function commit (now    ) {
     return this.placement;
 };
 
-//      
+//
 
-                                                        
-                                                        
-                                                             
-                                                   
-                                       
+
+
+
+
+
 
 /*
     The CrossTileSymbolIndex generally works on the assumption that
@@ -49575,33 +49575,33 @@ CrossTileSymbolIndex.prototype.pruneUnusedLayers = function pruneUnusedLayers (u
     }
 };
 
-//      
+//
 
 // We're skipping validation errors with the `source.canvas` identifier in order
 // to continue to allow canvas sources to be added at runtime/updated in
 // smart setStyle (see https://github.com/mapbox/mapbox-gl-js/pull/6424):
 var emitValidationErrors = function (evented         , errors                                                         ) { return performance.emitValidationErrors(evented, errors && errors.filter(function (error) { return error.identifier !== 'source.canvas'; })); };
 
-                                 
-                                              
-                                              
-                                              
-                                                
-                                                                
-                                                   
-                                                    
-                                                                      
-                                                   
-             
-                       
-                        
-                       
-                       
-                       
-                             
-                                                                           
-                                                
-                                                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var supportedDiffOperations = performance.pick(operations, [
     'addLayer',
@@ -49625,14 +49625,14 @@ var ignoredDiffOperations = performance.pick(operations, [
 
 var empty = emptyStyle();
 
-                            
-                       
-                                     
-  
 
-                                  
-                      
-  
+
+
+
+
+
+
+
 /**
  * @private
  */
@@ -49713,9 +49713,9 @@ var Style = /*@__PURE__*/(function (Evented) {
 
     Style.prototype.loadURL = function loadURL (url        , options) {
         var this$1 = this;
-        if ( options === void 0 ) options   
-                           
-                            
+        if ( options === void 0 ) options
+
+
       = {};
 
         this.fire(new performance.Event('dataloading', {dataType: 'style'}));
@@ -50914,7 +50914,7 @@ Style.getSourceType = getType;
 Style.setSourceType = setType;
 Style.registerForPluginStateChange = performance.registerForPluginStateChange;
 
-//      
+//
 
 var posAttributes = performance.createLayout([
     {name: 'a_pos', type: 'Int16', components: 2}
@@ -51134,12 +51134,12 @@ symbolSDF: symbolSDF,
 symbolTextAndIcon: symbolTextAndIcon
 });
 
-//      
+//
 
-                                     
-                                                    
-                                                  
-                                         
+
+
+
+
 
 var VertexArrayObject = function VertexArrayObject() {
     this.boundProgram = null;
@@ -51286,22 +51286,22 @@ VertexArrayObject.prototype.destroy = function destroy () {
     }
 };
 
-//      
+//
 
-                                                 
-                                                    
-                                                  
-                                              
-                                                  
-                                              
-                                                     
-                                                                                        
-                                                                 
 
-                      
-                                                   
-                                                       
-                                                         
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function getTokenizedAttributesAndUniforms (array               )                {
     var result = [];
@@ -51460,45 +51460,45 @@ Program$1.prototype.draw = function draw (context     ,
     }
 };
 
-//      
+//
 
-                                      
-                                                           
-                                                       
-                                                                           
-                                                      
-                                          
-                                                                                  
 
-                                       
-                         
-                                
-                                
-                                
-                                
-                           
-                       
-                                  
-                                  
-                           
-                           
-                                     
-                                     
-                                       
-   
 
-                                    
-                        
-                         
-                           
-                         
-                        
-                                     
-                                    
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function patternUniformValues(crossfade                     , painter         ,
-        tile      
+        tile
 )                                     {
 
     var tileRatio = 1 / pixelsToTileUnits(tile, 1, painter.transform.tileZoom);
@@ -51521,7 +51521,7 @@ function patternUniformValues(crossfade                     , painter         ,
 }
 
 function bgPatternUniformValues(image                           , crossfade                     , painter         ,
-        tile                                              
+        tile
 )                                               {
     var imagePosA = painter.imageManager.getPattern(image.from.toString());
     var imagePosB = painter.imageManager.getPattern(image.to.toString());
@@ -51555,40 +51555,40 @@ function bgPatternUniformValues(image                           , crossfade     
     };
 }
 
-//      
+//
 
-                                            
-                                      
-                                                           
-                                                                        
-                                                                           
-                                          
 
-                                          
-                                
-                            
-                                  
-                              
-                                     
-                          
-   
 
-                                                 
-                                
-                            
-                                  
-                              
-                                 
-                                     
-                        
-                           
-                         
-                                     
-                                     
-                         
-                        
-                          
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var fillExtrusionUniforms = function (context         , locations                  )                            { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -51620,7 +51620,7 @@ var fillExtrusionUniformValues = function (
     matrix              ,
     painter         ,
     shouldUseVerticalGradient         ,
-    opacity        
+    opacity
 )                                           {
     var light = painter.style.light;
     var _lp = light.properties.get('position');
@@ -51650,7 +51650,7 @@ var fillExtrusionPatternUniformValues = function (
     opacity        ,
     coord                  ,
     crossfade                     ,
-    tile      
+    tile
 )                                                  {
     return performance.extend(fillExtrusionUniformValues(matrix, painter, shouldUseVerticalGradient, opacity),
         patternUniformValues(crossfade, painter, tile),
@@ -51659,45 +51659,45 @@ var fillExtrusionPatternUniformValues = function (
         });
 };
 
-//      
+//
 
-                                      
-                                                                        
-                                            
-                                                                           
-                                          
 
-                                 
-                               
-   
 
-                                        
-                                
-                        
-   
 
-                                        
-                                
-                        
-                           
-                         
-                                     
-                                     
-                         
-                       
-   
 
-                                               
-                                
-                         
-                        
-                           
-                         
-                                     
-                                     
-                         
-                       
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var fillUniforms = function (context         , locations                  )                   { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix)
@@ -51738,7 +51738,7 @@ var fillPatternUniformValues = function (
     matrix              ,
     painter         ,
     crossfade                     ,
-    tile      
+    tile
 )                                         { return performance.extend(
     fillUniformValues(matrix),
     patternUniformValues(crossfade, painter, tile)
@@ -51746,7 +51746,7 @@ var fillPatternUniformValues = function (
 
 var fillOutlineUniformValues = function (
     matrix              ,
-    drawingBufferSize                  
+    drawingBufferSize
 )                                         { return ({
     'u_matrix': matrix,
     'u_world': drawingBufferSize
@@ -51757,7 +51757,7 @@ var fillOutlinePatternUniformValues = function (
     painter         ,
     crossfade                     ,
     tile      ,
-    drawingBufferSize                  
+    drawingBufferSize
 )                                                { return performance.extend(
     fillPatternUniformValues(matrix, painter, crossfade, tile),
     {
@@ -51765,16 +51765,16 @@ var fillOutlinePatternUniformValues = function (
     }
 ); };
 
-//      
+//
 
-                                   
-                                             
-                                  
-                                  
-                                 
-                                      
-                               
-   
+
+
+
+
+
+
+
+
 
 var circleUniforms = function (context         , locations                  )                     { return ({
     'u_camera_to_center_distance': new performance.Uniform1f(context, locations.u_camera_to_center_distance),
@@ -51789,7 +51789,7 @@ var circleUniformValues = function (
     painter         ,
     coord                  ,
     tile      ,
-    layer                  
+    layer
 )                                    {
     var transform = painter.transform;
 
@@ -51817,27 +51817,27 @@ var circleUniformValues = function (
     };
 };
 
-//      
+//
 
-                                            
-                                                                        
-                                                 
-                                          
 
-                                      
-                                
-                                             
-                                        
-                                 
-                                   
-   
 
-                                            
-                                
-                                    
-                                             
-                                
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var collisionUniforms = function (context         , locations                  )                        { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -51857,7 +51857,7 @@ var collisionCircleUniforms = function (context         , locations             
 var collisionUniformValues = function (
     matrix              ,
     transform           ,
-    tile      
+    tile
 )                                       {
     var pixelRatio = pixelsToTileUnits(tile, 1, transform.zoom);
     var scale = Math.pow(2, transform.zoom - tile.tileID.overscaledZ);
@@ -51875,7 +51875,7 @@ var collisionUniformValues = function (
 var collisionCircleUniformValues = function (
     matrix              ,
     invMatrix              ,
-    transform           
+    transform
 )                                             {
     return {
         'u_matrix': matrix,
@@ -51885,18 +51885,18 @@ var collisionCircleUniformValues = function (
     };
 };
 
-//      
+//
 
-                                            
-                                                                        
-                                                     
 
-                                  
-                            
-                                
-                           
-                                
-   
+
+
+
+
+
+
+
+
+
 
 var debugUniforms = function (context         , locations                  )                    { return ({
     'u_color': new performance.UniformColor(context, locations.u_color),
@@ -51916,14 +51916,14 @@ var debugUniformValues = function (matrix              , color       , scaleRati
 });
 };
 
-//      
+//
 
-                                            
-                                                                        
 
-                                         
-                               
-   
+
+
+
+
+
 
 var clippingMaskUniforms = function (context         , locations                  )                           { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix)
@@ -51933,27 +51933,27 @@ var clippingMaskUniformValues = function (matrix              )                 
     'u_matrix': matrix
 }); };
 
-//      
+//
 
-                                            
-                                          
-                                                                        
-                                      
-                                                                                 
 
-                                    
-                                 
-                             
-                               
-   
 
-                                           
-                                
-                         
-                         
-                              
-                          
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var heatmapUniforms = function (context         , locations                  )                      { return ({
     'u_extrude_scale': new performance.Uniform1f(context, locations.u_extrude_scale),
@@ -51973,7 +51973,7 @@ var heatmapUniformValues = function (
     matrix              ,
     tile      ,
     zoom        ,
-    intensity        
+    intensity
 )                                     { return ({
     'u_matrix': matrix,
     'u_extrude_scale': pixelsToTileUnits(tile, 1, zoom),
@@ -51984,7 +51984,7 @@ var heatmapTextureUniformValues = function (
     painter         ,
     layer                   ,
     textureUnit        ,
-    colorRampUnit        
+    colorRampUnit
 )                                            {
     var matrix = performance.create();
     performance.ortho(matrix, 0, painter.width, painter.height, 0, 0, 1);
@@ -52000,34 +52000,34 @@ var heatmapTextureUniformValues = function (
     };
 };
 
-//      
+//
 
-                                            
-                                                                        
-                                          
-                                      
-                                                                                     
-                                               
-                                                           
 
-                                      
-                                
-                         
-                            
-                         
-                             
-                                
-                            
-   
 
-                                             
-                                
-                         
-                             
-                        
-                           
-                         
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var hillshadeUniforms = function (context         , locations                  )                        { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -52051,7 +52051,7 @@ var hillshadePrepareUniforms = function (context         , locations            
 var hillshadeUniformValues = function (
     painter         ,
     tile      ,
-    layer                     
+    layer
 )                                       {
     var shadow = layer.paint.get("hillshade-shadow-color");
     var highlight = layer.paint.get("hillshade-highlight-color");
@@ -52075,7 +52075,7 @@ var hillshadeUniformValues = function (
 };
 
 var hillshadeUniformPrepareValues = function (
-    tileID                  , dem         , maxzoom        
+    tileID                  , dem         , maxzoom
 )                                              {
 
     var stride = dem.stride;
@@ -52103,56 +52103,56 @@ function getTileLatRange(painter         , tileID                  ) {
         new performance.MercatorCoordinate(0, (y + 1) / tilesAtZoom).toLngLat().lat];
 }
 
-//      
+//
 
-                                            
-                                                                        
-                                                 
-                                          
-                                                       
-                                                                           
-                                      
-                                                                           
 
-                                 
-                                
-                         
-                                      
-                                  
-   
 
-                                         
-                                
-                         
-                                      
-                                   
-                        
-   
 
-                                        
-                                
-                           
-                         
-                                      
-                                   
-                         
-                         
-                       
-   
 
-                                    
-                                
-                         
-                                      
-                                   
-                                  
-                                  
-                            
-                         
-                           
-                           
-                      
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var lineUniforms = function (context         , locations                  )                   { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -52197,7 +52197,7 @@ var lineSDFUniforms = function (context         , locations                  )  
 var lineUniformValues = function (
     painter         ,
     tile      ,
-    layer                
+    layer
 )                                  {
     var transform = painter.transform;
 
@@ -52215,7 +52215,7 @@ var lineUniformValues = function (
 var lineGradientUniformValues = function (
     painter         ,
     tile      ,
-    layer                
+    layer
 )                                          {
     return performance.extend(lineUniformValues(painter, tile, layer), {
         'u_image': 0
@@ -52226,7 +52226,7 @@ var linePatternUniformValues = function (
     painter         ,
     tile      ,
     layer                ,
-    crossfade                     
+    crossfade
 )                                         {
     var transform = painter.transform;
     var tileZoomRatio = calculateTileRatio(tile, transform);
@@ -52251,7 +52251,7 @@ var lineSDFUniformValues = function (
     tile      ,
     layer                ,
     dasharray                           ,
-    crossfade                     
+    crossfade
 )                                     {
     var transform = painter.transform;
     var lineAtlas = painter.lineAtlas;
@@ -52289,27 +52289,27 @@ function calculateMatrix(painter, tile, layer) {
     );
 }
 
-//      
+//
 
-                                            
-                                                                        
-                                                                               
 
-                                   
-                                
-                             
-                                
-                                
-                          
-                           
-                          
-                          
-                                  
-                                   
-                                     
-                                   
-                               
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var rasterUniforms = function (context         , locations                  )                     { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -52332,7 +52332,7 @@ var rasterUniformValues = function (
     parentTL                  ,
     parentScaleBy        ,
     fade                                ,
-    layer                  
+    layer
 )                                    { return ({
     'u_matrix': matrix,
     'u_tl_parent': parentTL,
@@ -52372,76 +52372,76 @@ function saturationFactor(saturation) {
         -saturation;
 }
 
-//      
+//
 
-                                            
-                                      
-                                                                        
 
-                                       
-                                         
-                                            
-                          
-                        
-                                             
-                         
-                                 
-                                
-                               
-                                
-                                            
-                                      
-                           
-                                  
-                           
-                          
-   
 
-                                      
-                                         
-                                            
-                          
-                        
-                                             
-                         
-                                 
-                                
-                               
-                                
-                                            
-                                      
-                           
-                                  
-                           
-                           
-                               
-                                      
-                          
-   
 
-                                              
-                                         
-                                            
-                          
-                        
-                                             
-                         
-                                 
-                                
-                               
-                                
-                                            
-                                      
-                           
-                                  
-                           
-                                
-                           
-                                
-                               
-                                      
-                          
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var symbolIconUniforms = function (context         , locations                  )                         { return ({
     'u_is_size_zoom_constant': new performance.Uniform1i(context, locations.u_is_size_zoom_constant),
@@ -52518,7 +52518,7 @@ var symbolIconUniformValues = function (
     labelPlaneMatrix              ,
     glCoordMatrix              ,
     isText         ,
-    texSize                  
+    texSize
 )                                        {
     var transform = painter.transform;
 
@@ -52553,7 +52553,7 @@ var symbolSDFUniformValues = function (
     glCoordMatrix              ,
     isText         ,
     texSize                  ,
-    isHalo         
+    isHalo
 )                                       {
     var transform = painter.transform;
 
@@ -52576,7 +52576,7 @@ var symbolTextAndIconUniformValues = function (
     labelPlaneMatrix              ,
     glCoordMatrix              ,
     texSizeSDF                  ,
-    texSizeIcon                  
+    texSizeIcon
 )                                        {
     return performance.extend(symbolSDFUniformValues(functionType, size,
         rotateInShader, pitchWithMap, painter, matrix, labelPlaneMatrix,
@@ -52586,42 +52586,42 @@ var symbolTextAndIconUniformValues = function (
     });
 };
 
-//      
+//
 
-                                      
-                                                                        
-                                            
-                                                     
-                                                       
-                                                                           
-                                                           
-                                                                                  
 
-                                       
-                                
-                           
-                           
-   
 
-                                              
-                                
-                           
-                        
-                         
-                                
-                                
-                                
-                                
-                           
-                       
-                                  
-                                  
-                           
-                           
-                                     
-                                     
-                                       
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var backgroundUniforms = function (context         , locations                  )                         { return ({
     'u_matrix': new performance.UniformMatrix4f(context, locations.u_matrix),
@@ -52651,7 +52651,7 @@ var backgroundPatternUniforms = function (context         , locations           
 var backgroundUniformValues = function (
     matrix              ,
     opacity        ,
-    color       
+    color
 )                                        { return ({
     'u_matrix': matrix,
     'u_opacity': opacity,
@@ -52664,7 +52664,7 @@ var backgroundPatternUniformValues = function (
     painter         ,
     image                           ,
     tile                                              ,
-    crossfade                     
+    crossfade
 )                                               { return performance.extend(
     bgPatternUniformValues(image, crossfade, painter, tile),
     {
@@ -52673,7 +52673,7 @@ var backgroundPatternUniformValues = function (
     }
 ); };
 
-//      
+//
 
 var programUniforms = {
     fillExtrusion: fillExtrusionUniforms,
@@ -52703,14 +52703,14 @@ var programUniforms = {
     backgroundPattern: backgroundPatternUniforms
 };
 
-//      
+//
 
-                  
-                               
-                         
-                    
-                      
-  
+
+
+
+
+
+
 
 var quadTriangles                    ;
 
@@ -52861,24 +52861,24 @@ function createQuadTriangles(quadCount        )                    {
     return array;
 }
 
-//      
+//
 var identityMat4 = performance.identity(new Float32Array(16));
 
-                              
-                            
-                    
-            
-                     
-                               
-                           
-                              
-                                         
-                                
-                                    
-                       
-                        
-     
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function drawSymbols(painter         , sourceCache             , layer                  , coords                         , variableOffsets                                    ) {
     if (painter.renderPass !== 'translucent') { return; }
@@ -53231,21 +53231,21 @@ function drawSymbolElements(buffers, segments, layer, painter, program, depthMod
         buffers.dynamicLayoutVertexBuffer, buffers.opacityVertexBuffer);
 }
 
-//      
+//
 
-                        
-                                               
-                        
-                                     
-                             
-                                                    
-  
 
-                                
-                            
-                    
-                          
-  
+
+
+
+
+
+
+
+
+
+
+
+
 
 function drawCircles(painter         , sourceCache             , layer                  , coords                         ) {
     if (painter.renderPass !== 'translucent') { return; }
@@ -53334,7 +53334,7 @@ function drawCircles(painter         , sourceCache             , layer          
     }
 }
 
-//      
+//
 
 function drawHeatmap(painter         , sourceCache             , layer                   , coords                         ) {
     if (layer.paint.get('heatmap-opacity') === 0) {
@@ -53450,13 +53450,13 @@ function renderTextureToMap(painter, layer) {
         painter.viewportSegments, layer.paint, painter.transform.zoom);
 }
 
-//      
+//
 
-                                     
-                                                      
-                                                                        
-                                                         
-                                                        
+
+
+
+
+
 
 function drawLine(painter         , sourceCache             , layer                , coords                         ) {
     if (painter.renderPass !== 'translucent') { return; }
@@ -53541,7 +53541,7 @@ function drawLine(painter         , sourceCache             , layer             
     }
 }
 
-//      
+//
 
 function drawFill(painter         , sourceCache             , layer                , coords                         ) {
     var color = layer.paint.get('fill-color');
@@ -53650,7 +53650,7 @@ function drawFillTiles(painter, sourceCache, layer, coords, depthMode, colorMode
     }
 }
 
-//      
+//
 
 function draw(painter         , source             , layer                         , coords                         ) {
     var opacity = layer.paint.get('fill-extrusion-opacity');
@@ -53731,7 +53731,7 @@ function drawExtrusionTiles(painter, source, layer, coords, depthMode, stencilMo
     }
 }
 
-//      
+//
 
 function drawHillshade(painter         , sourceCache             , layer                     , tileIDs                         ) {
     if (painter.renderPass !== 'offscreen' && painter.renderPass !== 'translucent') { return; }
@@ -53828,7 +53828,7 @@ function prepareHillshade(painter, tile, layer, sourceMaxZoom, depthMode, stenci
     }
 }
 
-//      
+//
 
 function drawRaster(painter         , sourceCache             , layer                  , tileIDs                         ) {
     if (painter.renderPass !== 'translucent') { return; }
@@ -53942,7 +53942,7 @@ function getFadeValues(tile, parentTile, sourceCache, layer, transform) {
     }
 }
 
-//      
+//
 
 function drawBackground(painter         , sourceCache             , layer                      ) {
     var color = layer.paint.get('background-color');
@@ -53988,7 +53988,7 @@ function drawBackground(painter         , sourceCache             , layer       
     }
 }
 
-//      
+//
 
 var topColor = new performance.Color(1, 0, 0, 1);
 var btmColor = new performance.Color(0, 1, 0, 1);
@@ -54102,11 +54102,11 @@ function drawTextToOverlay(painter         , text        ) {
     painter.debugOverlayTexture.bind(gl.LINEAR, gl.CLAMP_TO_EDGE);
 }
 
-//      
+//
 
-                                     
-                                                      
-                                                                            
+
+
+
 
 function drawCustom(painter         , sourceCache             , layer                  ) {
 
@@ -54147,7 +54147,7 @@ function drawCustom(painter         , sourceCache             , layer           
     }
 }
 
-//      
+//
 
 var draw$1 = {
     symbol: drawSymbols,
@@ -54163,32 +54163,32 @@ var draw$1 = {
     custom: drawCustom
 };
 
-                                              
-                                       
-                                                        
-                                        
-                                                   
-                                                    
-                                          
-                                                
-                                                
-                                                    
-                                                  
-                                                                              
-                                                                               
 
-                                                                
 
-                       
-                                   
-                                
-                         
-                      
-                     
-                    
-                       
-                        
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Initialize a new painter object.
@@ -54730,7 +54730,7 @@ Painter.prototype.destroy = function destroy () {
     }
 };
 
-//      
+//
 
 var Frustum = function Frustum(points_                  , planes_                  ) {
     this.points = points_;
@@ -54858,7 +54858,7 @@ Aabb.prototype.intersects = function intersects (frustum     )     {
     return 1;
 };
 
-//      
+//
 
 /**
  * An `EdgeInset` object represents screen space padding applied to the edges of the viewport.
@@ -54952,8 +54952,8 @@ EdgeInsets.prototype.toJSON = function toJSON ()             {
     };
 };
 
-//      
-                                                  
+//
+
 
 /**
  * A single transform, generally used for a single tile to be
@@ -55219,14 +55219,14 @@ Transform.prototype.getVisibleUnwrappedCoordinates = function getVisibleUnwrappe
  * @private
  */
 Transform.prototype.coveringTiles = function coveringTiles (
-    options   
-                             
-                             
-                             
-                                
-                                        
-                                       
-         
+    options
+
+
+
+
+
+
+
 )                      {
     var z = this.coveringZoomLevel(options);
     var actualZ = z;
@@ -55771,9 +55771,9 @@ function throttle(fn            , time        )                   {
     };
 }
 
-//      
+//
 
-                             
+
 
 /*
  * Adds the map's position to its page's location hash.
@@ -55908,8 +55908,8 @@ Hash.prototype._updateHashUnthrottled = function _updateHashUnthrottled () {
     }
 };
 
-//      
-                                                            
+//
+
 
 var defaultInertiaOptions = {
     linearity: 0.3,
@@ -55936,14 +55936,14 @@ var defaultPitchInertiaOptions = performance.extend({
     maxSpeed: 90
 }, defaultInertiaOptions);
 
-                              
-                      
-                                  
-                         
-                     
-  
 
-                                                                              
+
+
+
+
+
+
+
 
 var HandlerInertia = function HandlerInertia(map   ) {
       this._map = map;
@@ -56062,10 +56062,10 @@ function calculateEasing(amount, inertiaDuration        , inertiaOptions) {
     };
 }
 
-//      
+//
 
-                             
-                                         
+
+
 
 /**
  * `MapMouseEvent` is the event type for mouse-related map events.
@@ -56194,13 +56194,13 @@ var MapWheelEvent = /*@__PURE__*/(function (Event) {
  * @property {string} type The type of boxzoom event. One of `boxzoomstart`, `boxzoomend` or `boxzoomcancel`
  * @property {Map} target The `Map` instance that triggerred the event
  */
-                               
-                        
-                      
-                          
-                
-                             
-  
+
+
+
+
+
+
+
 
 /**
  * A `MapDataEvent` object is emitted with the {@link Map.event:data}
@@ -56231,8 +56231,8 @@ var MapWheelEvent = /*@__PURE__*/(function (Event) {
  * });
  */
 
-//      
-                              
+//
+
 
 var MapEventHandler = function MapEventHandler(map , options                        ) {
     this._map = map;
@@ -56373,16 +56373,16 @@ BlockableMapEventHandler.prototype.isActive = function isActive () {
 BlockableMapEventHandler.prototype.enable = function enable () {};
 BlockableMapEventHandler.prototype.disable = function disable () {};
 
-//      
+//
 
-                              
+
 
 /**
  * The `BoxZoomHandler` allows the user to zoom the map to fit within a bounding box.
  * The bounding box is defined by clicking and holding `shift` while dragging the cursor.
  */
-var BoxZoomHandler = function BoxZoomHandler(map , options   
-                              
+var BoxZoomHandler = function BoxZoomHandler(map , options
+
  ) {
     this._map = map;
     this._el = map.getCanvasContainer();
@@ -56521,7 +56521,7 @@ BoxZoomHandler.prototype._fireEvent = function _fireEvent (type    , e   ) {
     return this._map.fire(new performance.Event(type, {originalEvent: e}));
 };
 
-//      
+//
 
 function indexTouches(touches              , points              ) {
     performance.assert(touches.length === points.length);
@@ -56532,7 +56532,7 @@ function indexTouches(touches              , points              ) {
     return obj;
 }
 
-//      
+//
 
 function getCentroid(points              ) {
     var sum = new performance.Point(0, 0);
@@ -56646,9 +56646,9 @@ TapRecognizer.prototype.touchend = function touchend (e        , points         
     }
 };
 
-//      
-                                                
-                              
+//
+
+
 
 var TapZoomHandler = function TapZoomHandler() {
     this._zoomIn = new TapRecognizer({
@@ -56732,8 +56732,8 @@ TapZoomHandler.prototype.isActive = function isActive () {
     return this._active;
 };
 
-//      
-                                                
+//
+
 
 var LEFT_BUTTON = 0;
 var RIGHT_BUTTON = 2;
@@ -56916,7 +56916,7 @@ var MousePitchHandler = /*@__PURE__*/(function (MouseHandler) {
     return MousePitchHandler;
 }(MouseHandler));
 
-//      
+//
 
 var TouchPanHandler = function TouchPanHandler(options                        ) {
     this._minTouches = 1;
@@ -57005,7 +57005,7 @@ TouchPanHandler.prototype.isActive = function isActive () {
     return this._active;
 };
 
-//      
+//
 
 var TwoTouchHandler = function TwoTouchHandler() {
     this.reset();
@@ -57283,9 +57283,9 @@ var TouchPitchHandler = /*@__PURE__*/(function (TwoTouchHandler) {
     return TouchPitchHandler;
 }(TwoTouchHandler));
 
-//      
+//
 
-                              
+
 
 var defaultOptions = {
     panStep: 100,
@@ -57422,11 +57422,11 @@ function easeOut(t        ) {
     return t * (2 - t);
 }
 
-//      
+//
 
-                              
-                                                     
-                                                
+
+
+
 
 // deltaY value for mouse scroll wheel identification
 var wheelZoomDelta = 4.000244140625;
@@ -57736,10 +57736,10 @@ ScrollZoomHandler.prototype.reset = function reset () {
     this._active = false;
 };
 
-//      
+//
 
-                                                  
-                                                
+
+
 
 /**
  * The `DoubleClickZoomHandler` allows the user to zoom the map at a point by
@@ -57790,10 +57790,10 @@ DoubleClickZoomHandler.prototype.isActive = function isActive () {
     return this._clickZoom.isActive() || this._tapZoom.isActive();
 };
 
-//      
+//
 
-                                                
-                              
+
+
 
 var ClickZoomHandler = function ClickZoomHandler() {
     this.reset();
@@ -57833,8 +57833,8 @@ ClickZoomHandler.prototype.isActive = function isActive () {
     return this._active;
 };
 
-//      
-                                                
+//
+
 
 var TapDragZoomHandler = function TapDragZoomHandler() {
 
@@ -57925,17 +57925,17 @@ TapDragZoomHandler.prototype.isActive = function isActive () {
     return this._active;
 };
 
-//      
+//
 
-                                              
-                                                  
 
-                              
-                       
-                                   
-                          
-                      
-  
+
+
+
+
+
+
+
+
 
 /**
  * The `DragPanHandler` allows the user to pan the map by clicking and dragging
@@ -58003,9 +58003,9 @@ var DragPanHandler = function DragPanHandler(el           , mousePan            
       return this._mousePan.isActive() || this._touchPan.isActive();
   };
 
-//      
+//
 
-                                                                    
+
 
 /**
  * The `DragRotateHandler` allows the user to rotate the map by clicking and
@@ -58057,10 +58057,10 @@ DragRotateHandler.prototype.isActive = function isActive () {
     return this._mouseRotate.isActive() || this._mousePitch.isActive();
 };
 
-//      
+//
 
-                                                                               
-                                                       
+
+
 
 /**
  * The `TouchZoomRotateHandler` allows the user to zoom and rotate the map by
@@ -58153,9 +58153,9 @@ TouchZoomRotateHandler.prototype.enableRotation = function enableRotation () {
     if (this._touchZoom.isEnabled()) { this._touchRotate.enable(); }
 };
 
-//      
+//
 
-                                                                              
+
 
 var isMoving = function (p) { return p.zoom || p.drag || p.pitch || p.rotate; };
 
@@ -58166,7 +58166,7 @@ var RenderFrameEvent = /*@__PURE__*/(function (Event) {
    RenderFrameEvent.prototype = Object.create( Event && Event.prototype );
    RenderFrameEvent.prototype.constructor = RenderFrameEvent;
 
-   
+
 
    return RenderFrameEvent;
 }(performance.Event));
@@ -58177,55 +58177,55 @@ var RenderFrameEvent = /*@__PURE__*/(function (Event) {
 // This makes it easier to merge multiple results and keeps handlers simpler.
 // For example, if there is a mousedown and mousemove, the mousePan handler
 // would return a `panDelta` on the mousemove.
-                          
-                   
-                    
-                         
-                        
 
-                                                                                                        
-                  
 
-                                                       
-                                                                             
-                                                                                                          
-                                                                                                         
-                                                                                                        
-                                                                                                           
-                                                                       
-                                                                       
-                                                                     
-                                                                      
-                                                                   
-                                                          
-                                                        
 
-                                                                          
-                                                                            
-                                              
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // All handler methods that are called with events can optionally return a `HandlerResult`.
-                              
-                     
-                       
-                          
-                        
-                                                     
-                          
-                                                                               
-                               
-                                                                                     
-                                        
 
-                                                                            
-                                                                                   
-                        
-                                                                                                                     
-                               
-                                                                  
-                       
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function hasChange(result               ) {
     return (result.panDelta && result.panDelta.mag()) || result.zoomDelta || result.bearingDelta || result.pitchDelta;
@@ -58702,7 +58702,7 @@ var HandlerManager = function HandlerManager(map  , options                     
      }
  };
 
-//      
+//
 
 /**
  * This is a private namespace for utility functions that will get automatically stripped
@@ -58735,14 +58735,14 @@ var Debug = {
     }
 };
 
-//      
+//
 
-                                              
-                                               
-                                                            
-                                               
-                                                      
-                                                       
+
+
+
+
+
+
 
 /**
  * Options common to {@link Map#jumpTo}, {@link Map#easeTo}, and {@link Map#flyTo}, controlling the desired location,
@@ -58775,14 +58775,14 @@ var Debug = {
  * @see [Fly to a location](https://docs.mapbox.com/mapbox-gl-js/example/flyto/)
  * @see [Display buildings in 3D](https://docs.mapbox.com/mapbox-gl-js/example/3d-buildings/)
  */
-                             
-                        
-                  
-                     
-                   
-                        
-                            
-  
+
+
+
+
+
+
+
+
 
 /**
  * Options common to map movement methods that involve animation, such as {@link Map#panBy} and
@@ -58798,13 +58798,13 @@ var Debug = {
  * @property {boolean} essential If `true`, then the animation is considered essential and will not be affected by
  *   [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion).
  */
-                                
-                      
-                                   
-                       
-                      
-                       
-  
+
+
+
+
+
+
+
 
 /**
  * Options for setting padding on calls to methods such as {@link Map#fitBounds}, {@link Map#fitScreenCoordinates}, and {@link Map#setPadding}. Adjust these options to set the amount of padding in pixels added to the edges of the canvas. Set a uniform padding on all edges or individual values for each edge. All properties of this object must be
@@ -59984,14 +59984,14 @@ function addAssertions(camera        ) { //eslint-disable-line
 
 var canary; //eslint-disable-line
 
-//      
+//
 
-                              
 
-                
-                      
-                                              
-  
+
+
+
+
+
 
 /**
  * An `AttributionControl` control presents the map's [attribution information](https://docs.mapbox.com/help/how-mapbox-works/attribution/).
@@ -60158,9 +60158,9 @@ var AttributionControl = function AttributionControl(options) {
       }
   };
 
-//      
+//
 
-                              
+
 
 /**
  * A `LogoControl` is a control that adds the Mapbox watermark
@@ -60242,11 +60242,11 @@ LogoControl.prototype._updateCompact = function _updateCompact () {
 //       strict
 
                              // can't mark opaque due to https://github.com/flowtype/flow-remove-types/pull/61
-             
-                                          
-               
-                       
-  
+
+
+
+
+
 
 var TaskQueue = function TaskQueue(){
       this._queue = [];
@@ -60304,7 +60304,7 @@ var TaskQueue = function TaskQueue(){
       this._queue = [];
   };
 
-//      
+//
 
 var defaultLocale = {
     'FullscreenControl.Enter': 'Enter fullscreen',
@@ -60323,66 +60323,66 @@ var defaultLocale = {
 
 };
 
-//      
+//
 var HTMLImageElement = performance.window.HTMLImageElement;
 var HTMLElement = performance.window.HTMLElement;
 var ImageBitmap = performance.window.ImageBitmap;
-                                               
-                                                    
-             
-                       
-                        
-                       
-                       
-                       
-                             
 
-                                                                                 
+
+
+
+
+
+
+
+
+
+
 /* eslint-disable no-use-before-define */
-                 
-                                 
-                             
 
-                                                
- 
+
+
+
+
+
 /* eslint-enable no-use-before-define */
 
-                   
-                            
-                          
-                                    
-                         
-                                 
-                                               
-                                   
-                                           
-                                    
-                        
-                                  
-                                 
-                         
-                      
-                      
-                       
-                       
-                      
-                         
-                             
-                       
-                              
-                              
-                         
-                          
-                        
-                  
-                     
-                   
-                                
-                              
-                                                
-                        
-                   
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var defaultMinZoom = -2;
 var defaultMaxZoom = 22;
@@ -63078,15 +63078,15 @@ function removeNode(node) {
  * var p2 = [-77, 38]; // a PointLike which is an array of two numbers
  */
 
-//      
+//
 
-                              
 
-                
-                          
-                       
-                            
-  
+
+
+
+
+
+
 
 var defaultOptions$2          = {
     showCompass: true,
@@ -63307,10 +63307,10 @@ var MouseRotateWrapper = function MouseRotateWrapper(map   , element           ,
       this.offTemp();
   };
 
-//      
+//
 
-                                                
-                                              
+
+
 
 /**
  * Given a LngLat, prior projected position, and a transform, return a new LngLat shifted
@@ -63361,18 +63361,18 @@ function smartWrap(lngLat        , priorPos        , transform           )      
     return lngLat;
 }
 
-//      
+//
 
-                    
-              
-           
-              
-            
-             
-                
-                 
-                   
-                     
+
+
+
+
+
+
+
+
+
+
 
 var anchorTranslate                        = {
     'center': 'translate(-50%,-50%)',
@@ -63394,24 +63394,24 @@ function applyAnchorClass(element             , anchor        , prefix        ) 
     classList.add(("mapboxgl-" + prefix + "-anchor-" + anchor));
 }
 
-//      
-                             
-                                 
-                                               
-                                                           
-                                                      
+//
 
-                
-                          
-                       
-                    
-                   
-                   
-                        
-                      
-                               
-                           
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Creates a marker component
@@ -64032,18 +64032,18 @@ var Marker = /*@__PURE__*/(function (Evented) {
   return Marker;
 }(performance.Evented));
 
-//      
+//
 
-                              
-                                                               
 
-                
-                                      
-                                                        
-                                
-                                 
-                              
-  
+
+
+
+
+
+
+
+
+
 
 var defaultOptions$3          = {
     positionOptions: {
@@ -64698,16 +64698,16 @@ var GeolocateControl = /*@__PURE__*/(function (Evented) {
  *
  */
 
-//      
+//
 
-                              
 
-                                               
 
-                
-                      
-                
-  
+
+
+
+
+
+
 
 var defaultOptions$4          = {
     maxWidth: 100,
@@ -64830,13 +64830,13 @@ function getRoundNum(num) {
     return pow10 * d;
 }
 
-//      
+//
 
-                              
 
-                
-                           
-  
+
+
+
+
 
 /**
  * A `FullscreenControl` control contains a button for toggling the map in and out of fullscreen mode.
@@ -64962,11 +64962,11 @@ var FullscreenControl = function FullscreenControl(options       ) {
       }
   };
 
-//      
+//
 
-                             
-                                               
-                                                      
+
+
+
 
 var defaultOptions$5 = {
     closeButton: true,
@@ -64975,17 +64975,17 @@ var defaultOptions$5 = {
     maxWidth: "240px"
 };
 
-                                                                   
 
-                            
-                          
-                           
-                          
-                    
-                    
-                       
-                     
-  
+
+
+
+
+
+
+
+
+
+
 
 /**
  * A popup component.
@@ -65548,7 +65548,7 @@ function normalizeOffset(offset         ) {
     }
 }
 
-//      
+//
 
 var exported = {
     version: performance.version,

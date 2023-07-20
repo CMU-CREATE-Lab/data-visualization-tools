@@ -6,7 +6,7 @@ import { gEarthTime } from './EarthTime'
 import { Utils } from './Utils';
 //import { Handlebars } from "./handlebars.runtime.min.js";
 
-import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched-1.11.1/mapbox-gl';
+import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched/mapbox-gl-dev_1.13.3';
 
 import { LayerProxy } from './LayerProxy';
 import { Glb } from './Glb';
