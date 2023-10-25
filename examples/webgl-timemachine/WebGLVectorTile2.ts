@@ -1402,7 +1402,48 @@ export class WebGLVectorTile2 extends Tile {
       this.dataLoadedFunction(this._layer.layerId);
     }
   }
-  _setLineStringData(data: { [x: string]: any[]; }) {
+  _setPolygonsData(data: { features: string | any[]; }) {
+    // Assumes GeoJSON data
+    var verts = [];
+    var rawVerts = [];
+
+    if (typeof data.features != "undefined") {
+      for (var f = 0; f < data.features.length; f++) {
+        var feature = data.features[f];
+        var rgba = [255, 255, 255, 255];
+        if (typeof feature.properties.color != "undefined" && Array.isArray(feature.properties.color)) {
+          for (var i = 0; i < feature.properties.color.length; i++) {
+            rgba[i] = feature.properties.color[i];
+          }
+        }
+
+        
+        if (typeof feature.geometry != "undefined" && typeof feature.geometry.coordinates != "undefined") {
+          if (feature.geometry.type != "MultiPolygon") {
+            var mydata = earcut.flatten(feature.geometry.coordinates);
+            var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+            for (var i = 0; i < triangles.length; i++) {
+              var pixel = LngLatToPixelXY(mydata.vertices[triangles[i] * mydata.dimensions], mydata.vertices[triangles[i] * mydata.dimensions + 1]);
+              verts.push(pixel[0], pixel[1], rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+          }
+          else {
+            for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+              var mydata = earcut.flatten(feature.geometry.coordinates[j]);
+              var triangles = earcut(mydata.vertices, mydata.holes, mydata.dimensions);
+              for (var i = 0; i < triangles.length; i++) {
+                var pixel = LngLatToPixelXY(mydata.vertices[triangles[i] * mydata.dimensions], mydata.vertices[triangles[i] * mydata.dimensions + 1]);
+                verts.push(pixel[0], pixel[1], rgba[0], rgba[1], rgba[2], rgba[3]);
+              }
+            }
+          }
+        }
+      }
+      this._setBufferData(new Float32Array(verts));
+      this.dataLoadedFunction(this._layer.layerId);
+    }
+  }
+    _setLineStringData(data: { [x: string]: any[]; }) {
     // Assumes GeoJSON data
     function processLineString(lineString: string | any[]) {
       var out = [];
@@ -3464,6 +3505,39 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       //gl.drawElements(gl.TRIANGLES, 170840, gl.UNSIGNED_SHORT, 0);
+      gl.disable(gl.BLEND);
+    }
+  }
+
+  _drawPolygons(transform: Float32Array) {
+    var gl = this.gl;
+    if (this._ready) {
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+
+      var drawOptions = this._layer.drawOptions;
+      var sfactor = gl.SRC_ALPHA;
+      var dfactor = gl.ONE;
+      if (drawOptions.dfactor) {
+        dfactor = gl[drawOptions.dfactor];
+      }
+      if (drawOptions.sfactor) {
+        sfactor = gl[drawOptions.sfactor];
+      }
+      gl.blendFunc(sfactor, dfactor);
+
+      var tileTransform = new Float32Array(transform);
+
+      scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
+      scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
+
+      gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
+      this.program.setVertexAttrib.a_coord(2, gl.FLOAT, false, 24, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.a_rgba(4, gl.FLOAT, false, 24, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      gl.drawArrays(gl.TRIANGLES, 0, this._pointCount);
       gl.disable(gl.BLEND);
     }
   }
@@ -6405,6 +6479,27 @@ vec3 unpackColor(float f) {
 }
 void main() {
   gl_FragColor = vec4(unpackColor(v_color), u_alpha);
+}`;
+
+
+WebGLVectorTile2Shaders.polygonsVertexShader = `
+attribute vec4 a_coord;
+attribute vec4 a_rgba;
+uniform mat4 u_map_matrix;
+varying vec4 v_rgba;
+void main() {
+    vec4 position;
+    position = u_map_matrix * a_coord;
+    gl_Position = position;
+    v_rgba = a_rgba;
+}`;
+
+WebGLVectorTile2Shaders.polygonsFragmentShader = `
+#extension GL_OES_standard_derivatives : enable
+/*precision mediump float;*/
+varying vec4 v_rgba;
+void main() {
+  gl_FragColor = vec4(v_rgba/255.0);
 }`;
 
 WebGLVectorTile2Shaders.lineStringVertexShader = `
