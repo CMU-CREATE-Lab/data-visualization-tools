@@ -1420,7 +1420,7 @@ export class WebGLVectorTile2 extends Tile {
     if (typeof data.features != "undefined") {
       for (var f = 0; f < data.features.length; f++) {
         var feature = data.features[f];
-        var rgba = [255, 255, 255, 255];
+        var rgba = [255, 255, 255, 100];
         if (typeof feature.properties.color != "undefined" && Array.isArray(feature.properties.color)) {
           for (var i = 0; i < feature.properties.color.length; i++) {
             rgba[i] = feature.properties.color[i];
@@ -6509,7 +6509,8 @@ WebGLVectorTile2Shaders.polygonsFragmentShader = `
 /*precision mediump float;*/
 varying vec4 v_rgba;
 void main() {
-  gl_FragColor = vec4(v_rgba/255.0);
+  float alpha = min(v_rgba[3]/100.0, 1.0);
+  gl_FragColor = vec4(v_rgba[0]/255.0,v_rgba[1]/255.0,v_rgba[2]/255.0,alpha);
 }`;
 
 WebGLVectorTile2Shaders.lineStringVertexShader = `
