@@ -26,6 +26,7 @@ function drawsEveryFrame(func: DrawFunction) {
 export class WebGLVectorTile2 extends Tile {
   _layer: WebGLVectorLayer2;
   _url: string;
+  _defaultUrl: string;
   _ready: boolean;
   externalGeojson: any;
   _noValue: any;
@@ -104,6 +105,7 @@ export class WebGLVectorTile2 extends Tile {
 
     this._layer = layer;
     this._url = tileidx.expandUrl(this._layer._tileUrl, this._layer);
+    this._defaultUrl = this._layer._defaultUrl;
     this._ready = false;
 
 
@@ -229,14 +231,22 @@ export class WebGLVectorTile2 extends Tile {
     var that = this;
     var data: string;
 
+    var loadAttemptCount = 0;
     this.xhr = new XMLHttpRequest();
     this.xhr.open('GET', that._url);
 
     this.xhr.onload = function () {
+      loadAttemptCount++;
       if (this.status >= 400) {
-        data = "";
-      }
-      else {
+        if (loadAttemptCount == 1) {
+          that.xhr.open('GET', that._defaultUrl);
+          that.xhr.send();
+          return;
+        } else {
+          console.warn("DEFAULT TILE NOT FOUND. USING INTERNAL DEFAULT.")
+          data = JSON.parse("{'features': []}");
+        }
+      } else {
         data = JSON.parse(this.responseText);
       }
       that.setDataFunction(data, that._layer.setDataOptions);

@@ -13,12 +13,18 @@ import { Lodes } from './Lodes';
 
 export class WebGLVectorLayer2 extends Layer {
   _tileUrl: string;
+  _defaultUrl: string;
+  _fileExtension: string;
   epochs: any;
   lodes: any;
 
   constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrl: string, layerOptions: LayerOptions) {
     super(layerProxy, layerOptions, WebGLVectorTile2);
-    this._tileUrl = tileUrl;
+
+    this._tileUrl = tileUrl.replace(/{default}\/?/, "");
+    var splitToken = tileUrl.indexOf("{default}") > 0 ? "{default}" : "{z}";
+    this._fileExtension = this._fileExtension || this._tileUrl.substring(this._tileUrl.lastIndexOf(".") + 1);
+    this._defaultUrl = relUrlToAbsUrl(this._defaultUrl || `${tileUrl.split(splitToken)[0]}default.${this._fileExtension}`);
 
     // WebGLVectorLayer2 defaults
     this.fragmentShader = this.fragmentShader ?? WebGLVectorTile2Shaders.vectorTileFragmentShader;
