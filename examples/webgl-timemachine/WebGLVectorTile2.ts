@@ -244,7 +244,7 @@ export class WebGLVectorTile2 extends Tile {
           return;
         } else {
           console.warn("DEFAULT TILE NOT FOUND. USING INTERNAL DEFAULT.")
-          data = JSON.parse("{'features': []}");
+          data = JSON.parse('{"features": []}');
         }
       } else {
         data = JSON.parse(this.responseText);
