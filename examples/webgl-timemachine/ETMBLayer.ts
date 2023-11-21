@@ -223,6 +223,23 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
     var accessToken = ETMBLayer.accessToken;
     let style = await (await Utils.fetchWithRetry(`${url}?access_token=${accessToken}`)).json();
 
+    // A pitch filter is being added to newly created Mapbox styles. The "legacy" version of mapbox-gl that we use does not support
+    // this filter and throws an 'Unknown expression "pitch"' error. We need to remove instances of 'pitch' for each layer of the style.
+    let unsupported_style_filters = ["pitch"];
+    style.layers.forEach(function(layer) {
+      if (layer && layer.filter) {
+        if (Array.isArray(layer.filter) && layer.filter[0] == "step" && Array.isArray(layer.filter[1]) && unsupported_style_filters.includes(layer.filter[1][0])) {
+          delete layer.filter;
+          return;
+        }
+        for (let i = layer.filter.length - 1; i >= 0; i--) {
+          if (Array.isArray(layer.filter[i]) && layer.filter[0] == "all" && Array.isArray(layer.filter[i][1]) && unsupported_style_filters.includes(layer.filter[i][1][0])) {
+            layer.filter.splice(i, 1);
+          }
+        }
+      }
+    });
+
     // Rename source and layer IDs to be unique
     this._remapStyle(style);
     this.style = style;
@@ -281,7 +298,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
         sources: initialStyle.sources,
         layers: initialStyle.layers,
         //glyphs: initialStyle.glyphs
-        glyphs: 'mapbox://fonts/earthtime/{fontstack}/{range}.pbf'        
+        glyphs: 'mapbox://fonts/earthtime/{fontstack}/{range}.pbf'
       },
       renderWorldCopies: false // don't show multiple earths when zooming out
     });
