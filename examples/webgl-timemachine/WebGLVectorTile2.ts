@@ -1191,23 +1191,72 @@ export class WebGLVectorTile2 extends Tile {
   _setMarkerData(data: { features: string | any[]; }) { 
     // Assumes GeoJSON data
     var points = [];
-
     let setDataOptions = this._layer.setDataOptions || {}; 
     var key = setDataOptions.key || undefined;
+    var sizeKey = setDataOptions.sizeKey || undefined;
     var values = setDataOptions.values || undefined;
     var fills = setDataOptions.fills || [[218,218,218,1]];
     var strokes = setDataOptions.strokes || [[16,16,16,1]];
-    
-    
+
+    let size = 10;
+
+    if (typeof sizeKey == "undefined") {
+      if (typeof this._layer.drawOptions != "undefined") {
+        if (typeof this._layer.drawOptions.pointSize != "undefined"){
+          size = this._layer.drawOptions.pointSize;
+        }
+      }
+    } else {
+      // We need to do the size dance
+      var maxValue = -1e6;
+      var minValue = 1e6; 
+
+      function getValue(rawVal: any) {
+        var val = rawVal;
+        if (val == '' || typeof val == 'undefined') {
+          val = 0.0;
+        }
+        else {
+          val = parseFloat(val);
+        }
+        return val;
+      }
+
+      function setMinMaxValue(val: number) {
+        if (val > maxValue) {
+          maxValue = val;
+        }
+        if (val < minValue) {
+          minValue = val;
+        }
+      }
+
+      if (typeof data.features != "undefined") {
+        for (var i = 0; i < data.features.length; i++) {
+          let feature = data.features[i];
+          let rawValue = getValue(feature.properties[sizeKey]);
+          setMinMaxValue(rawValue);
+        }
+      }
+      this._maxValue = maxValue;
+      this._minValue = minValue;
+      var radius = eval(this.scalingFunction);
+      this._radius = radius;
+      this._layer.radius = radius;
+  }
+
     if (typeof data.features != "undefined") {      
       for (var f = 0; f < data.features.length; f++) {
 
         let feature = data.features[f];
-
+        if (typeof sizeKey != "undefined") {
+          size = radius(feature.properties[sizeKey]);
+        }
         let fill_rgba = fills[0];
         let stroke_rgba = strokes[0];
-        if (key && feature.properties[key]) {
+        if (key && feature.properties[key]) {          
           let idx = values.indexOf(feature.properties[key]);
+          if (idx == -1) continue;
           fill_rgba = fills[idx];
           stroke_rgba = strokes[idx];
         }
@@ -1218,6 +1267,7 @@ export class WebGLVectorTile2 extends Tile {
           points.push(
             pixel[0], 
             pixel[1], 
+            size, 
             fill_rgba[0],
             fill_rgba[1],
             fill_rgba[2],
@@ -1235,6 +1285,7 @@ export class WebGLVectorTile2 extends Tile {
             points.push(
               pixel[0], 
               pixel[1], 
+              size,
               fill_rgba[0]/255,
               fill_rgba[1]/255,
               fill_rgba[2]/255,
@@ -4781,11 +4832,11 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.uniformMatrix4fv(this.program.ortho, false, tileTransform);
 
-      var pointSize = 16.0;
-      if (drawOptions.pointSize) {
-        pointSize = drawOptions.pointSize;
-      }
-      gl.uniform1f(this.program.size, pointSize);
+      // var pointSize = 16.0;
+      // if (drawOptions.pointSize) {
+      //   pointSize = drawOptions.pointSize;
+      // }
+      // gl.uniform1f(this.program.size, pointSize);
 
       var orientation = 0;
       if (drawOptions.orientation) {
@@ -4805,10 +4856,22 @@ export class WebGLVectorTile2 extends Tile {
       }
       gl.uniform1f(this.program.antialias, antialias);
 
+      var modes = {
+        'disc': 2.0,
+        'diamond': 5.0,
+        'ring': 11.0
+      }
+      var mode = 5.0;
+      if (drawOptions.mode && typeof modes[drawOptions.mode] !== 'undefined') {
+        mode = modes[drawOptions.mode];
+      }
+      gl.uniform1f(this.program.mode, mode);
+
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
       this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 24); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 28); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 //      this.program.setVertexAttrib.packedcolor(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -7379,17 +7442,20 @@ void main() {
 WebGLVectorTile2Shaders.markerVertexShader = `
 const float SQRT_2 = 1.4142135623730951;
 uniform mat4 ortho;
-uniform float size, orientation, linewidth, antialias;
+uniform float orientation, linewidth, antialias;
 attribute vec3 position;
+attribute float size;
 attribute vec4 fill;
 attribute vec4 stroke;
 varying vec2 rotation;
 varying float v_size;
+varying float orig_size;
 varying vec4 fg_color, bg_color;
 void main (void) {
   rotation = vec2(cos(orientation), sin(orientation));
   gl_Position = ortho * vec4(position, 1.0);
   v_size = SQRT_2 * size + 2.0*(linewidth + 1.5*antialias);
+  orig_size = size;
   gl_PointSize = v_size;
   fg_color = vec4(stroke.xyz/255.,stroke.w);
   bg_color = vec4(fill.xyz/255.,fill.w);
@@ -7399,10 +7465,11 @@ void main (void) {
 WebGLVectorTile2Shaders.markerFragmentShader = `
 const float PI = 3.14159265358979323846264;
 const float SQRT_2 = 1.4142135623730951;
-uniform float size, linewidth, antialias;
+uniform float linewidth, antialias, mode;
 varying vec4 fg_color, bg_color;
 varying vec2 rotation;
 varying float v_size;
+varying float orig_size;
 
 vec4 stroke(float distance, // Signed distance to line
             float linewidth, // Stroke line width
@@ -7457,19 +7524,36 @@ vec4 outline(float distance, // Signed distance to line
     return vec4(stroke.rgb, stroke.a * alpha);
 }
 
-float diamond(vec2 P, float size)
-{
-float x = SQRT_2/2.0 * (P.x - P.y);
-float y = SQRT_2/2.0 * (P.x + P.y);
-return max(abs(x), abs(y)) - size/(2.0*SQRT_2);
+float disc(vec2 P, float size) {
+  return length(P) - size/2.0;
+}
+
+float diamond(vec2 P, float size) {
+  float x = SQRT_2/2.0 * (P.x - P.y);
+  float y = SQRT_2/2.0 * (P.x + P.y);
+  return max(abs(x), abs(y)) - size/(2.0*SQRT_2);
+}
+
+float ring(vec2 P, float size) {
+  float r1 = length(P) - size/2.0;
+  float r2 = length(P) - (size-8.0)/2.0;
+  return max(r1, -r2);
 }
 
 void main() {
   vec2 P = gl_PointCoord.xy - vec2(0.5,0.5);
   P = vec2(rotation.x*P.x - rotation.y*P.y,
   rotation.y*P.x + rotation.x*P.y);
-//  float distance = marker(P*v_size, size);
-  float distance = diamond(P*v_size, size);
+
+  float distance = disc(P*v_size, orig_size);
+  if (mode == 2.0) {
+    distance = disc(P*v_size, orig_size);
+  }
+  else if (mode == 5.0) {
+    distance = diamond(P*v_size, orig_size);
+  } else if (mode == 11.0) {
+    distance = ring(P*v_size, orig_size);
+  }
   gl_FragColor = outline(distance, linewidth, antialias, fg_color, bg_color);
 }
 `;
