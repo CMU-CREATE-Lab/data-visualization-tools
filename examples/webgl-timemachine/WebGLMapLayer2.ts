@@ -6,8 +6,9 @@ import { LayerProxy } from './LayerProxy';
 import { gEarthTime } from './EarthTime';
 
 export class WebGLMapLayer2 extends Layer {
-  fileExtension: any;
   _tileUrls: any[];
+  fileExtension: any;
+  defaultUrl: any;
   constructor(layerProxy: LayerProxy, glb: any, canvasLayer: any, tileUrls: string | any[], layerOptions: LayerOptions) {
     super(layerProxy, layerOptions, WebGLMapTile2);
     // Set default draw/shader/vertex function for animated raster map layers
@@ -20,9 +21,8 @@ export class WebGLMapLayer2 extends Layer {
       this._tileUrls[i] = tileUrls[i].replace("{default}/", "");
     }
     var splitToken = tileUrls[0].indexOf("{default}") > 0 ? "{default}" : "{z}";
-    this.defaultUrl = this.defaultUrl || tileUrls[0].split(splitToken)[0] + "default." + this.fileExtension;
-
     this.fileExtension = this.fileExtension || "png";
+    this.defaultUrl = relUrlToAbsUrl(this.defaultUrl || `${tileUrls[0].split(splitToken)[0]}default.${this.fileExtension}`);
   }
 
   draw(view, opt_options) {
@@ -38,5 +38,10 @@ export class WebGLMapLayer2 extends Layer {
     }
     options.alpha = view.alpha;
     this._drawHelper(view, options);
+  }
+
+  maxGmapsZoomLevel() {
+    // nLevels is really the maximum tile level
+    return this.nLevels;
   }
 }

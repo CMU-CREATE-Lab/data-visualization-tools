@@ -14,12 +14,9 @@ export class WebGLMapTile extends Tile {
   _ready: boolean;
   _width: number;
   _height: number;
-  static activeTileCount: any;
+  static activeTileCount: number = 0;
   _spinnerNeeded: boolean;
-  static verbose: boolean;
-  static _frameOffsets: any;
-  static _frameOffsetUsed: any;
-  static videoId: number;
+  static verbose: boolean = false;
   private _imageUrl: any;
   constructor(layer: WebGLMapLayer, tileidx: TileIdx, bounds, opt_options) {
     super(layer, tileidx, bounds, opt_options);
@@ -133,7 +130,6 @@ export class WebGLMapTile extends Tile {
         gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
 
-
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.disable(gl.BLEND);
@@ -234,21 +230,8 @@ export class WebGLMapTile extends Tile {
       gl.disable(gl.BLEND);
     }
   }
-
   static stats() {
     return ('WebGLMapTile stats. Active tiles: ' + WebGLMapTile.activeTileCount);
-  }
-  static getUnusedFrameOffsetIndex() {
-    for (var i = 0; i < WebGLMapTile._frameOffsets.length; i++) {
-      if (!WebGLMapTile._frameOffsetUsed[i]) {
-        WebGLMapTile._frameOffsetUsed[i] = true;
-        return i;
-      }
-    }
-    throw new Error('Out of offsets because we have ' + WebGLMapTile._frameOffsets.length + ' videos');
-  }
-  static r2(x) {
-    return Math.round(x * 100) / 100;
   }
   // Update and draw tiles
   // Assumes tiles is sorted low res to high res (by TileView)
@@ -258,10 +241,6 @@ export class WebGLMapTile extends Tile {
     }
   }
 }
-
-WebGLMapTile.videoId = 0;
-WebGLMapTile.verbose = false;
-WebGLMapTile.activeTileCount = 0;
 
 export var WebGLMapTileShaders: {[name: string]: string} = {};
 

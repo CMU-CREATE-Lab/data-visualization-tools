@@ -5,11 +5,9 @@ import { WebGLMapLayer2 } from './WebGLMapLayer2';
 import { TileIdx } from './TileIdx';
 
 export class WebGLMapTile2 extends Tile {
-  static activeTileCount: number = 0;
-  static verbose: boolean = false;
-  static videoId: number = 0;
-
   _layer: WebGLMapLayer2;
+  _layerDomId: any;
+  _loadingSpinnerTimer: any;
   _texture0: any;
   _texture1: any;
   _triangles: any;
@@ -19,9 +17,16 @@ export class WebGLMapTile2 extends Tile {
   _width: number;
   _height: number;
 
+  static activeTileCount: number = 0;
+  _spinnerNeeded: boolean;
+  static verbose: boolean = false;
+  private _urls: string[] = [];
   constructor(layer: WebGLMapLayer2, tileidx: TileIdx, bounds, opt_options) {
     super(layer, tileidx, bounds, opt_options);
     this._layer = layer;
+    this._layerDomId = opt_options.layerDomId;
+
+    this._loadingSpinnerTimer = null;
 
     this._texture0 = this._createTexture();
     this._texture1 = this._createTexture();
@@ -69,13 +74,12 @@ export class WebGLMapTile2 extends Tile {
       }
     });
 
-    var urls = [];
-    for (var i = 0; i < layer._tileUrls.length; i++) {
-      urls[i] = tileidx.expandUrl(layer._tileUrls[i], layer);
+    for (var i = 0; i < this._layer._tileUrls.length; i++) {
+      this._urls[i] = tileidx.expandUrl(this._layer._tileUrls[i], this._layer);
     }
 
-    this._image0.src = urls[0];
-    this._image1.src = urls[1];
+    this._image0.src = this._urls[0];
+    this._image1.src = this._urls[1];
     this._ready = [false, false];
     this._width = 256;
     this._height = 256;
@@ -94,16 +98,13 @@ export class WebGLMapTile2 extends Tile {
     return texture;
   }
   _handleLoadedTexture(image, texture, index) {
-    var gl = this.gl;
-
     if (!image) {
       return;
     }
-
+    var gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.bindTexture(gl.TEXTURE_2D, null);
-
     this._ready[index] = true;
   }
   delete() {
@@ -113,7 +114,6 @@ export class WebGLMapTile2 extends Tile {
     this._image0 = null;
     this._image1.src = '';
     this._image1 = null;
-
     WebGLMapTile2.activeTileCount--;
   }
   toString() {
@@ -124,7 +124,6 @@ export class WebGLMapTile2 extends Tile {
     return this._ready[0] && this._ready[1];
   }
   _draw(transform, options) {
-    //console.log(options);
     var gl = this.gl;
     var tileTransform = new Float32Array(transform);
     translateMatrix(tileTransform, this._bounds.min.x, this._bounds.min.y);
@@ -144,17 +143,12 @@ export class WebGLMapTile2 extends Tile {
         uAlpha = alphaFnc(options.currentTime);
       }
 
-
-      gl.uniform1f(this.program.uAlpha, uAlpha);
-
-
       gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
+      gl.uniform1f(this.program.uAlpha, uAlpha);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._triangles);
       gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
-
-      /*    gl.activeTexture(gl.TEXTURE0);
-          gl.bindTexture(gl.TEXTURE_2D, this._texture);
-      */
+      gl.enableVertexAttribArray(this.program.aTextureCoord);
+      
       var imageLocation0 = this.program.uSampler0;
       var imageLocation1 = this.program.uSampler1;
 
@@ -172,7 +166,6 @@ export class WebGLMapTile2 extends Tile {
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this._layer.colormapTexture);
       }
-
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindTexture(gl.TEXTURE_2D, null);
