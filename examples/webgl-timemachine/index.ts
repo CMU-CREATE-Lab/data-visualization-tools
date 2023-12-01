@@ -145,6 +145,8 @@ class EarthTimeImpl implements EarthTime {
   layerDB: LayerDB = null;
   layerDBPromise = null;
   timelapse = null;
+  snaplapseForPresentationSlider = null;
+  snaplapseViewerForPresentationSlider = null;
   rootTilePath = "";
   dotmapsServerHost = null;
   glb = null;
@@ -630,9 +632,11 @@ var initialShareView = parseConfigOption({optionName: "initialShareView", option
 //// App variables ////
 //
 
+// Default behavior is to use fader shader
 // TODO: Firefox seeking speed is not precise enough for the assumption made by the fader shader.
 // For now, disable fader shader for Firefox otherwise we get jumpback during playback.
 WebGLVideoTile.useFaderShader = UTIL.isFirefox() ? false : useFaderShader;
+
 var visibleBaseMapLayer = "blsat";
 var thumbnailTool;
 var snaplapseViewerForPresentationSlider;
@@ -715,30 +719,6 @@ var clearTimelineUIChangeListeners = function() {
     timelineUIChangeListeners.splice(i, 1);
   }
 };
-
-var autoModeExtrasViewChangeHandler = function() {
-  gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
-  if (snaplapseViewerForPresentationSlider && snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
-    var $videoExtra = $("#extras-video");
-    if ($videoExtra.length > 0) {
-      snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
-      snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
-      // @ts-ignore
-      $videoExtra[0].originalLoop = $videoExtra[0].loop;
-      // @ts-ignore
-      $videoExtra[0].loop = false;
-      $videoExtra[0].addEventListener('ended', function(event) {
-        setTimeout(function() {
-          // @ts-ignore
-          $videoExtra[0].loop = $videoExtra[0].originalLoop;
-          snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
-          snaplapseViewerForPresentationSlider.initializeAndRunAutoMode();
-        }, 1000);
-      });
-    }
-  }
-};
-(window as any).autoModeExtrasViewChangeHandler = autoModeExtrasViewChangeHandler;
 
 interface FrameGrabInterface {
   isLoaded(): boolean;
@@ -922,7 +902,6 @@ function initLayerToggleUI() {
       }
     },
     close: function(event, ui) {
-      gEarthTime.timelapse.removeParabolicMotionStoppedListener(autoModeExtrasViewChangeHandler);
       var $extrasContentContainer = $(event.target);
       var layerId = $extrasContentContainer.data("layer-id");
       var $selectedLayer = $("#layers-menu input#" + layerId);
@@ -938,7 +917,6 @@ function initLayerToggleUI() {
         extrasImage.src = "";
       } else if (extrasVideo) {
         extrasVideo.pause();
-        extrasVideo.removeEventListener("loadstart", autoModeExtrasViewChangeHandler);
         extrasVideo.src = "";
       } else if (extrasIframe) {
         extrasIframe.src = "";
@@ -1851,10 +1829,11 @@ async function setupUIAndOldLayers() {
   // TODO: Why is this element of TimeMachine initially outside the controls container?
   $(".captureTime").prependTo(".controls");
 
-  snaplapseForPresentationSlider = gEarthTime.timelapse.getSnaplapseForPresentationSlider();
+  gEarthTime.snaplapseForPresentationSlider = snaplapseForPresentationSlider = gEarthTime.timelapse.getSnaplapseForPresentationSlider();
   if (snaplapseForPresentationSlider) {
-    snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
+    gEarthTime.snaplapseViewerForPresentationSlider = snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
   }
+  
 
   if (isMobileDevice) {
     $(".current-location-text-container").addClass("current-location-text-container-touchFriendly");

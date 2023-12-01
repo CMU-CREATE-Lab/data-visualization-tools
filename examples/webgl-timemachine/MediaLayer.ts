@@ -21,6 +21,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   $extrasContentContainer: any;
   $extrasContentComponent: any;
   nextFrameNeedsRedraw = true;
+  iframeClickHandler: () => void;
 
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
@@ -93,9 +94,6 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   isLoaded(): boolean { return this.ready; }
 
   handleEnable() {
-    // @ts-ignore
-    gEarthTime.timelapse.addParabolicMotionStoppedListener(window.autoModeExtrasViewChangeHandler);
-
     var that = this;
     var relativePath = "../../../extras/";
     var filePath = relativePath + this.mediaPath;
@@ -129,15 +127,16 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       extrasHtml = '<img id="extras-image">';
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
       var image = document.getElementById("extras-image") as HTMLImageElement;
-      image.addEventListener('load', function() {
+      $(image).one('load', function() {
         that.ready = true;
         that.nextFrameNeedsRedraw = false;
+        that.afterLoad();
       });
       image.src = filePath;
     } else if (fileType == "video") {
       extrasHtml = '<video id="extras-video" autoplay></video>';
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
-      var $video = $("#extras-video");
+      var $video = $("#extras-video") as JQuery<HTMLVideoElement>;
       var video = $video[0] as HTMLVideoElement;
       if (loopVideoPlayback) {
         video.loop = true;
@@ -154,9 +153,9 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       }
       if (!gEarthTime.timelapse.isMovingToWaypoint()) {
         // @ts-ignore
-        $video.one("loadstart", window.autoModeExtrasViewChangeHandler);
+        $video.one("loadstart", that.afterLoad);
       }
-      video.addEventListener('loadeddata', function() {
+      $(video).one('loadeddata', function() {
         that.ready = true;
         that.nextFrameNeedsRedraw = false;
       });
@@ -173,9 +172,10 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       extrasHtml = '<iframe id="extras-iframe" scrolling="yes"></iframe>';
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
       var iframe = document.getElementById("extras-iframe") as HTMLIFrameElement;
-      iframe.addEventListener('load', function() {
+      $(iframe).one('load', function() {
         that.ready = true;
         that.nextFrameNeedsRedraw = false;
+        that.afterLoad();
       });
       iframe.src = filePath;
     }
@@ -188,4 +188,59 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     this.$extrasContentContainer.data("layer-id", this.id);
   }
 
+  afterLoad() {
+    if (gEarthTime.snaplapseViewerForPresentationSlider && gEarthTime.snaplapseViewerForPresentationSlider.isAutoModeRunning()) {
+      var extrasMediaType = "";
+      gEarthTime.layerDB.visibleLayers.forEach(function(layerProxy) {
+        if (layerProxy.layer.mapType.startsWith("extras-")) {
+          extrasMediaType = layerProxy.layer.mediaType;
+          return;
+        }
+      });
+      if (extrasMediaType == "video") {
+        var $videoExtra = $("#extras-video") as JQuery<HTMLVideoElement>;
+        $videoExtra.off('pause, play');
+        gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
+        gEarthTime.snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
+        // @ts-ignore
+        $videoExtra[0].originalLoop = $videoExtra[0].loop;
+        $videoExtra[0].loop = false;
+        $videoExtra.one('ended', function() {
+          setTimeout(function() {
+            // @ts-ignore
+            $videoExtra[0].loop = $videoExtra[0].originalLoop;
+            gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
+            gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout(0);
+          }, 1500);
+        });
+        $videoExtra.on('pause', function() {
+          gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
+          gEarthTime.snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
+          gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+        });
+        $videoExtra.on('play', function() {
+          gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
+          gEarthTime.snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
+        });        
+      } else if (extrasMediaType == "iframe") {
+        var $iframeExtra = $("#extras-iframe") as JQuery<HTMLIFrameElement>;
+        $(window).off('blur', this.iframeClickHandler);
+        window.focus();
+        gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
+        this.iframeClickHandler = function() {
+          window.setTimeout(function () {
+            if (document.activeElement == $iframeExtra[0]) {
+              gEarthTime.snaplapseViewerForPresentationSlider.clearAutoModeTimeout();
+              gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
+              window.focus();
+              $("body").trigger("click", {forceHide : true});
+            }
+          }, 0);
+        }
+        $(window).on('blur', this.iframeClickHandler);
+      } else if (extrasMediaType) {
+        gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout();
+      }
+    }
+  }
 }

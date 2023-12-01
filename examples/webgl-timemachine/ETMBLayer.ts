@@ -462,7 +462,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       // Eventually, would we want to be able to get more than one?
       for (const feature of features) {
         if (!(feature.layer.id in propertiesById)) {
-          console.log(`feature.layer.id ${feature.layer.id}`)
+          //console.log(`feature.layer.id ${feature.layer.id}`)
           propertiesById[feature.layer.id] = feature.properties;
         }
       }
@@ -505,7 +505,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
         });
       }
 
-      console.log(`${this.logPrefix()} # templates : ${this._layerTmpls.length}`)
+      //console.log(`${this.logPrefix()} # templates : ${this._layerTmpls.length}`)
 
       if (this._layerTmpls.length > 0) {
         let layerProps: {[key: string]: {[key: string]: any}} = {};
@@ -524,7 +524,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
 
         });
 
-        console.log(`${this.logPrefix()} mouse over`,layerProps);
+        //console.log(`${this.logPrefix()} mouse over`,layerProps);
 
         let divied = 0;
 

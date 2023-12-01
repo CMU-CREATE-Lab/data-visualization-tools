@@ -170,6 +170,7 @@ export class LayerOptions {
     // all layers to redraw independently of this value.
     // Should typically be set by subclass Layer.draw function to false at the beginning of redraw
     nextFrameNeedsRedraw = true;
+    mediaType: string;
 
     constructor(layerProxy: LayerProxy, layerOptions: LayerOptions, tileClass: typeof Tile) {
       super(layerOptions);

@@ -29,6 +29,8 @@ export interface EarthTime {
   setDatabaseID: (databaseID: GSheet)=>Promise<void>;
   LayerDBLoaded: ()=>Promise<void>;
   timelapse: any;
+  snaplapseForPresentationSlider: any;
+  snaplapseViewerForPresentationSlider: any;
   rootTilePath: string;
   gmapsZoomLevel(): number;
   timelapseZoom(): number;
