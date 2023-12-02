@@ -128,7 +128,7 @@ html, body {
   display: none;
 }
 #poweredBy {
-  padding-bottom: 8px;
+  padding-bottom: 5px;
   padding-top: 3px;
   font-size: 12px;
   margin-right: 1px;
@@ -2070,6 +2070,10 @@ a:focus { outline:0; }
 
 #layers-legend.letterbox.noTimeline, #layers-legend.letterbox.noTimelineForced {
   bottom: 80px;
+}
+
+#layers-legend.topNavDisabled {
+  top: 72px;
 }
 
 .unselectable {

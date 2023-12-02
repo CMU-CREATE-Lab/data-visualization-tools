@@ -2519,6 +2519,9 @@ async function setupUIAndOldLayers() {
   if (disableTopNav) {
     $("#top-nav").remove();
     $("#viewerContainer, .location_search_div").addClass("topNavDisabled");
+    if (showSearchBox) {
+      $("#layers-legend").addClass("topNavDisabled");
+    }
   }
 
   if (disableAnnotations) {
