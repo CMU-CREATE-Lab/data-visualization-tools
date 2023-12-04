@@ -1191,6 +1191,7 @@ export class WebGLVectorTile2 extends Tile {
   _setMarkerData(data: { features: string | any[]; }) { 
     // Assumes GeoJSON data
     var points = [];
+    var timeseriesPoints = [];
     let setDataOptions = this._layer.setDataOptions || {}; 
     var key = setDataOptions.key || undefined;
     var sizeKey = setDataOptions.sizeKey || undefined;
@@ -1234,8 +1235,16 @@ export class WebGLVectorTile2 extends Tile {
       if (typeof data.features != "undefined") {
         for (var i = 0; i < data.features.length; i++) {
           let feature = data.features[i];
-          let rawValue = getValue(feature.properties[sizeKey]);
-          setMinMaxValue(rawValue);
+          if (sizeKey == "timeseries") {
+            for (var j = 0; j < feature.properties['timeseries']['values'].length; j++) {
+              let rawValue = getValue(feature.properties['timeseries']['values'][j]);
+              setMinMaxValue(rawValue);    
+            }
+          }
+          else {
+            let rawValue = getValue(feature.properties[sizeKey]);
+            setMinMaxValue(rawValue);
+          }
         }
       }
       this._maxValue = maxValue;
@@ -1249,7 +1258,7 @@ export class WebGLVectorTile2 extends Tile {
       for (var f = 0; f < data.features.length; f++) {
 
         let feature = data.features[f];
-        if (typeof sizeKey != "undefined") {
+        if (typeof sizeKey != "undefined" && sizeKey != 'timeseries') {
           size = radius(feature.properties[sizeKey]);
         }
         let fill_rgba = fills[0];
@@ -1264,38 +1273,70 @@ export class WebGLVectorTile2 extends Tile {
 
         if (feature.geometry.type != "MultiPoint") {
           var pixel = LngLatToPixelXY(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-          points.push(
-            pixel[0], 
-            pixel[1], 
-            size, 
-            fill_rgba[0],
-            fill_rgba[1],
-            fill_rgba[2],
-            fill_rgba[3],
-            stroke_rgba[0],
-            stroke_rgba[1],
-            stroke_rgba[2],
-            stroke_rgba[3]
-          );
+          if (sizeKey == 'timeseries') {
+            let timeseries = feature.properties.timeseries;
+            if (timeseries.values.length == timeseries.dates.length) {
+              for (var i = 1; i < timeseries.values.length; i++) {
+                let valueStart = parseFloat(timeseries.values[i-1]);
+                let epochStart = parseDateStr(timeseries.dates[i-1]);
+                let valueEnd = parseFloat(timeseries.values[i]);
+                let epochEnd = parseDateStr(timeseries.dates[i]);
+                if (isNaN(epochStart as number) || isNaN(epochEnd as number) ||  isNaN(valueStart as number)) {
+                  break;
+                } else {
+                  if (isNaN(valueEnd as number)) {
+                    valueEnd = valueStart;                    
+                  }
+                  timeseriesPoints.push( {'x': pixel[0], 
+                                          'y': pixel[1], 
+                                          'fill_r': fill_rgba[0], 
+                                          'fill_g': fill_rgba[1], 
+                                          'fill_b': fill_rgba[2], 
+                                          'fill_a': fill_rgba[3], 
+                                          'stroke_r': stroke_rgba[0], 
+                                          'stroke_g': stroke_rgba[1], 
+                                          'stroke_b': stroke_rgba[2], 
+                                          'stroke_a': stroke_rgba[3],
+                                          'value_0': radius(valueStart), 
+                                          'epoch_0': epochStart, 
+                                          'value_1': radius(valueEnd), 
+                                          'epoch_1': epochEnd
+                                          })
+                }
+              }
+            }
+          }
+          else {
+            points.push(pixel[0], pixel[1], size, fill_rgba[0], fill_rgba[1], fill_rgba[2], fill_rgba[3], stroke_rgba[0], stroke_rgba[1], stroke_rgba[2], stroke_rgba[3]);
+          }
         }
         else {
           for (var j = 0; j < feature.geometry.coordinates.length; j++) {
             var coords = feature.geometry.coordinates[j];
             var pixel = LngLatToPixelXY(coords[0], coords[1]);
-            points.push(
-              pixel[0], 
-              pixel[1], 
-              size,
-              fill_rgba[0]/255,
-              fill_rgba[1]/255,
-              fill_rgba[2]/255,
-              fill_rgba[3],
-              stroke_rgba[0]/255,
-              stroke_rgba[1]/255,
-              stroke_rgba[2]/255,
-              stroke_rgba[3]
-            );
-            }
+            points.push(pixel[0], pixel[1], size, fill_rgba[0], fill_rgba[1], fill_rgba[2], fill_rgba[3], stroke_rgba[0], stroke_rgba[1], stroke_rgba[2], stroke_rgba[3]);
+          }
+        }
+      }
+      if (timeseriesPoints.length > 0) {
+        timeseriesPoints.sort(function (a, b) {
+          return b.value_1 - a.value_1;
+        });
+        for (var k = 0; k < timeseriesPoints.length; k++) {
+          points.push(timeseriesPoints[k].x);
+          points.push(timeseriesPoints[k].y);
+          points.push(timeseriesPoints[k].fill_r);
+          points.push(timeseriesPoints[k].fill_g);
+          points.push(timeseriesPoints[k].fill_b);
+          points.push(timeseriesPoints[k].fill_a);
+          points.push(timeseriesPoints[k].stroke_r);
+          points.push(timeseriesPoints[k].stroke_g);
+          points.push(timeseriesPoints[k].stroke_b);
+          points.push(timeseriesPoints[k].stroke_a);
+          points.push(timeseriesPoints[k].value_0);
+          points.push(timeseriesPoints[k].epoch_0);
+          points.push(timeseriesPoints[k].value_1);
+          points.push(timeseriesPoints[k].epoch_1);
         }
       }
       this._setBufferData(new Float32Array(points));
@@ -4817,6 +4858,7 @@ export class WebGLVectorTile2 extends Tile {
   _drawMarker(transform: Float32Array) {
     var gl = this.gl;
     var drawOptions = this._layer.drawOptions;
+    var setDataOptions = this._layer.setDataOptions;
     
     if (this._ready) {
   
@@ -4868,10 +4910,22 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.mode, mode);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this._arrayBuffer);
-      this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
-      this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 28); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+
+      if (typeof(setDataOptions.sizeKey) !== 'undefined' && setDataOptions.sizeKey == 'timeseries') {
+        gl.uniform1f(this.program.epoch, currentTime);
+        this.program.setVertexAttrib.position(2, gl.FLOAT, false, 56, 0); 
+        this.program.setVertexAttrib.fill(4, gl.FLOAT, false, 56, 8);
+        this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, 56, 24);
+        this.program.setVertexAttrib.size_start(1, gl.FLOAT, false, 56, 40);
+        this.program.setVertexAttrib.epoch_start(1, gl.FLOAT, false, 56, 44);
+        this.program.setVertexAttrib.size_end(1, gl.FLOAT, false, 56, 48);
+        this.program.setVertexAttrib.epoch_end(1, gl.FLOAT, false, 56, 52);
+      } else {
+        this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        this.program.setVertexAttrib.size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 12); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 28); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+      }
 //      this.program.setVertexAttrib.packedcolor(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
@@ -7457,6 +7511,38 @@ void main (void) {
   v_size = SQRT_2 * size + 2.0*(linewidth + 1.5*antialias);
   orig_size = size;
   gl_PointSize = v_size;
+  fg_color = vec4(stroke.xyz/255.,stroke.w);
+  bg_color = vec4(fill.xyz/255.,fill.w);
+}
+`;
+
+WebGLVectorTile2Shaders.animatedMarkerVertexShader = `
+const float SQRT_2 = 1.4142135623730951;
+uniform mat4 ortho;
+uniform float orientation, linewidth, antialias;
+attribute vec3 position;
+attribute vec4 fill;
+attribute vec4 stroke;
+attribute float size_start, epoch_start, size_end, epoch_end;
+uniform float epoch;
+varying vec2 rotation;
+varying float v_size;
+varying float orig_size;
+varying vec4 fg_color, bg_color;
+void main (void) {
+  if (epoch_start > epoch || epoch_end < epoch) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else {
+    gl_Position = ortho * vec4(position, 1.0);
+  }
+
+  rotation = vec2(cos(orientation), sin(orientation));
+  float alpha = smoothstep(epoch_start, epoch_end, epoch);
+  float size = mix(size_start, size_end, alpha);
+  v_size = SQRT_2 * size + 2.0*(linewidth + 1.5*antialias);
+  orig_size = size;
+  gl_PointSize = v_size;
+  //gl_PointSize = 10.0;
   fg_color = vec4(stroke.xyz/255.,stroke.w);
   bg_color = vec4(fill.xyz/255.,fill.w);
 }
