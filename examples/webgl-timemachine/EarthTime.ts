@@ -7,6 +7,8 @@ import { Glb } from './Glb'
 import { Timeline } from './Timeline';
 
 export interface EarthTime {
+  autoModeBeforeSlideChangeState: {[key: string]: any};
+  disableMediaLayerTitleBar: boolean;
   mode: string;
   playbackRates(): {[key: string]: number},
   waitFrames: any;

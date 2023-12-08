@@ -111,6 +111,7 @@ html, body {
 }
 #contributors {
   font-size: 13px;
+  z-index: 10px;
 }
 #contributors.heading {
   font-size: 24px;

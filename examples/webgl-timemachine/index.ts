@@ -157,6 +157,8 @@ class EarthTimeImpl implements EarthTime {
   lastView = {x : -1, y : -1, scale: -1};
   lastClientDimensions = {width : -1, height : -1};
   lastDrawnLayers = [];
+  disableMediaLayerTitleBar: boolean = false;
+  autoModeBeforeSlideChangeState = {};
   async setDatabaseID(databaseID: GSheet) {
     if (loadedLayersGSheet && databaseID.url() == loadedLayersGSheet.url()) return;
     loadedLayersGSheet = databaseID;
@@ -577,6 +579,9 @@ var timestampOnlyUILeft = parseConfigOption({optionName: "timestampOnlyUILeft", 
 // Only show visualization
 var disableUI = parseConfigOption({optionName: "disableUI", optionDefaultValue: false, exposeOptionToUrlHash: true});
 (window as any).disableUI = disableUI;
+// Override MediaLayer defined setting for how it shows the modal title bar
+var disableMediaLayerTitleBar = parseConfigOption({optionName: "disableMediaLayerTitleBar", optionDefaultValue: false, exposeOptionToUrlHash: true});
+gEarthTime.disableMediaLayerTitleBar = disableMediaLayerTitleBar;
 // Hide annotation box
 var disableAnnotations = parseConfigOption({optionName: "disableAnnotations", optionDefaultValue: false, exposeOptionToUrlHash: true});
 // Prevent presentation slider from being initialized
@@ -1447,9 +1452,22 @@ function loadWaypointSliderContentFromCSV(csvdata) {
   if (enableThemeHamburgerButton) {
     // May just be a single item if there is only only one or zero themes designated
     waypointJSONList = snaplapseForPresentationSlider.CSVToJSONList(waypointdefs);
+    var filteredStoriesByTheme = {};
+    var doFilterStoriesAndThemes = false;
+    if (EARTH_TIMELAPSE_CONFIG.themesAndStoriesToShow) {
+      var filteredThemes = Object.keys(EARTH_TIMELAPSE_CONFIG.themesAndStoriesToShow);
+      doFilterStoriesAndThemes = !!filteredThemes.length;
+      for (var filteredTheme of filteredThemes) {
+        filteredStoriesByTheme[filteredTheme] = EARTH_TIMELAPSE_CONFIG.themesAndStoriesToShow[filteredTheme];
+      }
+    }
     for (var themeId in waypointJSONList) {
-      var themeTitle = waypointJSONList[themeId].themeTitle;
       var themeEnabled = isStaging || usingCustomWaypoints ? "true" : waypointJSONList[themeId].enabled;
+      if (!themeEnabled) continue;
+      var themeTitle = waypointJSONList[themeId].themeTitle;
+      if (doFilterStoriesAndThemes && !filteredStoriesByTheme[themeTitle]) {
+        continue;
+      }
       var stories = waypointJSONList[themeId].stories;
       var numStories = Object.keys(stories).length;
       // Handle legacy case where we treat theme as a story
@@ -1464,8 +1482,14 @@ function loadWaypointSliderContentFromCSV(csvdata) {
           theme_html += "<table data-enabled='" + themeEnabled + "' id=theme_" + themeId + ">";
           theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
         }
-        var storyTitle = stories[storyId].storyTitle;
         var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
+        if (!storyEnabled) continue;
+        var storyTitle = stories[storyId].storyTitle;
+        if (doFilterStoriesAndThemes && filteredStoriesByTheme[themeTitle]) {
+          if (filteredStoriesByTheme[themeTitle][0] != "*" && !filteredStoriesByTheme[themeTitle].includes(storyTitle)) {
+            continue;
+          }
+        }
         theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
         var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://via.placeholder.com/128x74";
         theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
@@ -1493,7 +1517,7 @@ function loadWaypointSliderContentFromCSV(csvdata) {
       }
     }
 
-    $(".themes-div").find('[data-enabled="false"]').addClass("force-hidden");
+    //$(".themes-div").find('[data-enabled="false"]').addClass("force-hidden");
     $(".themes-div").accordion("refresh");
 
     var storyAndTheme = getStoryAndThemeFromUrl();
@@ -1890,6 +1914,9 @@ async function setupUIAndOldLayers() {
 
       var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
 
+      gEarthTime.autoModeBeforeSlideChangeState.isAutoModeEnabled = snaplapseViewerForPresentationSlider.isAutoModeEnabled();
+      gEarthTime.autoModeBeforeSlideChangeState.isAutoModeRunning = isAutoModeRunning;
+
       clearInterval(waitToLoadWaypointLayersOnPageReadyInterval);
 
       // Temporarily set a max scale, based on what the waypoint's shareview asks for. Note that this may be overriden by the max zoom of a layer
@@ -1992,9 +2019,10 @@ async function setupUIAndOldLayers() {
       // Don't zoom anywhere when an extra layer is to be shown
       // TODO: Note that if a non-extras layer begins with "extras_" then this logic incorrectly flags it.
       // The real answer is to test each layer to see if it is of type MediaLayer, but until the layer is loaded we don't know this.
-      if (waypointLayers.some(layerId => /^extras_/.test(layerId))) {
-        gEarthTime.timelapse.stopParabolicMotion();
-      }
+      // TODO: Disabled 12/2023
+      // if (waypointLayers.some(layerId => /^extras_/.test(layerId))) {
+      //   gEarthTime.timelapse.stopParabolicMotion();
+      // }
 
       // Show layer ids
       handleLayers(waypointLayers);
@@ -2409,12 +2437,13 @@ async function setupUIAndOldLayers() {
   if ((extraContributors || extraContributorsLogoPath) && extraContributorTakesPrecedence) {
     var $labAndCMULogoDiv = $("<div id='labAndCMULogo'></div>");
     var $contributors = $("#contributors");
-    var $logosContainer = $("#logosContainer");
-    $logosContainer.append($labAndCMULogoDiv)
+    var $logosContainerParent = $("#logosContainer");
+    var $logosContainerBranding = $("#logosContainer #earthTimeBranding");
+    $logosContainerBranding.append($labAndCMULogoDiv)
     $labAndCMULogoDiv.html($contributors.html());
     $contributors.html("").addClass("heading");
-    $logosContainer.prepend($("<div id='poweredBy'>Powered by</div>"));
-    $logosContainer.prepend($contributors);
+    $logosContainerBranding.prepend($("<div id='poweredBy'>Powered by</div>"));
+    $logosContainerParent.prepend($contributors);
   }
 
   if (extraContributorsLogoPath) {
