@@ -3053,7 +3053,7 @@ export class WebGLVectorTile2 extends Tile {
     var _minTemp = 400.;
     var _maxTemp = 3000.;
     var _first = 0;
-    var _count = 100;
+    var _count = this._pointCount;
 
     var opts = options || {};
     var showTemp = opts.showTemp || _showTemp;
@@ -3121,7 +3121,7 @@ export class WebGLVectorTile2 extends Tile {
     var currentIdx = currentYear + ('0' + (currentMonth + 1)).slice(-2);
     var prevIdx = prevYear + ('0' + (prevMonth + 1)).slice(-2);
     first = prevIdx in viirsIndex ? viirsIndex[prevIdx]['first'] : 0;
-    count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : 100;
+    count = prevIdx in viirsIndex && currentIdx in viirsIndex ? viirsIndex[currentIdx]['count'] + viirsIndex[prevIdx]['count'] : this._pointCount;
 
     if (this._ready) {
       gl.useProgram(this.program);
@@ -3153,6 +3153,8 @@ export class WebGLVectorTile2 extends Tile {
       gl.uniform1f(this.program.pointSize, pointSize);
 
       gl.drawArrays(gl.POINTS, first, count);
+
+      console.log(maxTime, minTime, first, count);
       gl.disable(gl.BLEND);
     }
   }
