@@ -1191,13 +1191,15 @@ export class WebGLVectorTile2 extends Tile {
   _setMarkerData(data: { features: string | any[]; }) { 
     // Assumes GeoJSON data
     var points = [];
-    var timeseriesPoints = [];
+    var timeseriesPoints:any[] = [];
     let setDataOptions = this._layer.setDataOptions || {}; 
     var key = setDataOptions.key || undefined;
     var sizeKey = setDataOptions.sizeKey || undefined;
     var values = setDataOptions.values || undefined;
     var fills = setDataOptions.fills || [[218,218,218,1]];
     var strokes = setDataOptions.strokes || [[16,16,16,1]];
+    var negativeFills = setDataOptions.negativeFills || undefined;
+    var negativeStrokes = setDataOptions.negativeStrokes || undefined;
 
     let size = 10;
 
@@ -1263,11 +1265,21 @@ export class WebGLVectorTile2 extends Tile {
         }
         let fill_rgba = fills[0];
         let stroke_rgba = strokes[0];
+        let negative_fill_rgba, negative_stroke_rgba;  
+
+        if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") {
+          negative_fill_rgba = negativeFills[0];
+          negative_stroke_rgba = negativeStrokes[0];  
+        }
         if (key && feature.properties[key]) {          
           let idx = values.indexOf(feature.properties[key]);
           if (idx == -1) continue;
           fill_rgba = fills[idx];
           stroke_rgba = strokes[idx];
+          if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") {
+            negative_fill_rgba = negativeFills[idx];
+            negative_stroke_rgba = negativeStrokes[idx];  
+          }
         }
 
 
@@ -1301,7 +1313,17 @@ export class WebGLVectorTile2 extends Tile {
                                           'epoch_0': epochStart, 
                                           'value_1': radius(valueEnd), 
                                           'epoch_1': epochEnd
-                                          })
+                                          });
+                  if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") { 
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_r'] = negative_fill_rgba[0];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_g'] = negative_fill_rgba[1];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_b'] = negative_fill_rgba[2];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_a'] = negative_fill_rgba[3];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_stroke_r'] = negative_stroke_rgba[0];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_stroke_g'] = negative_stroke_rgba[1];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_stroke_b'] = negative_stroke_rgba[2];
+                    timeseriesPoints[timeseriesPoints.length - 1]['negative_stroke_a'] = negative_stroke_rgba[3];
+                  }
                 }
               }
             }
@@ -1337,6 +1359,16 @@ export class WebGLVectorTile2 extends Tile {
           points.push(timeseriesPoints[k].epoch_0);
           points.push(timeseriesPoints[k].value_1);
           points.push(timeseriesPoints[k].epoch_1);
+          if (typeof negativeFills !== 'undefined' && typeof negativeStrokes !== 'undefined') {
+            points.push(timeseriesPoints[k].negative_fill_r);
+            points.push(timeseriesPoints[k].negative_fill_g);
+            points.push(timeseriesPoints[k].negative_fill_b);
+            points.push(timeseriesPoints[k].negative_fill_a);
+            points.push(timeseriesPoints[k].negative_stroke_r);
+            points.push(timeseriesPoints[k].negative_stroke_g);
+            points.push(timeseriesPoints[k].negative_stroke_b);
+            points.push(timeseriesPoints[k].negative_stroke_a);
+          }
         }
       }
       this._setBufferData(new Float32Array(points));
@@ -4915,13 +4947,19 @@ export class WebGLVectorTile2 extends Tile {
 
       if (typeof(setDataOptions.sizeKey) !== 'undefined' && setDataOptions.sizeKey == 'timeseries') {
         gl.uniform1f(this.program.epoch, currentTime);
-        this.program.setVertexAttrib.position(2, gl.FLOAT, false, 56, 0); 
-        this.program.setVertexAttrib.fill(4, gl.FLOAT, false, 56, 8);
-        this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, 56, 24);
-        this.program.setVertexAttrib.size_start(1, gl.FLOAT, false, 56, 40);
-        this.program.setVertexAttrib.epoch_start(1, gl.FLOAT, false, 56, 44);
-        this.program.setVertexAttrib.size_end(1, gl.FLOAT, false, 56, 48);
-        this.program.setVertexAttrib.epoch_end(1, gl.FLOAT, false, 56, 52);
+        this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); 
+        this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
+        this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
+        this.program.setVertexAttrib.size_start(1, gl.FLOAT, false, this._layer.numAttributes * 4, 40);
+        this.program.setVertexAttrib.epoch_start(1, gl.FLOAT, false, this._layer.numAttributes * 4, 44);
+        this.program.setVertexAttrib.size_end(1, gl.FLOAT, false, this._layer.numAttributes * 4, 48);
+        this.program.setVertexAttrib.epoch_end(1, gl.FLOAT, false, this._layer.numAttributes * 4, 52);
+
+        if (typeof setDataOptions.negativeFills !== 'undefined' && typeof setDataOptions.negativeStrokes !== 'undefined') {
+          this.program.setVertexAttrib.negative_fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 56); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+          this.program.setVertexAttrib.negative_stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 72); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
+        }
+  
       } else {
         this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
         this.program.setVertexAttrib.size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
@@ -7547,6 +7585,48 @@ void main (void) {
   //gl_PointSize = 10.0;
   fg_color = vec4(stroke.xyz/255.,stroke.w);
   bg_color = vec4(fill.xyz/255.,fill.w);
+}
+`;
+
+WebGLVectorTile2Shaders.animatedNegativeValuesMarkerVertexShader = `
+const float SQRT_2 = 1.4142135623730951;
+uniform mat4 ortho;
+uniform float orientation, linewidth, antialias;
+attribute vec3 position;
+attribute vec4 fill;
+attribute vec4 stroke;
+attribute float size_start, epoch_start, size_end, epoch_end;
+attribute vec4 negative_fill;
+attribute vec4 negative_stroke;
+uniform float epoch;
+varying vec2 rotation;
+varying float v_size;
+varying float orig_size;
+varying vec4 fg_color, bg_color;
+void main (void) {
+  if (epoch_start > epoch || epoch_end < epoch) {
+    gl_Position = vec4(-1,-1,-1,-1);
+  } else {
+    gl_Position = ortho * vec4(position, 1.0);
+  }
+
+  vec4 local_stroke = stroke;
+  vec4 local_fill = fill;
+
+  rotation = vec2(cos(orientation), sin(orientation));
+  float alpha = smoothstep(epoch_start, epoch_end, epoch);
+  float size = mix(size_start, size_end, alpha);
+  if (size < 0.0) {
+    local_stroke = negative_stroke;
+    local_fill = negative_fill;
+    size = abs(size);
+  }
+
+  v_size = SQRT_2 * size + 2.0*(linewidth + 1.5*antialias);
+  orig_size = size;
+  gl_PointSize = v_size;
+  fg_color = vec4(local_stroke.xyz/255.,local_stroke.w);
+  bg_color = vec4(local_fill.xyz/255.,local_fill.w);
 }
 `;
 
