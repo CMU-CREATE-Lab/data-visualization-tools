@@ -1,5 +1,7 @@
 // Data Library search
 
+import { gEarthTime } from "./EarthTime";
+
 export class ContentSearch {
   $layerSearchClear: JQuery<HTMLElement>;
   $search: JQuery<HTMLInputElement>;
@@ -104,6 +106,10 @@ export class ContentSearch {
           $(categories).attr("aria-selected", enableState).toggleClass("accordion-header-active ui-state-active").next().toggle().toggleClass("accordion-content-active");
         } else {
           that.$noSearchResultsFoundMsg.show();
+        }
+        if (gEarthTime.enableLetterboxMode) {
+          gEarthTime.updateLetterboxContent("layers");
+          $("#letterbox-bottom-picker-results-content").children().remove();
         }
       }, that.searchTimeoutInMs);
     });

@@ -882,7 +882,7 @@ html, body {
   outline: none;
   border-radius: 3px;
   -webkit-box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-          box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
   display: inline-block;
 }
 
@@ -921,13 +921,18 @@ html, body {
 }
 
 .location_search_div.letterbox {
-  width: 251px;
-  top: 15px;
-  left: 7px;
+  top: -63px;
+  left: 0px;
+  position: relative;
+  top: -100px;
+  width: auto;
+  position: relative;
+  top: -100px;
 }
 
-.location_search_div.letterbox > #location_search_icon {
-  right: -44px;
+.location_search_div.letterbox #location_search {
+  width: calc(100% - 41px);
+  padding-right: 0px;
 }
 
 #top-nav.menu-active {
@@ -996,7 +1001,7 @@ html, body {
 }
 
 #letterbox-list-themes-button {
-  width: 110px;
+  width: auto;
   font-size: 20px;
   cursor: pointer;
   margin-bottom: 12px;
@@ -1005,7 +1010,7 @@ html, body {
 }
 
 #letterbox-list-layers-button {
-  width: 110px;
+  width: auto;
   font-size: 20px;
   cursor: pointer;
   margin-bottom: 12px;
@@ -1014,11 +1019,11 @@ html, body {
 }
 
 #letterbox-clear-layers-button {
-  width: 80px;
+  width: auto;
   font-size: 15px;
   cursor: pointer;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
 
 #letterbox-bottom-controls-container th {
@@ -1071,12 +1076,12 @@ html, body {
 }
 
 #letterbox-control-buttons {
-  position: relative;
-  text-align: right;
-  right: 5px;
-  height: 100%;
-  top: 8px;
-  float: right;
+  display: flex;
+  flex-flow: column;
+  float: left;
+  margin-left: 10px;
+  margin-top: -91px;
+  width: calc(100% - 20px);
 }
 
 #letterbox-bottom-picker-results-content {
@@ -2052,28 +2057,11 @@ a:focus { outline:0; }
   transition: bottom 0.40s;
 }
 
-#layers-legend.letterbox {
-  bottom: 143px;
-  top: initial;
-}
-
-#layers-legend.hyperwall.letterbox {
-  bottom: 170px;
-}
-
-#layers-legend.letterbox.layerGraphs {
-  bottom: 235px;
-}
-
 #layers-legend.hyperwall.letterbox.layerGraphs {
   bottom: 260px;
 }
 
-#layers-legend.letterbox.noTimeline, #layers-legend.letterbox.noTimelineForced {
-  bottom: 80px;
-}
-
-#layers-legend.topNavDisabled {
+#layers-legend:not(.letterbox).topNavDisabled {
   top: 72px;
 }
 
@@ -2422,6 +2410,13 @@ a:focus { outline:0; }
   position: relative;
 }
 
+#letterbox-bottom-picker-content-wrapper #search-content {
+  background: initial;
+  position: absolute;
+  margin-left: 145px;
+  top: -7px;
+}
+
 #layer-search-results {
   height: calc(100% - 122px);
   padding-left: 10px;
@@ -2430,7 +2425,7 @@ a:focus { outline:0; }
 }
 
 #layer-search-box {
-  width: calc(100% - 78px);
+  width: calc(100% - 70px);
   padding-left: 33px;
   padding-right: 33px;
   background: rgba(255,255,255,1);
@@ -2440,6 +2435,15 @@ a:focus { outline:0; }
   border-radius: 3px;
   display: inline-block;
   height: 30px;
+}
+
+#letterbox-bottom-picker-content-wrapper #layer-search-box {
+  height: 28px;
+}
+
+#letterbox-bottom-picker-content-wrapper #layer-search-results  {
+  width: calc(100% - 120px);
+  padding-left: 43px;
 }
 
 #layer-search-box::placeholder {

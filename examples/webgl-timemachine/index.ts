@@ -159,6 +159,8 @@ class EarthTimeImpl implements EarthTime {
   lastDrawnLayers = [];
   disableMediaLayerTitleBar: boolean = false;
   autoModeBeforeSlideChangeState = {};
+  enableLetterboxMode: boolean = false;
+  updateLetterboxContent(): void {}
   async setDatabaseID(databaseID: GSheet) {
     if (loadedLayersGSheet && databaseID.url() == loadedLayersGSheet.url()) return;
     loadedLayersGSheet = databaseID;
@@ -608,6 +610,7 @@ var showHomeLogo = parseConfigOption({optionName: "showHomeLogo", optionDefaultV
 var showSearchBox = parseConfigOption({optionName: "showSearchBox", optionDefaultValue: true, exposeOptionToUrlHash: true});
 var letterboxBottomOffset = parseConfigOption({optionName: "letterboxBottomOffset", optionDefaultValue: 312, exposeOptionToUrlHash: false});
 var enableLetterboxMode = parseConfigOption({optionName: "enableLetterboxMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
+gEarthTime.enableLetterboxMode = enableLetterboxMode;
 var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var isHyperwall = parseConfigOption({optionName: "isHyperwall", optionDefaultValue: false, exposeOptionToUrlHash: false});
@@ -1555,6 +1558,7 @@ function loadWaypointSliderContentFromCSV(csvdata) {
   sortThemes();
   if (enableLetterboxMode) {
     updateLetterboxContent();
+    $("#search-content").prependTo("#letterbox-bottom-picker-content-wrapper");
   }
   storiesInitialized = true;
 }
@@ -2125,7 +2129,7 @@ async function setupUIAndOldLayers() {
   if (showSearchBox) {
     var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><span id="location_search_clear_icon" class="clear-search-icon" title="Clear location search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
     if (enableLetterboxMode) {
-      $locationSearchDiv.addClass("top-panel letterbox").appendTo($("#letterbox-bottom-controls"));
+      $locationSearchDiv.addClass("top-panel letterbox").prependTo($("#letterbox-bottom-controls"));
       $(".location_search_div").addClass("letterbox");
     } else {
       if (disableTopNav) {
@@ -2541,6 +2545,7 @@ async function setupUIAndOldLayers() {
       e.which = 67;
       e.keyCode = 67;
       $("body").trigger(e);
+      updateLetterboxSelections();
     });
     updateLetterboxSelections();
   }
@@ -2733,45 +2738,49 @@ var updateLetterboxContent = function(newSectionChoice=null) {
   $("#letterbox-control-buttons .letterbox-list-button-highlight").removeClass("letterbox-list-button-highlight");
   if (sectionChoice == "themes") {
     $("#letterbox-list-themes-button").addClass("letterbox-list-button-highlight");
+    $("#search-content").hide();
   } else if (sectionChoice == "layers") {
     $("#letterbox-list-layers-button").addClass("letterbox-list-button-highlight");
+    $("#search-content").show();
   }
 
-  // Create letterbox base layers table
-  if (!$(".letterbox-base-layers-table").length) {
-    var baseLayers = $("#category-base-layers").find("td").map(function() {
-      return $(this);
-    }).get();
+  // // Create letterbox base layers table
+  // 20240108 - Disable this feature, as we have far too many base layers now.
+  //            Maybe it should be a quick access panel for select common base layers?
+  // if (!$(".letterbox-base-layers-table").length) {
+  //   var baseLayers = $("#category-base-layers").find("td").map(function() {
+  //     return $(this);
+  //   }).get();
 
-    var baselayerRowHeight = Math.floor(100 / baseLayers.length);
+  //   var baselayerRowHeight = Math.floor(100 / baseLayers.length);
 
-    var html = "<table class='letterbox-base-layers-table'><caption>Base Layers:</caption>";
+  //   var html = "<table class='letterbox-base-layers-table'><caption>Base Layers:</caption>";
 
-    for (var i = 0; i < baseLayers.length; i++) {
-      var inputId = $(baseLayers[i]).find("input")[0].id;
-      var textName = baseLayers[i].text();
+  //   for (var i = 0; i < baseLayers.length; i++) {
+  //     var inputId = $(baseLayers[i]).find("input")[0].id;
+  //     var textName = baseLayers[i].text();
 
-      if (textName.indexOf("Earth Engine") >= 0) {
-        textName = "Timelapse";
-      }
+  //     if (textName.indexOf("Earth Engine") >= 0) {
+  //       textName = "Timelapse";
+  //     }
 
-      html += "<tr height='" + baselayerRowHeight + "%'><td><div><label class='pointer' for='letterbox-" + inputId + "'><input type='radio' class='pointer' id='letterbox-" + inputId + "' data-base-layer-id='" + inputId + "' name='letterbox-base-layers'/>" + textName + "</label></div></td></tr>"
-    }
-    html += "</table>";
+  //     html += "<tr height='" + baselayerRowHeight + "%'><td><div><label class='pointer' for='letterbox-" + inputId + "'><input type='radio' class='pointer' id='letterbox-" + inputId + "' data-base-layer-id='" + inputId + "' name='letterbox-base-layers'/>" + textName + "</label></div></td></tr>"
+  //   }
+  //   html += "</table>";
 
-    $("#letterbox-base-layers").children().remove();
-    $("#letterbox-base-layers").html(html);
+  //   $("#letterbox-base-layers").children().remove();
+  //   $("#letterbox-base-layers").html(html);
 
-    // Handle letterbox base layer selection
-    $('.letterbox-base-layers-table').on("click", "td", function(e) {
-      // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
-      if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
-      var $input = $(this).find("input");
-      // Special case since this is a radio button
-      $input.prop("checked", true);
-      $("#" + $input.data("base-layer-id")).trigger("click");
-    });
-  }
+  //   // Handle letterbox base layer selection
+  //   $('.letterbox-base-layers-table').on("click", "td", function(e) {
+  //     // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
+  //     if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
+  //     var $input = $(this).find("input");
+  //     // Special case since this is a radio button
+  //     $input.prop("checked", true);
+  //     $("#" + $input.data("base-layer-id")).trigger("click");
+  //   });
+  // }
 
   if (sectionChoice == "themes") {
     // Create letterbox theme table
@@ -2795,7 +2804,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
 
     var numThemesPerRow = Math.ceil(layerThemes.length / numRows);
 
-    var html = "<table class='letterbox-bottom-picker-table'><tr><th>Themes:</th></tr><tr height='33%'>";
+    var html = "<table class='letterbox-bottom-picker-table'><tr><th style='position: sticky; top: 0px; left: 0px'>Themes:</th></tr><tr height='33%'>";
 
     var k = 0;
     var j = 0;
@@ -2830,7 +2839,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     }
 
     // Handle letterbox theme selection
-    $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
+    $('.letterbox-bottom-picker-table').off().on("click", "td", function(e) {
       // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
       if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
       var $input = $(this).find("input");
@@ -2843,15 +2852,26 @@ var updateLetterboxContent = function(newSectionChoice=null) {
 
   } else if (sectionChoice == "layers") {
     // Create letterbox layer categories table, sorted alphabetically top down, left to right
-    var layerCategories = $("#layers-list").find("h3").map(function() {
-      if ($(this).text() != "Base Layers") {
-        return $(this);
+
+    // 20240108 - Don't filter out 'Base Layers' layer category. There are too many to inject into a special base layer table,
+    //            so we present them all as a normal layer category.
+    // var layerCategories = $("#layers-list").find("h3").map(function() {
+    //   if ($(this).text() != "Base Layers") {
+    //     return $(this);
+    //   }
+    // }).get();
+
+    var layerCategories = $("#layers-list").find("h3").filter(function() {
+      var element = $(this);
+      if (element.css('display') == 'none') {
+          return false;
       }
-    }).get();
+      return true;
+    });
 
     var numCategoriesPerRow = Math.ceil(layerCategories.length / numRows);
 
-    var html = "<table class='letterbox-bottom-picker-table'><tr><th colspan='2'>Layer Categories:</th></tr><tr height='33%'>";
+    var html = "<table class='letterbox-bottom-picker-table'><tr><th style='position: sticky; top: 0px; left: 0px'>Layer Categories:</th></tr><tr height='33%'>";
     var k = 0;
     var j = 0;
     var doSwap = false;
@@ -2866,8 +2886,8 @@ var updateLetterboxContent = function(newSectionChoice=null) {
         idx -= (k + 1)
         doSwap = true;
       }
-      var categoryId = layerCategories[idx][0].id;
-      var category = layerCategories[idx].text();
+      var categoryId = layerCategories[idx].id;
+      var category = $(layerCategories[idx]).text();
       html += "<td><label class='pointer' for='letterbox-" + categoryId + "'><input type='radio' class='pointer' id='letterbox-" + categoryId + "' data-category-id='" + categoryId + "' name='letterbox-layer-categories'/>" + category + "</label></td>"
       j++;
     }
@@ -2884,41 +2904,58 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     }
 
     // Handle letterbox layer category selection
-    $('.letterbox-bottom-picker-table').on("click", "td", function(e) {
+    $('.letterbox-bottom-picker-table').off().on("click", "td", function(e) {
       // Clicking a span will cause this to run twice, so we ignore element a user did not physically click
       if (typeof(e.originalEvent) != "undefined" && !e.originalEvent.isTrusted) return;
 
       var $input = $(this).find("input");
       // Special case since this is a radio button
       $input.prop("checked", true);
-
       // Create letterbox layers table
-      var categoryLayers = $("#" + $input.data("category-id")).next().find("td").not(".loading-layer-spinner-small");
-      var numLayersPerRow = Math.ceil(categoryLayers.length / numRows);
-
-      var html = "<table class='letterbox-bottom-picker-results-table'><tr style='height: 1%'><th>" + $(this).text() + " Layers:</th></tr><tr height='33%'>";
-
-      for (var i = 0; i < categoryLayers.length; i++) {
-        if ((i % numLayersPerRow == 0) && i > 0) {
-          html += "</tr><tr height='33%'>";
+      var categoryLayers = $("#" + $input.data("category-id")).next().find("tr").filter(function() {
+        var element = $(this);
+        if (element.css('display') == 'none') {
+            return false;
         }
+        return true;
+      }).find("td").not(".loading-layer-spinner-small");
 
+      //var numLayersPerRow = Math.ceil(categoryLayers.length / numRows);
+      var inputType;
+
+      var layerCategoryName = $(this).text();
+      if (layerCategoryName != "Base Layers") {
+        layerCategoryName += " Layers";
+        inputType = "checkbox";
+      } else {
+        inputType = "radio";
+      }
+
+      var html = "<table class='letterbox-bottom-picker-results-table'><tr><th style='position: sticky; top: 0px; left: 0px'>" + layerCategoryName + ":</th></tr>";
+      var rows_html = ["<tr height='33%'>", "<tr height='33%'>", "<tr height='33%'>"]
+      var counter = 0;
+      for (var i = 0; i < categoryLayers.length; i++) {
         var labelName = $(categoryLayers[i]).find("label").attr('name');
         // Ignore the layer info bubble element (or any other non-layer toggle label element)
         if (!labelName) continue;
         var inputId = $(categoryLayers[i]).find("input")[0].id;
-
-        html += "<td><label class='pointer' name='letterbox-" + labelName + "'><input type='checkbox' class='pointer' id='letterbox-" + inputId + "' data-layer-id='" + inputId + "'/>" + $(categoryLayers[i]).text() + "</label></td>";
-
+        var inputName = $(categoryLayers[i]).find("input")[0].name + "-letterbox";
+        rows_html[counter] += "<td><label class='pointer' name='letterbox-" + labelName + "'><input name='" + inputName + "' type='" + inputType + "' class='pointer' id='letterbox-" + inputId + "' data-layer-id='" + inputId + "'/>" + $(categoryLayers[i]).text() + "</label></td>";
+        counter++;
+        if (counter > 2) counter = 0;
       }
-      html += "</tr></table>";
+
+      for (i = 0; i < rows_html.length; i++) {
+        html += rows_html[i] + "</tr>";
+      }
+      html += "</table>";
 
       $("#letterbox-bottom-picker-results-content").children().remove();
       $("#letterbox-bottom-picker-results-content").html(html);
 
       // Handle letterbox specific layer selection
-      $(".letterbox-bottom-picker-results-table").on("click", "td", function(e) {
-        if (e.toElement.tagName.toLowerCase() == "label") return;
+      $(".letterbox-bottom-picker-results-table").off().on("click", "td", function(e) {
+        if (e.target.tagName.toLowerCase() == "label") return;
         var $input = $(this).find("input");
         $("#" + $input.data("layer-id")).trigger("click");
       });
@@ -2927,6 +2964,7 @@ var updateLetterboxContent = function(newSectionChoice=null) {
     });
   }
 }
+gEarthTime.updateLetterboxContent = updateLetterboxContent;
 
 var updateLetterboxSelections = function(elemClicked?) {
   var $letterboxContainers = $("#letterbox-base-layers, #letterbox-bottom-picker-results-content");

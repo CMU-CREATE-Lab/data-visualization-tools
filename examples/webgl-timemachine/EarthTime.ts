@@ -46,6 +46,8 @@ export interface EarthTime {
   getStories(): object;
   handleStoryToggle(doShow: boolean): void;
   waypointTimelineUIChangeListener(info: {[key: string]: any}): void;
+  enableLetterboxMode: boolean;
+  updateLetterboxContent(selectionChoice:string): void;
 };
 
 export const stdWebMercatorNorth = 85.05113006405742; // Northernmost latitude for standard Web Mercator
