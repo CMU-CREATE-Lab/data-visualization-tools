@@ -1213,9 +1213,8 @@ function initLayerToggleUI() {
     }
   });
 
-  // TODO(pdille): Fix for new code
   // Add vertical/horizontal scroll support to specific parts of the UI (e.g. layers/themes panels)
-  /*try {
+  try {
     if (UTIL.isTouchDevice()) {
       UTIL.verticalTouchScroll($("#layers-list .layers-scroll-vertical"));
       UTIL.verticalTouchScroll($("#layer-search-results.layers-scroll-vertical"));
@@ -1228,7 +1227,7 @@ function initLayerToggleUI() {
     }
   } catch (e) {
     console.log('Error creating scroll events for UI: ', e);
-  }*/
+  }
 
   // Set the starting base layer
   $('input:radio[name=base-layers][id=' + visibleBaseMapLayer + '-base]').trigger("click");
