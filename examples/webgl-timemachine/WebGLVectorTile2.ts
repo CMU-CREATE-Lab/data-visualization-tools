@@ -2085,8 +2085,8 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
   _setTrajectoriesData(data: string | any[]) {
-    console.log("_setTrajectoriesData");
-    console.log(data);
+    //console.log("_setTrajectoriesData");
+    //console.log(data);
     var points = [];
     for (var i = 0; i < data.length; i++) {
       var entry = data[i];
@@ -3186,7 +3186,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.POINTS, first, count);
 
-      console.log(maxTime, minTime, first, count);
+      //console.log(maxTime, minTime, first, count);
       gl.disable(gl.BLEND);
     }
   }
