@@ -67,6 +67,8 @@ export interface DrawOptions {
   orientation?: number
   linewidth?: number
   antialias?: number
+  startColor?: any;
+  endColor?: any;
 
 }
 
