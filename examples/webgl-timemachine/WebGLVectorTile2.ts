@@ -4113,7 +4113,15 @@ export class WebGLVectorTile2 extends Tile {
     var tileTransform = new Float32Array(transform);
     var currentTime = gEarthTime.currentEpochTime();
     var pointSize = drawOptions.pointSize || (2.0 * window.devicePixelRatio);
-    var color = drawOptions.color || [1.0, 0.0, 0.0];
+    var startColor = drawOptions.startColor || [.94,.76,.61,1.0];
+    if (startColor.length == 3) {
+      startColor.push(1.0)
+    }
+
+    var endColor = drawOptions.endColor || drawOptions.color || [1.0, 0.0, 0.0, 1.0];
+    if (endColor.length == 3) {
+      endColor.push(1.0)
+    }
 
     scaleMatrix(tileTransform, Math.pow(2, this._tileidx.l) / 256., Math.pow(2, this._tileidx.l) / 256.);
     scaleMatrix(tileTransform, this._bounds.max.x - this._bounds.min.x, this._bounds.max.y - this._bounds.min.y);
@@ -4136,7 +4144,8 @@ export class WebGLVectorTile2 extends Tile {
     gl.uniformMatrix4fv(this.program.u_map_matrix, false, tileTransform);
     gl.uniform1f(this.program.u_epoch, currentTime);
     gl.uniform1f(this.program.u_size, pointSize);
-    gl.uniform3fv(this.program.u_end_color, color);
+    gl.uniform4fv(this.program.u_start_color, startColor);
+    gl.uniform4fv(this.program.u_end_color, endColor);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
     this.program.setVertexAttrib.a_p0(2, gl.FLOAT, false, buffer.numAttributes * 4, 0);
@@ -7133,11 +7142,10 @@ void main() {
 WebGLVectorTile2Shaders.sitc4r2FragmentShader = `
 /*precision mediump float;*/
 varying float v_t;
-uniform vec3 u_end_color;
+uniform vec4 u_start_color;
+uniform vec4 u_end_color;
 void main() {
-  vec4 colorStart = vec4(.94,.76,.61,1.0);
-  vec4 colorEnd = vec4(u_end_color,1.0);
-  gl_FragColor = mix(colorStart, colorEnd, v_t);
+  gl_FragColor = mix(u_start_color, u_end_color, v_t);
 }`;
 
 WebGLVectorTile2Shaders.sitc4r2WithAlphaAndColorMapVertexShader = `
