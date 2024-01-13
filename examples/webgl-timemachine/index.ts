@@ -228,8 +228,10 @@ class EarthTimeImpl implements EarthTime {
       gEarthTime.timelapse.seek(seekTime);
     } else if (!gEarthTime.timelapse.isMovingToWaypoint()) {
       var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[lastSelectedWaypointIndex];
-      var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
-      gEarthTime.timelapse.seek(seekTime);
+      if (currentWaypoint) {
+        var seekTime = gEarthTime.timelapse.playbackTimeFromShareDate(currentWaypoint.beginTime);
+        gEarthTime.timelapse.seek(seekTime);
+      }
     }
 
     let hashVars = UTIL.getUnsafeHashVars();
@@ -688,6 +690,8 @@ var $mapboxLogoContainer;
 var verboseRedrawTest = false;
 var spinnerWaitTime = 1000; // milliseconds
 var didAtLeastOneWaypointFromStoryInAutoMode = false;
+var defaultStartDwell = 1.5;
+var defaultEndDwell = 1.5;
 
 
 function parseConfigOption(settings) {
@@ -1389,6 +1393,7 @@ function showAnnotations(fromResume=false) {
 }
 
 function showAnnotationResumeExit() {
+  gEarthTime.timelapse.setDwellTimes(defaultStartDwell, defaultEndDwell);
   if (lastSelectedAnnotationBeforeHidden) {
     lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
   }
@@ -1999,6 +2004,10 @@ async function setupUIAndOldLayers() {
       }, 1000);
       timelineUIChangeListeners.push({"type" : "timeout", "fn" : waypointTimelineUIChangeListenerWatchDog});
       timelineUIChangeListeners.push({"type" : "uiChangeListener", "fn" : gEarthTime.waypointTimelineUIChangeListener});
+
+      var startDwell = waypoint.dwellTimes.startDwell == "" ? defaultStartDwell : waypoint.dwellTimes.startDwell;
+      var endDwell = waypoint.dwellTimes.endDwell == "" ? defaultEndDwell : waypoint.dwellTimes.endDwell;
+      gEarthTime.timelapse.setDwellTimes(startDwell, endDwell);
     });
 
     snaplapseViewerForPresentationSlider.addEventListener('slide-changed', function(waypoint) {
@@ -3458,8 +3467,8 @@ async function init() {
   var settings = {
     constrainVerticalCover: true, // constrain zoom-out and panning so that vertical span is always covered by the map (useful for mapbox)
     loopDwell: {
-      startDwell: 1.5,
-      endDwell: 1.5
+      startDwell: defaultStartDwell,
+      endDwell: defaultEndDwell
     },
     playbackSpeed: defaultPlaybackRate,
     viewerType: isMobileDevice || isIEButNotEdge ? undefined : "webgl",
