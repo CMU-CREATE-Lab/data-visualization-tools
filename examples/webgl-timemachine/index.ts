@@ -681,7 +681,7 @@ var $nextAnnotationLocationButton;
 var $previousAnnotationLocationButton;
 var lastLayerMenuScrollPos = 0;
 var $lastActiveLayerTopic;
-var lastSelectedAnnotationBeforeHidden;
+var $lastSelectedAnnotationBeforeHidden;
 var initialTopNavWrapperElm;
 var $activeLayerDescriptionTooltip;
 var storyEditor;
@@ -1381,21 +1381,21 @@ function hideAnnotationResumeExit() {
 
 function hideAnnotations() {
   $(".current-location-text-container").hide();
-  lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+  $lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
 }
 
 function showAnnotations(fromResume=false) {
   $(".annotations-resume-exit-container").hide();
   $(".current-location-text-container").show();
-  if (lastSelectedAnnotationBeforeHidden && fromResume) {
-    lastSelectedAnnotationBeforeHidden.trigger("click", {fromKeyboard: true});
+  if ($lastSelectedAnnotationBeforeHidden && fromResume) {
+    $lastSelectedAnnotationBeforeHidden.trigger("click", {fromKeyboard: true});
   }
 }
 
 function showAnnotationResumeExit() {
   gEarthTime.timelapse.setDwellTimes(defaultStartDwell, defaultEndDwell);
-  if (lastSelectedAnnotationBeforeHidden) {
-    lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
+  if ($lastSelectedAnnotationBeforeHidden) {
+    $lastSelectedAnnotationBeforeHidden.removeClass("thumbnail_highlight");
   }
   $(".current-location-text-container").hide();
   gEarthTime.timelapse.clearShareViewTimeLoop();
@@ -1931,9 +1931,7 @@ async function setupUIAndOldLayers() {
       let maxWaypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
       gEarthTime.timelapse.setMaxScale(maxWaypointScale);
 
-      if (waypointTitle) {
-        lastSelectedAnnotationBeforeHidden = $("#" + waypointTitle.replace(/\W+/g, "_") + " .snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
-      }
+      $lastSelectedAnnotationBeforeHidden = $(waypoint.keyframeElmId).find(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation");
 
       var unsafeHashVars = UTIL.getUnsafeHashVars();
       if (gEarthTime.mode == "explore" || (lastSelectedWaypointIndex != -1 && typeof(unsafeHashVars.waypointIdx) !== "undefined")) {
