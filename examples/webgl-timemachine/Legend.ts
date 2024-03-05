@@ -2,6 +2,11 @@
 
 // Template literals (strings) are not supported in IE 11 (and other browsers that don't support ES6)
 // We work around by doing the following.
+
+declare var d3: any;
+import { WebGLVectorLayer2 } from './WebGLVectorLayer2';
+
+
 var _legendTemplateObject = _legendTaggedTemplateLiteral(['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>'], ['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>']),
     _legendTemplateObject2 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px; text-align: center;">', '</div>'], ['<div style="font-size: 11px; text-align: center;">', '</div>']),
     _legendTemplateObject3 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px">', ' '], ['<div style="font-size: 11px">', ' ']),
@@ -209,6 +214,166 @@ export class ChoroplethLegend extends Legend {
                 }
             }
             return div + svg + keys + colors + values + '</svg>';
+        }
+    }
+}
+
+export class OpenPlanetLegend {
+    max_value: number;
+    min_value: number;
+    max_bubble_size: number;
+    min_bubble_size: number;
+    scaleFunction: any;
+    legend_values: any[];
+    canvas_width: number;
+    canvas_height: number;
+    ctx_fillStyle: any;
+    ctx_strokeStyle: any;
+    ctx_lineWidth: any;
+    ctx_font: any;
+    units: any;
+    canvas: any;
+    ctx: any;
+    positionBuffer: any;
+    texcoordBuffer: any;
+    texture: any;
+    program: any;
+    opts: any;
+    ready: any;
+
+    constructor(gl, opts) {
+        this.opts = opts;
+        // @ts-ignore
+        let font = new FontFace("Roboto_regular", "url(../../css/fonts/Roboto/Roboto-Regular.woff2)");
+        var that = this;
+        font.load().then(function(font) {
+            // @ts-ignore
+            document.fonts.add(font);
+            that.init(gl, opts, font);
+        });
+    }
+    init(gl, opts, font) {
+        this.max_value = opts.max_value;
+        this.min_value = opts.min_value;
+        this.program = opts.program;
+        this.max_bubble_size = (typeof opts.max_bubble_size === 'undefined') ? 300 : opts.max_bubble_size;
+        this.min_bubble_size = (typeof opts.min_bubble_size === 'undefined') ? 0 : opts.min_bubble_size;
+        this.scaleFunction =  d3.scaleSqrt()
+            .domain([this.min_value, this.max_value])
+            .range([this.min_bubble_size, this.max_bubble_size])
+            .clamp(true);
+        this.legend_values = [
+            Math.floor(0.25 * this.max_bubble_size),
+            Math.floor(0.50 * this.max_bubble_size),
+            Math.floor(0.75 * this.max_bubble_size),
+            this.max_bubble_size
+        ];
+
+        this.canvas_width = (typeof opts.canvas_width === 'undefined') ? 800 : opts.canvas_width;
+        this.canvas_height = (typeof opts.canvas_height === 'undefined') ? 330 : opts.canvas_height;
+        this.ctx_fillStyle = (typeof opts.ctx_fillStyle === 'undefined') ? '#faf2eb' : opts.ctx_fillStyle;
+        this.ctx_strokeStyle = (typeof opts.ctx_strokeStyle === 'undefined') ? '#faf2eb' : opts.ctx_strokeStyle;
+        this.ctx_lineWidth = (typeof opts.ctx_lineWidth === 'undefined') ? 4 : opts.ctx_lineWidth;
+        this.ctx_font = (typeof opts.ctx_font === 'undefined') ? "45px Roboto_regular, monospace" : opts.ctx_font;
+        this.units = (typeof opts.units === 'undefined') ? "" : opts.units;
+
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = this.canvas_width;
+        this.canvas.height = this.canvas_height;
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.font = this.ctx_font;
+        // this.ctx.fillStyle = "#f8355c";
+        // this.ctx.fillRect(0, 0, 800, this.canvas.height);
+
+        this.ctx.fillStyle = this.ctx_fillStyle;
+        this.ctx.strokeStyle = this.ctx_strokeStyle;
+        this.ctx.lineWidth = this.ctx_lineWidth;
+
+        let x = this.max_bubble_size/2. + 5;
+        let y = this.max_bubble_size + 20;
+
+        for (var i = 0; i < this.legend_values.length; i++) {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y-this.legend_values[i]/2.0, this.legend_values[i]/2.0, 0, 2 * Math.PI);
+            this.ctx.stroke();
+            this.ctx.closePath();
+
+            this.ctx.beginPath();
+            this.ctx.setLineDash([2, 5]);
+            this.ctx.moveTo(x,     y-this.legend_values[i] - 2);
+            this.ctx.lineTo(x + x+ x/8, y-this.legend_values[i] - 2);
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+            this.ctx.closePath();
+            this.ctx.fillText(String(Math.round(this.scaleFunction.invert(this.legend_values[i])).toLocaleString()), x+x+x/7, y-this.legend_values[i] - 2 + 14);
+        }
+        if (this.units != "") {
+            this.ctx.fillText(this.units, x+x+x/7, y);
+        }
+        this.positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        var x1 = 70;
+        var x2 = x1 + this.canvas.width;
+        var y1 = gl.canvas.height - this.canvas_height;
+        var y2 = y1 + this.canvas.height;
+
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            x1, y1, x2, y1, x1, y2, x1, y2, x2, y1, x2, y2
+        ]), gl.STATIC_DRAW);
+
+        this.texcoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+              0.0,  0.0, 1.0,  0.0, 0.0,  1.0,
+              0.0,  1.0, 1.0,  0.0, 1.0,  1.0
+          ]), gl.STATIC_DRAW);
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        // Upload the image into the texture.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.ctx.canvas);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        this.ready = true;
+    }
+
+    draw(gl: any) {
+        if (this.ready) {
+            gl.enable(gl.BLEND);
+            gl.useProgram(this.program);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+            var x1 = 88;
+            var x2 = x1 + this.canvas.width;
+            var y1 = gl.canvas.height - this.canvas_height - 75;
+            var y2 = y1 + this.canvas.height;
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                x1, y1, x2, y1, x1, y2, x1, y2, x2, y1, x2, y2
+            ]), gl.STATIC_DRAW);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+            gl.enableVertexAttribArray(this.program.a_position);
+            gl.vertexAttribPointer(this.program.a_position, 2, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
+            gl.enableVertexAttribArray(this.program.a_texcoord);
+            gl.vertexAttribPointer(this.program.a_texcoord, 2, gl.FLOAT, false, 0, 0);
+
+            // set the resolution
+            gl.uniform2f(this.program.u_resolution, gl.canvas.width, gl.canvas.height);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, this.texture);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.disable(gl.BLEND);
+            gl.bindTexture(gl.TEXTURE_2D, null);
         }
     }
 }

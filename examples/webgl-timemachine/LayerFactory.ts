@@ -828,6 +828,12 @@ export class LayerFactory {
       if (layer.legend) {
         legend = layer.legend;
       } else if (layer.mapType == 'bubble') {
+        if (layer.legendContent == 'openplanet') {
+          // We draw the legend in the lower right supersized for UHD exports directly in the canvas
+          // So we're just returning nothing here
+          return;
+
+        }
         if (layer.legendContent == 'auto') {
           var radius = this.getRadius(layer);
           if (!radius || !radius.hasOwnProperty('invert')) {

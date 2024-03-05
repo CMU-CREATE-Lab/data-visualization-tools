@@ -18,6 +18,7 @@ import { TileIdx } from './TileIdx';
 import { DrawOptions, DrawFunction } from './Layer';
 import { WebGLVectorLayer2 } from './WebGLVectorLayer2';
 import { Utils } from './Utils';
+import { OpenPlanetLegend } from './Legend';
 
 function drawsEveryFrame(func: DrawFunction) {
   func.drawEveryFrame = true;
@@ -95,6 +96,7 @@ export class WebGLVectorTile2 extends Tile {
   br: Float32Array;
   _spinnerNeeded: boolean;
   _population?: number;
+  _openplanetlegend?: any;
 
   constructor(layer: WebGLVectorLayer2, tileidx: TileIdx, bounds: any, opt_options: { drawFunction?: any; externalGeojson?: any; noValue?: any; uncertainValue?: any; scalingFunction?: any; colorScalingFunction?: any; layerId?: any; }) {
     // This line must be first or bubble maps (and likely other things) break.
@@ -1115,6 +1117,24 @@ export class WebGLVectorTile2 extends Tile {
         this.dataLoadedFunction(this._layer.layerId);
         this._ready = true;
       }.bind(this));
+  }
+
+  _loadOpenPlanetDateData() {
+    // @ts-ignore
+    let font = new FontFace("Roboto_regular", "url(../../css/fonts/Roboto/Roboto-Regular.woff2)");
+    var that = this;
+    font.load().then(function(font) {
+        console.log('loaded');
+        // @ts-ignore
+        document.fonts.add(font);
+        that._ready = true;
+        that.setDataFunction(font);
+    });
+
+  }
+
+  _setOpenPlanetDateData() {
+    this.dataLoadedFunction(this._layer.layerId);
   }
   _setSitc4r2BufferData(sitc4r2Code: string | number, year: string | number, data: string | any[] | Float32Array) {
     if (typeof this.buffers[sitc4r2Code] == "undefined") {
@@ -2523,6 +2543,25 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
+
+      if (this._layer.legendContent == 'openplanet') {
+        if (typeof(this._openplanetlegend) === "undefined") {
+          console.log('Init OP style legend');
+          let program = this.glb.programFromSources(
+            WebGLVectorTile2Shaders.openPlanetDateVertexShader, WebGLVectorTile2Shaders.openPlanetDateFragmentShader);
+      
+          this._openplanetlegend = new OpenPlanetLegend(this.gl, 
+              {
+                'max_value': this._maxValue, 
+                'min_value': this._minValue, 
+                'units': this._layer.legendKey,
+                'program': program
+              })
+
+        } else {
+          this._openplanetlegend.draw(gl);
+        }
+      }       
     }
   }
 
@@ -4898,6 +4937,96 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
+  _drawOpenPlanetDate(transform: Float32Array) {
+    var gl = this.gl;
+    if (this._ready) {
+  
+      gl.useProgram(this.program);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      var tileTransform = new Float32Array(transform);
+      var currentTime = gEarthTime.currentEpochTime();
+      let year = new Date(gEarthTime.currentEpochTime()*1000).getUTCFullYear();      
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.width = 380;
+      canvas.height = 180;
+      ctx.fillStyle = "#f8355c";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "150px Roboto-medium, monospace";
+      ctx.fillStyle = "#faf2e8";
+      ctx.fillText(String(year), 16, 145);
+
+      var positionBuffer = this.gl.createBuffer();
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+      var x1 = 88;
+      var x2 = x1 + canvas.width;
+      var y1 = 92;
+      var y2 = y1 + canvas.height;
+    
+      this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([ x1, y1,
+        x2, y1,
+        x1, y2,
+        x1, y2,
+        x2, y1,
+        x2, y2,]), this.gl.STATIC_DRAW);
+
+
+        var texcoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            0.0,  0.0,
+            1.0,  0.0,
+            0.0,  1.0,
+            0.0,  1.0,
+            1.0,  0.0,
+            1.0,  1.0,
+        ]), gl.STATIC_DRAW);        
+      this._texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+
+      // Set the parameters so we can render any size image.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+      // Upload the image into the texture.
+      let dataArray = new Uint8Array(ctx.getImageData(0, 0, 525, 210).data);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ctx.canvas);
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      // gl.uniformMatrix4fv(this.program.uTransform, false, tileTransform);
+      // gl.uniform1f(this.program.uShowTile, showTile);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      // gl.vertexAttribPointer(this.program.aTextureCoord, 2, gl.FLOAT, false, 8, 0);
+      // gl.enableVertexAttribArray(this.program.aTextureCoord);
+
+
+      gl.enableVertexAttribArray(this.program.a_position);
+      gl.vertexAttribPointer(this.program.a_position, 2, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+      gl.enableVertexAttribArray(this.program.a_texcoord);
+      gl.vertexAttribPointer(this.program.a_texcoord, 2, gl.FLOAT, false, 0, 0);
+    
+      // set the resolution
+      gl.uniform2f(this.program.u_resolution, gl.canvas.width, gl.canvas.height);
+
+      //this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); 
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this._texture);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.disable(gl.BLEND);
+
+
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+  }
   _drawMarker(transform: Float32Array) {
     var gl = this.gl;
     var drawOptions = this._layer.drawOptions;
@@ -7731,5 +7860,40 @@ void main() {
     distance = ring(P*v_size, orig_size);
   }
   gl_FragColor = outline(distance, linewidth, antialias, fg_color, bg_color);
+}
+`;
+
+WebGLVectorTile2Shaders.openPlanetDateVertexShader = `
+attribute vec2 a_position;
+attribute vec2 a_texcoord;
+//uniform mat4 u_matrix;
+uniform vec2 u_resolution;
+varying vec2 v_texcoord;
+ 
+void main() {
+  //  gl_Position = vec4(0.0,0.0,0.,1.0);
+  //  v_texcoord = vec2(2.*a_position.x-1., 1.0 - 2.*a_position.y);
+
+  vec2 zeroToOne = a_position / u_resolution;
+  // convert from 0->1 to 0->2
+  vec2 zeroToTwo = zeroToOne * 2.0;
+
+  // convert from 0->2 to -1->+1 (clipspace)
+  vec2 clipSpace = zeroToTwo - 1.0;
+
+  gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+
+  // pass the texCoord to the fragment shader
+  // The GPU will interpolate this value between points.
+  v_texcoord = a_texcoord;
+}
+`;
+
+WebGLVectorTile2Shaders.openPlanetDateFragmentShader = `
+precision mediump float;
+varying vec2 v_texcoord;
+uniform sampler2D u_texture;
+ void main() {
+   gl_FragColor = texture2D(u_texture, v_texcoord);
 }
 `;

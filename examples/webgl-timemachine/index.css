@@ -23,6 +23,16 @@
   src: url('../../css/fonts/Exo2-BoldItalic.woff') format('woff');
 }
 
+@font-face {
+  font-family: 'Roboto-medium';
+  src: url('../../css/fonts/Roboto/Roboto-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto-regular';
+  src: url('../../css/fonts/Roboto/Roboto-Regular.woff2') format('woff2');
+}
+
 html, body {
   height: 100%;
   overflow: hidden;

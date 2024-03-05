@@ -69,6 +69,7 @@ export interface DrawOptions {
   antialias?: number
   startColor?: any;
   endColor?: any;
+  openplanetLegend?: any;
 
 }
 
