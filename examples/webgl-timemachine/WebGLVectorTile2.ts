@@ -1121,7 +1121,7 @@ export class WebGLVectorTile2 extends Tile {
 
   _loadOpenPlanetDateData() {
     // @ts-ignore
-    let font = new FontFace("Roboto_regular", "url(../../css/fonts/Roboto/Roboto-Regular.woff2)");
+    let font = new FontFace("Roboto_medium", "url(../../css/fonts/Roboto/Roboto-Medium.woff2)");
     var that = this;
     font.load().then(function(font) {
         console.log('loaded');
@@ -4954,7 +4954,7 @@ export class WebGLVectorTile2 extends Tile {
       canvas.height = 180;
       ctx.fillStyle = "#f8355c";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.font = "150px Roboto-medium, monospace";
+      ctx.font = "150px Roboto_medium, monospace";
       ctx.fillStyle = "#faf2e8";
       ctx.fillText(String(year), 16, 145);
 
