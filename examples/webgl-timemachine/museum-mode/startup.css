@@ -1,0 +1,107 @@
+#top-nav {
+  display: none;
+}
+
+.location_search_div {
+    visibility: hidden;
+    opacity: 0;
+}
+
+#earthlapse-ui-splash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 999;
+    padding: 0 0 150px 0;
+    color: #ffffff;
+    font: 20px/1.1 "Source Sans Pro", Helvetica, Arial, sans-serif;
+    text-align: center;
+    box-sizing: border-box;
+    background: #39B54A url(startup-logos-default.png) no-repeat 50% 95%;
+    transition-duration: 0.5s;
+}
+
+.cmnh #earthlapse-ui-splash-overlay {
+    background: #39B54A url(startup-logos-cmnh.png) no-repeat 50% 95%;
+    transition-duration: 0s;
+}
+
+.earthlapse-ui-splash-complete {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#earthlapse-ui-splash {
+    text-align: left;
+    display: inline-block;
+    height: 150px;
+    padding: 0 0 0 150px;
+    position: relative;
+    top: 50%;
+    margin: 0 auto;
+}
+
+#earthlapse-ui-splash .cssload-container {
+    float: left;
+    margin: 0 0 0 -150px;
+}
+
+#earthlapse-ui-splash h1 {
+    margin: 0;
+    font-size: 64px;
+    font-weight: 300;
+    display: inline-block;
+}
+
+#earthlapse-ui-splash h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Loading animation
+---------------------------------------- */
+
+.cssload-container {
+	width: 100px;
+	height: 100px;
+	text-align: center;
+}
+
+.cssload-zenith {
+	width: 100px;
+	height: 100px;
+	margin: 0 auto;
+	border-radius: 50%;
+	border-top-color: transparent;
+	border-left-color: transparent;
+	border-right-color: transparent;
+	box-shadow: 2px 2px 2px #ffffff;
+	animation: cssload-spin 690ms infinite linear;
+		-o-animation: cssload-spin 690ms infinite linear;
+		-ms-animation: cssload-spin 690ms infinite linear;
+		-webkit-animation: cssload-spin 690ms infinite linear;
+		-moz-animation: cssload-spin 690ms infinite linear;
+}
+
+@keyframes cssload-spin {
+	100%{ transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@-o-keyframes cssload-spin {
+	100%{ -o-transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@-ms-keyframes cssload-spin {
+	100%{ -ms-transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@-webkit-keyframes cssload-spin {
+	100%{ -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@-moz-keyframes cssload-spin {
+	100%{ -moz-transform: rotate(360deg); transform: rotate(360deg); }
+}

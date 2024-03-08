@@ -1,0 +1,95 @@
+<script>
+    EarthlapseUI.bind("loadedscreen", function (e) {
+        if (e.mode !== "menu") { return; }
+
+        var $screen = $(".earthlapse-modes-menu-container");
+
+        // Enable focus style
+        $screen.on("mousedown touchstart", ".earthlapse-modes-menu-item, .earthlapse-modes-menu-explorebutton", function () {
+            $(this).addClass("hasfocus");
+        }).on("mouseout touchend touchcancel", ".earthlapse-modes-menu-item, .earthlapse-modes-menu-explorebutton", function () {
+            $(this).removeClass("hasfocus");
+        });
+
+        // On selection of any tile, initiate the story
+        $screen.on("click", ".earthlapse-modes-menu-item", function (e) {
+            var $this = $(this);
+
+            // If this button had focus, then we should execute an action
+            $this.removeClass("hasfocus");
+
+            var topic = $(e.currentTarget).data("topic");
+
+            // Enter topic
+            $('.earthlapse-modes-menu2-item[data-type="story"]').hide();
+            $('.earthlapse-modes-menu2-item[data-topic="' + topic + '"]').show();
+            EarthlapseUI.Modes.changeModeTo("menu2");
+
+            // Analytics
+            org.gigapan.Util.addGoogleAnalyticEvent('button', 'click', 'storymode-menu-select-topic=' + topic);
+        });
+
+        // On selection of explore button, initiate exploration mode
+        $screen.on("click", ".earthlapse-modes-menu-explorebutton", function (e) {
+            var $this = $(this);
+
+            // If this button had focus, then we should execute an action
+            $this.removeClass("hasfocus");
+
+            // Enter exploration
+            EarthlapseUI.Modes.changeModeTo("explore");
+
+            // Initially hide annotation box when switching to explore mode
+            $(".current-location-text-container").hide();
+            $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+
+            // Analytics
+            org.gigapan.Util.addGoogleAnalyticEvent('button', 'click', 'storymode-menu-select-explore');
+        });
+
+        var $gallery = $(".earthlapse-topics-gallery");
+
+        function addTopic(topicTitle, thumbnailSrc) {
+            var thumbnail = thumbnailSrc || "http://placehold.it/342x287";
+
+            // Build tile
+            var $thumbnail = $("<img />").attr("src", thumbnail);
+            var $title = $("<div class=\"desc\" />").text(topicTitle);
+            var $img = $("<div class=\"img\" />").append($thumbnail, $title);
+            var topic = topicTitle.replace(/\s+/g, '_').toLowerCase();
+            var $tile = $("<div class=\"ui-button earthlapse-modes-menu-item\" data-type=\"topic\" data-topic=\"" + topic + "\"/>").append($img);
+
+            // Append tile to gallery
+            $gallery.append($tile);
+        }
+
+        // Handle case where we just want to list out stories. No themes (topics).
+        if (!EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode) {
+          museumModeThemeStoryDict['default'] = {};
+          return;
+        }
+
+        // Insert Themes (topics)
+        var themeIds = Object.keys(waypointJSONList);
+
+        for (var i = 0; i < themeIds.length; i++) {
+          var themeName = themeIds[i].replace(/_/g, " ");
+          museumModeThemeStoryDict[themeIds[i]] = {};
+          var thumbnailURL = timelapse.getThumbnailOfView(waypointJSONList[themeIds[i]].mainThemeShareView, 342, 288) || "http://placehold.it/128x74";
+          addTopic(themeName, thumbnailURL);
+        }
+    });
+</script>
+<div class="earthlapse-modes-screen">
+    <h1>Welcome to EarthTime!</h1>
+
+    <section class="earthlapse-modes-menu-section earthlapse-modes-menu-section-stories">
+        <h2 class="earthlapse-modes-menu-section-heading">Choose a theme</h2>
+        <div class="earthlapse-topics-gallery"></div>
+    </section>
+
+    <section class="earthlapse-modes-menu-section earthlapse-modes-menu-section-explore">
+        <button class="earthlapse-modes-menu-section-heading ui-button earthlapse-modes-menu-explorebutton"><img src="../../images/explore_on_your_own_white.png" style="width: 45px; height: 45px; float: left; padding-right: 15px">Explore on your own</button>
+
+    </section>
+</div>

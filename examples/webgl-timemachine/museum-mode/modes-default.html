@@ -1,0 +1,87 @@
+<script>
+    EarthlapseUI.bind("loadedscreen", function (e) {
+        if (e.mode !== "default") { return; }
+
+        $("#timeMachine .presentationSlider").addClass("offscreen");
+        $("#timeMachine .player").addClass("presentationSliderOffscreen");
+
+        function showScreensaver() {
+            // Reset exploration mode
+            $("#timeMachine .thumbnail_highlight").removeClass("thumbnail_highlight");
+
+            timelapse.stopParabolicMotion();
+            timelapse.setLoopPlayback(true);
+            // Enable Himawari layer
+            EarthlapseUI.Stories.setLayers(["h8_16"]);
+            timelapse.seek(0);
+            timelapse.setPlaybackRate(0.5);
+
+            // Set Himawari viewport
+            var himawariBoundingBox = {
+              "ne":{"lat":77.0112546800966,"lng":-248.93977419869765},"sw":{"lat":-77.35916210771136,"lng":223.6585888362787}
+            };
+
+            var himawariView = { "bbox": himawariBoundingBox };
+
+            // Reveal beautiful world
+            timelapse.setNewView(himawariView, true, true);
+            $(".earthlapse-modes-default-container").removeClass("transitioning");
+        }
+
+        EarthlapseUI.bind("changemode", function (e) {
+
+           if ((e.isExploreAutoModeRunning && e.mode !== "default" && e.oldMode === "explore") || (!e.isExploreAutoModeRunning && e.oldMode === "default")) {
+             $("#timeMachine .presentationSlider").removeClass("offscreen");
+             $("#timeMachine .player").removeClass("presentationSliderOffscreen");
+           }
+
+           if (e.mode === "default" && e.oldMode !== "default") {
+                // Entering screensaver mode
+
+                // Transition: fade out previous session's time machine
+                $(".earthlapse-modes-default-container").addClass("transitioning");
+                setTimeout(showScreensaver, 500);
+
+                if (!e.isExploreAutoModeRunning && e.oldMode) {
+                  $("#timeMachine .presentationSlider").addClass("offscreen");
+                  $("#timeMachine .player").addClass("presentationSliderOffscreen");
+                }
+            }
+
+            if (e.mode !== "default" && e.oldMode === "default") {
+                // Leaving screensaver mode
+
+                // Turn off Himawari
+                EarthlapseUI.Stories.setLayers([]);
+                timelapse.seek(0);
+
+                // Set to world map view
+                var worldBoundingBox = {
+                  "ne": {"lat": 77.0661715108473, "lng": -165.49605270876927},
+                  "sw": {"lat": -49.550469480721716, "lng": 177.6899703365451}
+                };
+                var worldView = { "bbox": worldBoundingBox };
+                timelapse.setNewView(worldView, true, true);
+            }
+            $(".earthlapse-modes-default-container").removeClass("disableClick");
+            $(document).removeClass("disableClick");
+        });
+
+        // On any click, go to menu page
+        $(".earthlapse-modes-default-container").on("click", function (e) {
+            if ($(this).hasClass("transitioning") || $(this).hasClass("disableClick")) { return; }
+            $(this).addClass("disableClick");
+            var startMode = EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode ? "menu" : "menu2";
+            EarthlapseUI.Modes.changeModeTo(startMode);
+
+            // Analytics
+            org.gigapan.Util.addGoogleAnalyticEvent('interface', 'click', 'interaction-begin=' + Date.now());
+        });
+    });
+</script>
+<div class="earthlapse-modes-screen">
+    <div class="earthlapse-modes-default-content">
+        <h1>Welcome to EarthTime</h1>
+        <h2>Click to begin</h2>
+    </div>
+</div>

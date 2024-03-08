@@ -1,0 +1,124 @@
+{
+    "title": "Refugees",
+    "thumbnail": "https://explorables.cmucreatelab.org/earthtime-images/stories/refugees.png",
+    "timelineLabels": {
+        "2000": "2000",
+        "2001": "2001",
+        "2002": "2002",
+        "2003": "2003",
+        "2004": "2004",
+        "2005": "2005",
+        "2006": "2006",
+        "2007": "2007",
+        "2008": "2008",
+        "2009": "2009",
+        "2010": "2010",
+        "2011": "2011",
+        "2012": "2012",
+        "2013": "2013",
+        "2014": "2014",
+        "2015": "2015"
+    },
+    "showMidLabels": false,
+    "keyframes": [
+        {
+            "Text": "This data layer shows an animated timelapse of refugee migration from 2000 to 2016. Each dot represents an individual person leaving a country due to conflict or persecution. The dots flow from the center of the departing country to the center of the arriving country, changing color from yellow to red. This data does not include internal displacement or people leaving their country for work or food insecurity.",
+            "BoundingBox": {
+                "ne":{"lat":75.1496360036188,"lng":-157.6673596175248},"sw":{"lat":-47.67677871178056,"lng":165.0936374700906}
+            },
+            "Pause": false,
+            "StartFrame": "2000",
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Notice the mass exodus from the conflict in Syria, beginning in late 2011. The conflict has killed 220,000 people since the anti-regime uprising in 2011 that lead to civil war.  Notice the destination countries of the refugees.",
+            "BoundingBox": {
+                "ne":{"lat":50.84460675149997,"lng":-9.926416795442577},"sw":{"lat":19.34508674345443,"lng":78.6943967954426}
+            },
+            "Pause": false,
+            "StartFrame": "2011",
+            "LoopRange": ["2011", "2015"],
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "While there has been a historic number of people seeking asylum in European Countries such as Germany and Sweden, most of the Syrian refugees are fleeing to neighboring countries: Turkey, Jordan, and Lebanon. This further perpetuates the crisis, as these countries lack resources to accommodate incoming refugees.",
+            "BoundingBox": {
+                "ne":{"lat":58.31950717372772,"lng":-29.51442452074079},"sw":{"lat":23.48442225728099,"lng":78.16312452074087}
+            },
+            "Media": {
+              "type" : "image",
+              "src" : "https://explorables.cmucreatelab.org/earthtime-images/stories/refugees/annual/ar_10.jpg"
+            },
+            "Pause": false,
+            "StartFrame": "2010",
+            "LoopRange": ["2010", "2015"],
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Refugees flee civil war in Liberia to neighboring countries, including Cote D'Ivoire, Sierra Leone, and Guinea.",
+            "BoundingBox": {
+                "ne":{"lat":16.384120843744792,"lng":-22.72768471614839},"sw":{"lat":2.2520693524605844,"lng":4.3549512154117735}
+            },
+            "Pause": false,
+            "StartFrame": "2002",
+            "LoopRange": ["2002", "2003"],
+            "Media": {
+              "type" : "image",
+              "src" : "https://explorables.cmucreatelab.org/earthtime-images/stories/refugees/annual/ar_2.jpg"
+            },
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Eight years later, a contested presidential election lead to violence in Cote d'Ivoire, and forced more than 200,000 people to seek refuge in Liberia.",
+            "BoundingBox": {
+                "ne":{"lat":16.322364966507145,"lng":-17.719624619486524},"sw":{"lat":2.316377818368254,"lng":9.120240292050738}
+            },
+            "Pause": false,
+            "StartFrame": "2010",
+            "LoopRange": ["2010", "2012"],
+            "Media": {
+              "type" : "image",
+              "src" : "https://explorables.cmucreatelab.org/earthtime-images/stories/refugees/annual/ar_8.jpg"
+            },
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "This trend of people traveling to and from multiple counties can be see throughout parts of Africa.",
+            "BoundingBox": {
+                "ne":{"lat":34.20216517449464,"lng":-35.71192854123515},"sw":{"lat":-22.898608237604588,"lng":98.79844854123516}
+            },
+            "Pause": false,
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Notice the outflow of nearly half a million refugees from South Sudan in 2014. By late 2016, the total South Sudanese refugee population reached 1.1 million.",
+            "BoundingBox": {
+                "ne":{"lat":17.897242374528258,"lng":14.134252830231276},"sw":{"lat":-3.0014196100156854,"lng":54.11549716976873}
+            },
+            "Pause": false,
+            "StartFrame": "2014",
+            "LoopRange": ["2014", "2015"],
+            "Media": {
+              "type" : "image",
+              "src" : "https://explorables.cmucreatelab.org/earthtime-images/stories/refugees/annual/ar_14.jpg"
+            },
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Observe the extent of refugee migration around the world.",
+            "BoundingBox": {
+                "ne":{"lat":75.1496360036188,"lng":-157.6673596175248},"sw":{"lat":-47.67677871178056,"lng":165.0936374700906}
+            },
+            "Pause": false,
+            "Layers": ["show-annual-refugees"],
+            "Map": "dark-base"
+        }
+    ]
+}

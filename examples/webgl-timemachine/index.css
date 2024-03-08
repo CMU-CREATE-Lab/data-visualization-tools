@@ -1,26 +1,26 @@
 @font-face {
   font-family: 'Exo2-Medium';
-  src: url('../../css/fonts/Exo2-Medium.woff') format('woff');
+  src: url('../../css/fonts/Exo2/Exo2-Medium.woff') format('woff');
 }
 
 @font-face {
   font-family: 'Exo2-Regular';
-  src: url('../../css/fonts/Exo2-Regular.woff') format('woff');
+  src: url('../../css/fonts/Exo2/Exo2-Regular.woff') format('woff');
 }
 
 @font-face {
   font-family: 'Exo2-Regular-Typeface';
-  src: url('../../css/fonts/Exo2-Regular-Typeface.woff') format('woff');
+  src: url('../../css/fonts/Exo2/Exo2-Regular-Typeface.woff') format('woff');
 }
 
 @font-face {
   font-family: 'Exo2-Bold';
-  src: url('../../css/fonts/Exo2-Bold.woff') format('woff');
+  src: url('../../css/fonts/Exo2/Exo2-Bold.woff') format('woff');
 }
 
 @font-face {
   font-family: 'Exo2-BoldItalic';
-  src: url('../../css/fonts/Exo2-BoldItalic.woff') format('woff');
+  src: url('../../css/fonts/Exo2/Exo2-BoldItalic.woff') format('woff');
 }
 
 @font-face {
@@ -39,7 +39,7 @@ html, body {
   -ms-content-zooming: none;
   -ms-touch-action: none;
   touch-action: none;
-  background: #f3f3f3;
+  background: black;
 }
 
 * {
@@ -145,6 +145,7 @@ html, body {
   margin-right: 1px;
 }
 #baseLayerCreditContainer {
+  display: none;
   color: white;
   font-size: 12px;
   background-image: none;
@@ -875,6 +876,7 @@ html, body {
 }
 
 .location_search_div {
+  display: none;
   position: absolute;
   z-index: 90000;
   top: 10px;
@@ -1654,6 +1656,8 @@ a:focus { outline:0; }
   padding-top: 4px !important;
   font-size: 24px !important;
   margin-left: -2px !important;
+  color: white;
+  cursor: pointer;
 }
 
 #menu-logo:hover {
@@ -2023,6 +2027,7 @@ a:focus { outline:0; }
 }
 
 #logosContainer {
+  display: none;
   bottom: 76px;
   position: absolute;
   right: 20px;
@@ -2033,7 +2038,7 @@ a:focus { outline:0; }
   perspective: 1000;
   text-shadow: -1px 0 #656565, 0 1px #656565, 1px 0 #656565, 0 -1px #656565;
   cursor: default;
-  z-index: 99;
+  z-index: 990;
   pointer-events: none;
 }
 
@@ -2359,6 +2364,7 @@ a:focus { outline:0; }
 }
 
 #top-nav {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;

@@ -1,7 +1,7 @@
 /*! normalize.css v6.0.0 | MIT License | github.com/necolas/normalize.css */
 @font-face {
   font-family: 'Exo2-Regular';
-  src: url('../../../css/fonts/Exo2-Regular.woff') format('woff');
+  src: url('../../../css/fonts/Exo2/Exo2-Regular.woff') format('woff');
 }
 
 * {

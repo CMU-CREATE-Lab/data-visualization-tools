@@ -66,43 +66,43 @@ export class Timeline {
                 var tomorrow = m;
                 var timeZone = Utils.getTimeZone();
                 while (tomorrow.getTime() <= n.getTime()) {
-                var captureTimeStr = tomorrow.getFullYear() + '-' + padLeft((tomorrow.getMonth() + 1).toString(), 2) + '-' + padLeft(tomorrow.getDate().toString(), 2);
-                if (typeof startHour != "undefined") {
-                    captureTimeStr += ' ' + padLeft(tomorrow.getHours().toString(), 2);
-                    if (typeof startMinute != "undefined") {
-                    captureTimeStr += ':' + padLeft(tomorrow.getMinutes().toString(), 2);
+                    var captureTimeStr = tomorrow.getFullYear() + '-' + padLeft((tomorrow.getMonth() + 1).toString(), 2) + '-' + padLeft(tomorrow.getDate().toString(), 2);
+                    if (typeof startHour != "undefined") {
+                        captureTimeStr += ' ' + padLeft(tomorrow.getHours().toString(), 2);
+                        if (typeof startMinute != "undefined") {
+                            captureTimeStr += ':' + padLeft(tomorrow.getMinutes().toString(), 2);
+                            if (typeof startSecond != "undefined") {
+                                captureTimeStr += ':' + padLeft(tomorrow.getSeconds().toString(), 2);
+                            }
+                        } else {
+                            captureTimeStr += ':' + '00';
+                        }
+                        captureTimeStr += timeZone;
+                    }
+                    captureTimes.push(captureTimeStr);
                     if (typeof startSecond != "undefined") {
-                        captureTimeStr += ':' + padLeft(tomorrow.getSeconds().toString(), 2);
-                    }
+                        tomorrow.setSeconds(tomorrow.getSeconds() + this.step);
+                    } else if (typeof startMinute != "undefined") {
+                        tomorrow.setMinutes(tomorrow.getMinutes() + this.step);
+                    } else if (typeof startHour != "undefined") {
+                        tomorrow.setHours(tomorrow.getHours() + this.step);
                     } else {
-                    captureTimeStr += ':' + '00';
+                        tomorrow.setDate(tomorrow.getDate() + this.step);
                     }
-                    captureTimeStr += timeZone;
-                }
-                captureTimes.push(captureTimeStr);
-                if (typeof startSecond != "undefined") {
-                    tomorrow.setSeconds(tomorrow.getSeconds() + this.step);
-                } else if (typeof startMinute != "undefined") {
-                    tomorrow.setMinutes(tomorrow.getMinutes() + this.step);
-                } else if (typeof startHour != "undefined") {
-                    tomorrow.setHours(tomorrow.getHours() + this.step);
-                } else {
-                    tomorrow.setDate(tomorrow.getDate() + this.step);
-                }
                 }
             } else if (typeof(startMonth) != "undefined" && typeof(endMonth) != "undefined") { // generate yyyy-mm
                 for (var i = startYearInt; i <= endYearInt; i++) {
-                var beginMonth = 1;
-                var stopMonth = 12;
-                if (i == startYearInt) {
-                    beginMonth = parseInt(startMonth); // Ensure beginMonth is an int and not a string
-                }
-                if (i == endYearInt) {
-                    stopMonth = parseInt(endMonth); // Ensure stopMonth is an int and not a string
-                }
-                for (var j = beginMonth; j <= stopMonth; j+=this.step) { // Increment based on supplied this.step
-                    captureTimes.push(padLeft(i.toString(), 2) + "-" + padLeft(j.toString(), 2));
-                }
+                    var beginMonth = 1;
+                    var stopMonth = 12;
+                    if (i == startYearInt) {
+                        beginMonth = parseInt(startMonth); // Ensure beginMonth is an int and not a string
+                    }
+                    if (i == endYearInt) {
+                        stopMonth = parseInt(endMonth); // Ensure stopMonth is an int and not a string
+                    }
+                    for (var j = beginMonth; j <= stopMonth; j+=this.step) { // Increment based on supplied this.step
+                        captureTimes.push(padLeft(i.toString(), 2) + "-" + padLeft(j.toString(), 2));
+                    }
                 }
             } else  { // generate yyyy
                 for (var i = startYearInt; i < endYearInt + 1; i+=this.step) {

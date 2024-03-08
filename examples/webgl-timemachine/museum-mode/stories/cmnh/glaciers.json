@@ -1,0 +1,72 @@
+{
+    "title": "Glaciers",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05/&boundsLTRB=190795.37089572015,513773.64205523033,193173.10784833092,516611.0545813898&width=264&height=204&frameTime=1.5&format=png&fps=10&tileFormat=mp4",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "The Columbia Glacier is located in Prince William Sound on the south coast of Alaska.",
+            "BoundingBox": {
+                "ne":{"lat":61.19842952052274,"lng":-147.44067942726952},"sw":{"lat":60.95299482198277,"lng":-146.68897057273045}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Over the past 30 years, it has retreated more than 12.5 miles (20 kilometers) to the north and lost about half of its thickness and volume partially due to rising temperatures, making it one of the fastest changing glaciers in the world.",
+            "BoundingBox": {
+                "ne":{"lat":61.19842952052274,"lng":-147.44067942726952},"sw":{"lat":60.95299482198277,"lng":-146.68897057273045}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "While the changes to the glacier have affected the global-sea level rise, its thinning and retreat are not exclusively due to climate change. It is likely that once the Columbia reaches the shoreline, its retreat will slow.",
+            "BoundingBox": {
+                "ne":{"lat":61.19842952052274,"lng":-147.44067942726952},"sw":{"lat":60.95299482198277,"lng":-146.68897057273045}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The Mendenhall Glacier is located 13 miles from Juneau, Alaska. As a popular tourist attraction, the glacier is a half-mile wide and up to 1,800 ft deep. It terminates into the Mendenhall lake, which was created in the 1930's from the glacier's melting ice.",
+            "BoundingBox": {
+                "ne":{"lat":58.502167157315654,"lng":-134.7394504851748},"sw":{"lat":58.37814858438256,"lng":-134.3884495148252}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The glacier has been retreating for over a century, and since 2011, large bursts of pressurized water have been shooting out from beneath the glacier as the planet continues to warm. Here you can see that the glacier retreats over half a mile (1 kilometer) from 1984 to 2016.",
+            "BoundingBox": {
+                "ne":{"lat":58.502167157315654,"lng":-134.7394504851748},"sw":{"lat":58.37814858438256,"lng":-134.3884495148252}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

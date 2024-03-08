@@ -1,0 +1,179 @@
+<script>
+    EarthlapseUI.bind("loadedscreen", function (e) {
+        if (e.mode !== "menu2") { return; }
+
+        var $screen = $(".earthlapse-modes-menu2-container");
+
+        // Enable focus style
+        $screen.on("mousedown touchstart", ".earthlapse-modes-menu2-item, .earthlapse-modes-menu2-explorebutton", function () {
+            $(this).addClass("hasfocus");
+        }).on("mouseout touchend touchcancel", ".earthlapse-modes-menu2-item, .earthlapse-modes-menu2-explorebutton", function () {
+            $(this).removeClass("hasfocus");
+        });
+
+        // On selection of any tile, initiate the story
+        $screen.on("click", ".earthlapse-modes-menu2-item", function (e) {
+            var $this = $(this);
+
+            // If this button had focus, then we should execute an action
+            $this.removeClass("hasfocus");
+
+            var storyId = $this.data("storyId");
+            var themeId = $this.data("themeId");
+
+            // Make sure the story is ready to be played
+            if (typeof storyId === "undefined" || storyId === null) {
+                alert("Story not loaded yet");
+                return;
+            }
+
+            // Enter story
+            EarthlapseUI.Modes.changeModeTo("story");
+
+            EarthlapseUI.Stories.startStory(storyId, themeId);
+
+            // Analytics
+            org.gigapan.Util.addGoogleAnalyticEvent('button', 'click', 'storymode-menu-select-story=' + storyId);
+        });
+
+        // On selection of explore button, initiate exploration mode
+        $screen.on("click", ".earthlapse-modes-menu2-explorebutton", function (e) {
+
+            var $this = $(this);
+
+            // If this button had focus, then we should execute an action
+            $this.removeClass("hasfocus");
+
+            // Enter exploration or go back depending upon the use of topics
+            var modeChoice = EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode ? "menu" : "explore";
+
+            EarthlapseUI.Modes.changeModeTo(modeChoice);
+
+            // Initially hide annotation box when switching to explore mode
+            $(".current-location-text-container").hide();
+            $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation.thumbnail_highlight").removeClass("thumbnail_highlight");
+
+            // Analytics
+            var analyticCategory = EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode ? "storymode-menu-select-back" : "storymode-menu-select-explore";
+            org.gigapan.Util.addGoogleAnalyticEvent('button', 'click', analyticCategory);
+        });
+
+        $screen.on("click", ".earthlapse-modes-menu2-back", function (e) {
+          EarthlapseUI.Modes.changeModeTo("menu");
+        });
+
+        var $gallery = $(".earthlapse-stories-gallery");
+
+        function addStory(storyId, internalStoryId, themeId, internalThemeId) {
+            if (waypointJSONList[themeId].stories[storyId]?.enabled == false) {
+              return;
+            }
+
+            var storyTitle = waypointJSONList[themeId].stories[storyId].storyTitle;
+            var storyKeyframes = museumModeThemeStoryDict[internalThemeId][internalStoryId].waypoints.snaplapse.keyframes;
+
+            var data = {};
+            data.keyframes = [];
+
+            var layers = storyKeyframes[0].layers;
+            for (var layerIdx in layers) {
+              var labelInfo = EarthlapseUI.Stories.Timeline.getLabelInfo(layers[layerIdx]);
+              if (!labelInfo) {
+                labelInfo = EarthlapseUI.Stories.Timeline.getLabelInfo("default");
+              }
+              data.showMidLabels = labelInfo.showMidLabels;
+              data.timelineLabels = labelInfo.labels;
+            }
+
+            var baseLayer;
+            for (var keyframeId in storyKeyframes) {
+              var keyframe = {};
+              keyframe["Text"] = storyKeyframes[keyframeId].unsafe_string_description;
+              keyframe["BoundingBox"] = storyKeyframes[keyframeId].bounds;
+              keyframe["Pause"] = (storyKeyframes[keyframeId].speed == 0);
+              keyframe["StartTime"] = storyKeyframes[keyframeId].time;
+              keyframe["PlaybackSpeed"] = storyKeyframes[keyframeId].speed;
+              keyframe["BeginTime"] = storyKeyframes[keyframeId].beginTime;
+              keyframe["EndTime"] = storyKeyframes[keyframeId].endTime;
+              keyframe["StartDwell"] = storyKeyframes[keyframeId].startDwell;
+              keyframe["EndDwell"] = storyKeyframes[keyframeId].endDwell;
+              var layers = storyKeyframes[keyframeId].layers;
+              if (layers.indexOf("blsat") >= 0) {
+                baseLayer = layers.splice(layers.indexOf("blsat"),1);
+              } else if (layers.indexOf("bdrk") >= 0) {
+                baseLayer = layers.splice(layers.indexOf("bdrk"),1);
+              } else if (layers.indexOf("blte") >= 0) {
+                baseLayer = layers.splice(layers.indexOf("blte"),1);
+              }
+              keyframe["Layers"] = layers;
+              keyframe["Map"] = baseLayer;
+              data.keyframes.push(keyframe);
+            }
+
+            museumModeThemeStoryDict[internalThemeId][internalStoryId].data = data;
+            var thumbnailURL;
+            var storyTitle;
+
+            if (storyId == "default") {
+              storyTitle = themeId.replace(/_/g, " ");
+              thumbnailURL = timelapse.getThumbnailOfView(waypointJSONList[themeId].mainThemeShareView, 242, 188) || "http://placehold.it/242x188";
+            } else {
+              storyTitle = storyTitle;
+              thumbnailURL = timelapse.getThumbnailOfView(waypointJSONList[themeId].stories[storyId].mainShareView, 242, 188) || "http://placehold.it/242x188";
+            }
+
+            data.title = storyTitle;
+
+            // Build tile
+            var $thumbnail = $("<img />").attr("src", thumbnailURL);
+            var $title = $("<div class=\"desc\" />").text(storyTitle);
+            var $img = $("<div class=\"img\" />").append($thumbnail, $title);
+            var $tile = $("<div class=\"ui-button earthlapse-modes-menu2-item\" data-type=\"story\" data-topic=\"" + internalThemeId + "\"/>").append($img);
+            $tile.data("storyId", internalStoryId);
+            $tile.data("themeId", internalThemeId);
+
+            // Append tile to gallery
+            $gallery.append($tile);
+        }
+
+        // Insert stories
+
+        /*var startMode = EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode ? "menu" : "menu2";
+
+        if (startMode == "menu") {
+          $(".earthlapse-modes-menu2-explorebutton").text("Back");
+        } else {
+          $(".earthlapse-modes-menu2-explorebutton").text("Explore on your own").prepend('<img src="../../images/explore_on_your_own_white.png" style="width: 45px; height: 45px; float: left; padding-right: 15px">');
+        }*/
+
+        // We may not want to separate by themes and only list out stories
+        if (!EARTH_TIMELAPSE_CONFIG.useTopicsInStoryMode) {
+          var useDefaultThemeId = true;
+        }
+        for (var themeId in waypointJSONList) {
+          var stories = waypointJSONList[themeId].stories;
+          for (var storyId in stories) {
+            var internalStoryId = storyId;
+            var internalThemeId = useDefaultThemeId ? "default" : themeId;
+
+            // Handle case where all stories are themes in the spreadsheet
+            if (storyId == "default") {
+              internalStoryId = themeId;
+              internalThemeId = "default";
+            }
+            museumModeThemeStoryDict[internalThemeId][internalStoryId] = {waypoints: JSON.parse(waypointJSONList[themeId].stories[storyId].waypoints)};
+            addStory(storyId, internalStoryId, themeId, internalThemeId);
+          }
+        }
+    });
+</script>
+<div class="earthlapse-modes-screen">
+    <h1>Welcome to EarthTime!</h1>
+
+    <section class="earthlapse-modes-menu2-section earthlapse-modes-menu2-section-stories" style="margin-top: 0px !important">
+        <h2 class="earthlapse-modes-menu2-section-heading">Choose a story</h2>
+        <div class="earthlapse-stories-gallery"></div>
+    </section>
+
+
+</div>

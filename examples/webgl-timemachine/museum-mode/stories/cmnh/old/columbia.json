@@ -1,0 +1,47 @@
+{
+    "title": "Glacial Melting",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://earthengine.google.org/timelapse/data/20130507&boundsLTRB=120648.12188164717,379004.52579184965,123773.7826115603,380610.5849385842&width=264&height=204&frameTime=2.1",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "This is Columbia Glacier, located in Prince William Sound on the south coast of Alaska. Over the past 30 years, Columbia Glacier has retreated more than 20 kilometers to the north and lost about half of its thickness and volume partially due to rising temperatures, making it one of the fastest changing glaciers in the world.",
+            "BoundingBox": {
+                "ne": {"lat": 61.18376983327997, "lng": -147.48599932099796},
+                "sw": {"lat": 60.96776172999519, "lng": -146.643650679002}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "While the changes to the glacier have affected the global-sea level rise, its thinning and retreat are not exclusively due to climate change.  Other mechanical processes are to blame for its changing state.  It is likely that once the Columbia reaches the shoreline, its retreat will slow.",
+            "BoundingBox": {
+                "ne": {"lat": 61.18376983327997, "lng": -147.48599932099796},
+                "sw": {"lat": 60.96776172999519, "lng": -146.643650679002}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

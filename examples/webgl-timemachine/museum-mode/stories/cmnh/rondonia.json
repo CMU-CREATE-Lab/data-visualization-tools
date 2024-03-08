@@ -1,0 +1,86 @@
+{
+    "title": "Rainforest Clearing",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://earthengine.google.org/timelapse/data/20130507&boundsLTRB=431237.24003448826,712545.3934033867,432788.3936166258,713467.8321533278&width=264&height=204&frameTime=1.5",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "As the world's population grows, so does the need for more food. The Amazon rainforest has some of the best land for farming.",
+            "BoundingBox": {
+                "ne": {"lat": 1.4512711915938397, "lng": -78.17371549691622},
+                "sw": {"lat": -21.260370686498366, "lng": -34.38493450308377}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "This is the Brazilian State of Rondonia, located in the middle of the Amazon rainforest. In 1984, the land starts off almost completely rainforest. Over time, you can see trees being removed for farms and roads.",
+            "BoundingBox": {
+                "ne": {"lat": -11.935869127033552, "lng": -63.81680112484868},
+                "sw": {"lat": -12.186722203685438, "lng": -63.33299887515129}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "As we move forward in time, the number of roads increases and lighter patches of green appear in the middle of the rainforest. These areas represent new farmland and roads built to service the land.",
+            "BoundingBox": {
+                "ne": {"lat": -11.935869127033552, "lng": -63.81680112484868},
+                "sw": {"lat": -12.186722203685438, "lng": -63.33299887515129}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "By 2016, much of the Amazon rainforest has been turned into farmland. Most of this farming supports soybeans and grazing cattle for beef and soy exports. These exports are sent all over the world.",
+            "BoundingBox": {
+                "ne":{"lat":-11.433896103967268,"lng":-64.78358656352083},"sw":{"lat":-12.687289219286592,"lng":-62.36621343647916}
+            },
+            "Pause": false,
+            "StartFrame": null,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The green outlines represent Protected Areas. These areas have been recognized as a useful tool for conserving ecosystems. Much of the deforestation in the Amazon happens outside of these protected areas.",
+            "BoundingBox": {
+                "ne":{"lat":-9.329472634812191,"lng":-66.90995904950196},"sw":{"lat":-14.765631037684356,"lng":-58.6726040380905}
+            },
+            "Pause": false,
+            "Layers": ["show-wdpa"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In this case, developers encroached on land belonging to the Surui tribe. The indigenous people of this tribe moved to the edge of the property to prevent further encroachment.",
+            "BoundingBox": {
+                "ne":{"lat":-10.574306719894388,"lng":-61.95407752780842},"sw":{"lat":-11.563142968084538,"lng":-60.4615213893872}
+            },
+            "Pause": false,
+            "Layers": ["show-wdpa"],
+            "Map": "landsat-base"
+        }
+    ]
+}

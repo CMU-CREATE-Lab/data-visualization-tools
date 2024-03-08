@@ -28,6 +28,8 @@ export interface EarthTime {
   glb: Glb;
   layerDB: LayerDB;
   layerDBPromise: Promise<void>;
+  storiesLoadedResolver: any;
+  storiesLoadedPromise: Promise<void>;
   setDatabaseID: (databaseID: GSheet)=>Promise<void>;
   LayerDBLoaded: ()=>Promise<void>;
   timelapse: any;
@@ -46,8 +48,15 @@ export interface EarthTime {
   getStories(): object;
   handleStoryToggle(doShow: boolean): void;
   waypointTimelineUIChangeListener(info: {[key: string]: any}): void;
-  enableLetterboxMode: boolean;
+  uiMode: string;
   updateLetterboxContent(selectionChoice:string): void;
+};
+
+export const availableUIModes = {
+  DEFAULT: "default",
+  LETTERBOX: "letterbox",
+  MUSEUM: "museum",
+  ALT1: "alt1"
 };
 
 export const stdWebMercatorNorth = 85.05113006405742; // Northernmost latitude for standard Web Mercator

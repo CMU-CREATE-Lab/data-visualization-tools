@@ -4,7 +4,6 @@
 import { dbg } from './dbg'
 import { gEarthTime } from './EarthTime'
 import { Utils } from './Utils';
-//import { Handlebars } from "./handlebars.runtime.min.js";
 
 import mapboxgl, { featureFilter } from './mapbox-gl-dev-patched/mapbox-gl-dev_1.13.3';
 
@@ -107,7 +106,7 @@ export class ETMBLayer extends LayerOptions implements LayerInterface {
       this.timeline = new Timeline(this.timelineType,
       {startDate: this.startDate, endDate: this.endDate,
        step: this.step, masterPlaybackRate: this.masterPlaybackRate,
-       playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes});
+       playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes, associatedLayerId: this.layerId});
     }
 
     try {

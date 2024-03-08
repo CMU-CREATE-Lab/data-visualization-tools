@@ -1,0 +1,135 @@
+.earthlapse-modes-menu-container {
+    text-align: left;
+    padding: 0 16%;
+    overflow-x: auto;
+}
+
+.earthlapse-modes-menu-container h1 {
+    margin: 1.6em 0 0.8em 0;
+    line-height: 1;
+    font-size: 84px;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-menu-container h2 {
+    margin: 0 0 0.6em -60px;
+    font-weight: 400;
+    padding: 0 0 0 60px;
+    font-size: 48px;
+    line-height: 1;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-menu-section {
+    margin: 3.4em 0;
+    padding: 0 0 0 60px;
+    position: relative;
+}
+
+.earthlapse-modes-menu-section::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    background: url(menu-section-arrow.png) no-repeat left;
+    background-size: contain;
+    height: 64px;
+    width: 56px;
+}
+
+.earthlapse-modes-menu-section-stories::before {
+    background-position: 0 0;
+}
+
+.earthlapse-modes-menu-section-explore::before {
+    background-position: 0 16px;
+}
+
+/* Stories Section
+-------------------------------------------------- */
+
+.earthlapse-topics-gallery {
+    display: inline-block;
+}
+
+.earthlapse-modes-menu-item {
+    margin: 0 50px 15px 0;
+    float: left;
+    position: relative;
+    border: 3px solid #ffffff;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50), 5px 5px 15px rgba(0,0,0,0.50) inset;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.earthlapse-modes-menu-item img {
+    display: block;
+    width: 342px;
+    height: 287px;
+}
+
+.earthlapse-modes-menu2-item img:focus, .earthlapse-modes-menu2-item img:hover, .earthlapse-modes-menu-item img:focus, .earthlapse-modes-menu-item img:hover {
+  transform: scale(1.05);
+}
+
+.earthlapse-modes-menu-item img:focus, .earthlapse-modes-menu-item img:hover {
+  transform: scale(1.03);
+}
+
+.earthlapse-modes-menu-item .desc {
+    padding: 8px;
+    text-align: center;
+    font-weight: 300;
+    font-size: 22px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.65);
+    text-transform: capitalize;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.earthlapse-modes-menu-item.hasfocus .desc {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Explore Section
+-------------------------------------------------- */
+
+.earthlapse-modes-menu-explore::before {
+    font-size: 36px;
+    display: block;
+    margin: 36px;
+}
+
+.earthlapse-modes-menu-explorebutton {
+    font: inherit;
+    font-size: 36px;
+    background: none;
+    padding: 15px 25px;
+    border: 3px solid #ffffff;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50), 5px 5px 15px rgba(0,0,0,0.50) inset;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+    color: #ffffff;
+    outline: none;
+    font-weight: 400;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 12px;
+}
+
+.earthlapse-modes-menu-explorebutton.hasfocus,
+.earthlapse-modes-menu-explorebutton:active {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50);
+    text-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.earthlapse-modes-menu-explorebutton.hasfocus img,
+.earthlapse-modes-menu-explorebutton:active img {
+    filter: invert(100%);
+}

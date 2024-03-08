@@ -1,12 +1,8 @@
-//Legend.js
-
-// Template literals (strings) are not supported in IE 11 (and other browsers that don't support ES6)
-// We work around by doing the following.
-
 declare var d3: any;
 import { WebGLVectorLayer2 } from './WebGLVectorLayer2';
 
-
+// Template literals (strings) are not supported in IE 11 (and other browsers that don't support ES6)
+// We work around by doing the following.
 var _legendTemplateObject = _legendTaggedTemplateLiteral(['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>'], ['<div style="font-size: 15px">', '<span class="credit">(', ')</span></div>']),
     _legendTemplateObject2 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px; text-align: center;">', '</div>'], ['<div style="font-size: 11px; text-align: center;">', '</div>']),
     _legendTemplateObject3 = _legendTaggedTemplateLiteral(['<div style="font-size: 11px">', ' '], ['<div style="font-size: 11px">', ' ']),

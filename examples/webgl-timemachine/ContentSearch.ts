@@ -1,6 +1,6 @@
 // Data Library search
 
-import { gEarthTime } from "./EarthTime";
+import { gEarthTime, availableUIModes } from "./EarthTime";
 
 export class ContentSearch {
   $layerSearchClear: JQuery<HTMLElement>;
@@ -107,7 +107,7 @@ export class ContentSearch {
         } else {
           that.$noSearchResultsFoundMsg.show();
         }
-        if (gEarthTime.enableLetterboxMode) {
+        if (gEarthTime.uiMode == availableUIModes.LETTERBOX) {
           gEarthTime.updateLetterboxContent("layers");
           $("#letterbox-bottom-picker-results-content").children().remove();
         }

@@ -162,7 +162,7 @@ export class WebGLTimeMachineLayer extends Layer {
       { startDate: startDate, endDate: endDate,
         step: this.step, masterPlaybackRate: this.masterPlaybackRate,
         playbackRate: this.playbackRate, cachedCaptureTimes: cachedCaptureTimes,
-        fps: this.fps });
+        fps: this.fps, associatedLayerId: this.layerId });
 
     if (cachedCaptureTimes) {
       this.epochTimes = [];

@@ -1,0 +1,115 @@
+{
+    "title": "Growth of Cities",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05/&boundsLTRB=376541.64304201124,740336.9262703583,378902.8386059714,742454.3477723775&width=264&height=204&frameTime=3.2&format=png&fps=10&tileFormat=mp4",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "In 1984 the population of the Las Vegas metropolitan area was 539,030. By 2016, it was 2,147,641. Notice how the landscape around and within the city changes, as the population quadrupled in just over 30 years. The city is expected to nearly double in population by the year 2042, which will further strain the area's resources.",
+            "BoundingBox": {
+                "ne":{"lat":36.30624055892325,"lng":-115.54650970169331},"sw":{"lat":35.95636305148196,"lng":-114.72947959496113}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Lake Mead supplies 90 percent of the city's water supply.  In 2013, water levels reached their lowest point since the construction of the Hoover Dam in the 1930's. This is due to both rapid urbanization and drought/higher temperatures.",
+            "BoundingBox": {
+                "ne":{"lat":36.17069026851812,"lng":-114.99823940297887},"sw":{"lat":35.97917348860599,"lng":-114.64723843262925}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The Dallas Fort-Worth area of Texas has doubled in both population and outward area since the 1980's. In 2015, the region gained an average of 393 new residents per day, making it the fastest growing metropolis in the country.",
+            "BoundingBox": {
+                "ne":{"lat":33.101152822863114,"lng":-97.48689895487635},"sw":{"lat":32.41085949288731,"lng":-96.27100104512367}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "City growth can also be examined by looking at light usage. This data depicts an increase (red) or decrease (blue) in lights at night visible from space over the past 25 years. Notice the outward development of Dallas Fort-Worth at the edges of the region. This type of expansion has contributed to some of the longest commute times in the country.",
+            "BoundingBox": {
+                "ne":{"lat":33.71694238421023,"lng":-98.60921642761708},"sw":{"lat":32.17731053433067,"lng":-95.14868357238295}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-lights-at-night"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In addition to Dallas Fort-Worth, notice how Phoenix (to the west) and Atlanta (to the east) are expanding in area as well as population, as indicated by red rings around their cities too.",
+            "BoundingBox": {
+                "ne":{"lat":52.5053021952315,"lng":-126.17933155081413},"sw":{"lat":19.990438147459194,"lng":-64.70031844918586}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": ["show-lights-at-night"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Seoul, South Korea is another metropolis that has doubled in area since the 1980's. Due to space limitations, its population density is 10 times that of Dallas Fort-Worth.  As a result, more than 70% of commuters use mass transit or bicycles. This differs greatly from the urbanization of Dallas Fort-Worth in that Seoul has grown upward instead of out.",
+            "BoundingBox": {
+                "ne":{"lat":37.885074227711684,"lng":126.32689585803834},"sw":{"lat":37.24339395464044,"lng":127.52605414196151}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+
+        {
+            "Text": "Shanghai, China is another example of rapid urbanization. In 1984 the city is surrounded by mostly farmland. As Shanghai grew, it joined with nearby cities to create a megacity containing 25 million people. Notice how the south-east coastline is extended to accommodate the city.",
+            "BoundingBox": {
+                "ne":{"lat":31.45454486353396,"lng":121.01073712489992},"sw":{"lat":30.812493643248487,"lng":122.1218628751001}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Development in China has increased both in and outside of major cities. The red areas show an increase in lights at night. Notice how Shanghai merges into nearby cities, growing to become the 6th largest megacity in the world.",
+            "BoundingBox": {
+                "ne":{"lat":32.168511559310055,"lng":119.7661694665882},"sw":{"lat":30.088207829539037,"lng":123.36643053341189}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": ["show-lights-at-night"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Dubai, the largest city in the United Arab Emirates, is a major transport hub for passengers and cargo in the Middle East. The city has built ports into the Persian Gulf to support its transportation industry.",
+            "BoundingBox": {
+                "ne":{"lat":25.26198281548387,"lng":54.8467072146654},"sw":{"lat":24.934773364350193,"lng":55.38194278533459}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

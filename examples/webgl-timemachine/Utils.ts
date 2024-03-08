@@ -74,6 +74,51 @@ export class Utils {
   static getGrablog(): string[] {
     return this.grablogElements;
   }
+
+
+  // Loads one or more scripts (including stylesheets)
+  // in their respective index order, synchronously.
+  static Loader = {
+    queue: [] as any[],
+    loadJsCss: function(src: string, oload) {
+        var ext = src.toLowerCase().substring(src.length - 3, src.length);
+        if (ext == '.js') {
+            var scrNode = document.createElement("script");
+            scrNode.type = 'text/javascript';
+            scrNode.onload = function() { oload(); };
+            scrNode.src = src;
+            document.head.appendChild(scrNode);
+        } else if (ext == 'css') {
+            var cssNode = document.createElement("link");
+            cssNode.rel = 'stylesheet';
+            cssNode.type = 'text/css';
+            cssNode.href = src;
+            document.head.appendChild(cssNode);
+            oload();
+        }
+    },
+    add: function(data:{src: string[], onload: any}) {
+      for (var i = 0; i < data.src.length; i++) {
+        Utils.Loader.queue.push({
+          src: data.src[i],
+          onload: function() {
+            if (Utils.Loader.next() == false) {
+              data.onload();
+              return;
+            }
+          }
+        })
+      }
+      Utils.Loader.next();
+    },
+    next: function() {
+      if (Utils.Loader.queue.length == 0) {
+        return false;
+      }
+      var scr = Utils.Loader.queue.shift();
+      Utils.Loader.loadJsCss(scr.src, scr.onload);
+    }
+  };
 }
 
 dbg.Utils = Utils;

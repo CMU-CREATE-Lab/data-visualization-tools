@@ -1,0 +1,121 @@
+{
+    "title": "Deforestation",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05/&boundsLTRB=676894.0566104733,1036508.1019599574,679845.7606145163,1039459.8059640005&width=264&height=204&frameTime=1.5&format=png&fps=10&tileFormat=mp4",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "The Brazilian State of Rondonia, located in the middle of the Amazon rainforest, was once home to over 77,000 sq miles (200,000 sq kilometers) of forest.",
+            "BoundingBox": {
+                "ne":{"lat":-11.905775821192154,"lng":-63.810449658466794},"sw":{"lat":-12.216783997732263,"lng":-63.33935034153319}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice the deep green color of the rainforest changing to brown as areas are cleared for farmland. Roads cut fishbone patterns into the rainforest and the remaining patches of trees cannot sustain themselves on their own. They eventually dry out.",
+            "BoundingBox": {
+                "ne":{"lat":-11.905775821192154,"lng":-63.810449658466794},"sw":{"lat":-12.216783997732263,"lng":-63.33935034153319}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice the extent of deforestation throughout the Amazon rainforest. Much of the farming related deforestation supports soybeans and grazing cattle for beef, which is exported all over the world.",
+            "BoundingBox": {
+                "ne":{"lat":-9.329472634812191,"lng":-66.90995904950196},"sw":{"lat":-14.765631037684356,"lng":-58.6726040380905}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "This static data overlay shows how recently areas have experienced forest loss between 2000 (shown in yellow) and 2014 (shown in red).",
+            "BoundingBox": {
+                "ne":{"lat":-9.329472634812191,"lng":-66.90995904950196},"sw":{"lat":-14.765631037684356,"lng":-58.6726040380905}
+            },
+            "Pause": false,
+            "Layers": ["show-forest-change"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The green outlines represent Protected Areas, which have been recognized as a useful tool for conserving ecosystems. Much of the deforestation in the Amazon happens outside of these protected areas.",
+            "BoundingBox": {
+                "ne":{"lat":-9.329472634812191,"lng":-66.90995904950196},"sw":{"lat":-14.765631037684356,"lng":-58.6726040380905}
+            },
+            "Pause": false,
+            "Layers": ["show-forest-change", "show-wdpa"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In this case, developers encroached on land belonging to the Surui tribe. The indigenous people of this tribe moved to the edge of the property to prevent further encroachment.",
+            "BoundingBox": {
+                "ne":{"lat":-10.574306719894388,"lng":-61.95407752780842},"sw":{"lat":-11.563142968084538,"lng":-60.4615213893872}
+            },
+            "Pause": false,
+            "Layers": ["show-forest-change", "show-wdpa"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In Colorado, warmer temperatures allow bark beetles to live in habitats previously constrained by colder temperatures. An estimated 830 million trees are dead in the Colorado forest as a result of beetle outbreaks.",
+            "BoundingBox": {
+                "ne":{"lat":41.34142044984876,"lng":-108.54513044153593},"sw":{"lat":39.33689425181658,"lng":-103.58451607830682}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice the patches of dark orange and red in Colorado. This symbolizes recent deforestation.",
+            "BoundingBox": {
+                "ne":{"lat":41.34142044984876,"lng":-108.54513044153593},"sw":{"lat":39.33689425181658,"lng":-103.58451607830682}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": ["show-forest-change"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Palm oil plantations are a major cause of deforestation in Indonesia. Developers often use illegal slash-and-burn tactics to convert forest into agricultural land, causing widespread fires in the region.",
+            "BoundingBox": {
+                "ne":{"lat":2.391014383058226,"lng":99.83071587808641},"sw":{"lat":2.0110114006837394,"lng":100.39403412191356}
+            },
+            "Pause": true,
+            "StartFrame": "2016",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice all of the dark red and orange areas, symbolizing recent forest loss.",
+            "BoundingBox": {
+                "ne":{"lat":2.7448992970377675,"lng":99.08564022489409},"sw":{"lat":1.65695220973334,"lng":101.13910977510588}
+            },
+            "Pause": true,
+            "StartFrame": "2016",
+            "Layers": ["show-forest-change"],
+            "Map": "landsat-base"
+        }
+    ]
+}

@@ -1,0 +1,58 @@
+{
+    "title": "Lake Urmia",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://earthengine.google.org/timelapse/data/20130507&boundsLTRB=829953.5478804687,512969.2419359944,842765.3283798227,520556.2182004556&width=264&height=204&frameTime=1.5",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "This is Lake Urmia, located in the northwestern part of Iran near the Iranian Turkish border. In 1984, Lake Urmia was a very large lake, spanning about 150 kilometers north to south. At the time it was the largest lake in the Middle East and the sixth largest saltwater lake on Earth.",
+            "BoundingBox": {
+                "ne": {"lat": 38.82685867621302, "lng": 43.522329732292405},
+                "sw": {"lat": 36.530285263713196, "lng": 48.995927356521435}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Over the past 30 years, Lake Urmia has shrunk to about 10% of its original size. This is due mostly to the damming of rivers around the lake and to the pumping of groundwater from the lake's vicinity.",
+            "BoundingBox": {
+                "ne": {"lat": 38.82685867621302, "lng": 43.522329732292405},
+                "sw": {"lat": 36.530285263713196, "lng": 48.995927356521435}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Lake Urmia is situated in the middle of the desert and if you look closely, you can see green areas around the lake where food is being grown. The water that used to go into feeding Lake Urmia from the rivers was diverted to these agricultural areas.",
+            "BoundingBox": {
+                "ne": {"lat": 38.82685867621302, "lng": 43.522329732292405},
+                "sw": {"lat": 36.530285263713196, "lng": 48.995927356521435}
+            },
+            "Pause": false,
+            "StartFrame": null,
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

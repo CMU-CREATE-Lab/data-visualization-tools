@@ -1,0 +1,103 @@
+{
+    "title": "U.S. Renewable Energy",
+    "thumbnail": "http://explorables.cmucreatelab.org/earthtime-images/stories/us-solar-wind.png",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+{
+            "Text": "Solar Photovoltaic installations across the United States have steadily increased since the early 2000's. Notice how installations (represented in blue) start on the coasts and make their way inland.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Note that Rhode Island is the last state in the north eastern region to adopt widespread solar installation. This is a result of the surrounding states tax incentives for installation. It wasn't until 2016 that Rhode Island passed a bill with many solar provisions.",
+            "BoundingBox": {
+                "ne":{"lat":44.54639063076117,"lng":-78.15242893943434},"sw":{"lat":37.90370928670204,"lng":-65.05108827947528}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Southern California has historically been home to a lot of farmland. Since 2010 especially, these open areas in California have begun to host many miles of solar photovoltaic cells.",
+            "BoundingBox": {
+                "ne":{"lat":34.91098832356351,"lng":-118.56450048517482},"sw":{"lat":34.71644684509403,"lng":-118.2134995148252}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+             "Text": "Solar Star is a 579 megawatt solar project near Rosamond, California that can power 255,000 homes. When it went operational in June, 2015, it was the largest photovoltaic power plant on the planet; a title that it didn't hold for more than a year.  It is likely that the title of \"World's largest solar park\" will be a shifting one, which is good news for clean energy.",
+             "BoundingBox": {
+                 "ne":{"lat":34.91098832356351,"lng":-118.56450048517482},"sw":{"lat":34.71644684509403,"lng":-118.2134995148252}
+             },
+             "Pause": false,
+             "Layers": [],
+             "Map": "landsat-base"
+        },
+        {
+            "Text": "In San Luis Obispo County, California the 550 megawatt Topaz Solar Farm produces sufficient electricity to power 160,000 average California homes, and also once held the title of \"Largest Solar Plant\" on the planet.",
+            "BoundingBox": {
+                "ne":{"lat":35.46818724472482,"lng":-120.23355048517482},"sw":{"lat":35.2749721153727,"lng":-119.8825495148252}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Solar power installations doubled in 2016 over 2015 in the United States. As of 2017, there are 1.3 million solar installations across the country, with a cumulative capacity of over 40 gigawatts, enough to power 6.5 million U.S. homes.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Wind power is also a viable renewable energy option. The green dots represent wind power installations over the last 32 years in the United States. They are most prevalent across the midwest and the coasts.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-usgs-windturbine"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "In the United States, over 52,000 wind turbines installation are in place and are producing 84,405 megawatts of power. China and Germany are also leading the way with wind power.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "Layers": ["show-usgs-windturbine"],
+            "Map": "dark-base"
+        }
+    ]
+}

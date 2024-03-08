@@ -1,0 +1,78 @@
+.earthlapse-ui-chrome-optional,
+#earthlapse-ui-chrome-toggle {
+    transition-duration: 0.2s;
+}
+
+#timeMachine.earthlapse-ui-minimal .earthlapse-ui-chrome-optional {
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.sideToolBar.earthlapse-ui-chrome-optional, .location_search_div.earthlapse-ui-chrome-optional {
+    transform-origin: top left;
+}
+
+/*.toggleSpeed.ui-button, .timelineSliderFiller {
+  left: 99px !important;
+}
+
+.captureTime {
+  left: 169px !important;
+}*/
+
+/* Toggle Button
+-------------------------------------------------- */
+
+#earthlapse-ui-chrome-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    background: rgba(255,255,255,1);
+    color: #000;
+    border: 1px solid rgba(101,101,101,1);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    outline: none;
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+    z-index: 99;
+    height: 45px;
+    width: 110px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+#earthlapse-ui-chrome-toggle::before {
+    content: "Minimize UI";
+}
+
+#timeMachine.earthlapse-ui-minimal #earthlapse-ui-chrome-toggle {
+    background: rgba(0,0,0,0.25);
+    border-color: rgba(101,101,101,0);
+    box-shadow: none;
+    color: #fff;
+}
+
+#timeMachine.earthlapse-ui-minimal #earthlapse-ui-chrome-toggle::before {
+    content: "Restore UI";
+}
+
+/* Timeline
+-------------------------------------------------- */
+
+.timeTickContainer {
+    transition-duration: 0.2s;
+}
+
+#timeMachine.earthlapse-ui-minimal .timeTickContainer,
+#timeMachine.earthlapse-ui-minimal .customHelpLabel {
+    opacity: 1;
+}
+
+#timeMachine.earthlapse-ui-minimal .timeTickContainer:hover {
+    opacity: 1;
+}

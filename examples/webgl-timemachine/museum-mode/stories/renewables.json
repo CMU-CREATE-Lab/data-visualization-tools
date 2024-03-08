@@ -1,0 +1,124 @@
+{
+    "title": "Renewables",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05/&boundsLTRB=348871.30511887517,746502.8762326066,349472.6572976167,747031.6104093347&width=264&height=204&frameTime=3.2&format=png&fps=10&tileFormat=mp4",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "Solar photovoltaic installations across the United States have steadily increased since the early 2000's. Notice how installations (represented in blue) start on the coasts and make their way inland.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Notice how Rhode Island is the last state in the northeastern region to adopt widespread solar installation. In 2016, Rhode Island adopted new renewable energy standards aimed at promoting more solar friendly policies.",
+            "BoundingBox": {
+                "ne":{"lat":44.54639063076117,"lng":-78.15242893943434},"sw":{"lat":37.90370928670204,"lng":-65.05108827947528}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Southern California has historically been home to a lot of farmland. Since 2010, these open areas in California have begun to host many miles of solar photovoltaic cells.",
+            "BoundingBox": {
+                "ne":{"lat":34.91098832356351,"lng":-118.56450048517482},"sw":{"lat":34.71644684509403,"lng":-118.2134995148252}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+             "Text": "Solar Star is a 579-megawatt solar project near Rosamond, California that can power 255,000 homes. When it went operational in June 2015, it was the largest photovoltaic power plant on the planet; a title it wouldn't hold for more than a year.  It is likely that the title of \"World's Largest Solar Park\" will be in flux, which is good news for clean energy.",
+             "BoundingBox": {
+                 "ne":{"lat":34.91098832356351,"lng":-118.56450048517482},"sw":{"lat":34.71644684509403,"lng":-118.2134995148252}
+             },
+             "Pause": false,
+             "StartFrame": "1984",
+             "Layers": [],
+             "Map": "landsat-base"
+        },
+        {
+            "Text": "In San Luis Obispo, California the 550-megawatt Topaz Solar Farm produces sufficient electricity to power 160,000 average California homes, and also once held the title of the largest solar plant on Earth.",
+            "BoundingBox": {
+                "ne":{"lat":35.46818724472482,"lng":-120.23355048517482},"sw":{"lat":35.2749721153727,"lng":-119.8825495148252}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The 850-megawatt Longyangxia Dam Solar Park is located in the western province of Qinghai, China and has the capacity to power up to 200,000 households. It occupies 10.42 sq miles (27 sq kilometers), containing nearly 4 million solar panels.",
+            "BoundingBox": {
+                "ne":{"lat":36.243212832219015,"lng":100.35009695187378},"sw":{"lat":36.05187303048699,"lng":100.7970030481263}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "As of 2017, Tengger Desert Solar Park is the largest in the world at 1,500 megawatts. It's located in the Tengger Desert in China and covers over 16 sq miles (43 sq kilometers) of land.",
+            "BoundingBox": {
+                "ne":{"lat":37.68209453433037,"lng":104.86189695187377},"sw":{"lat":37.49432930229824,"lng":105.30880304812624}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In the United States, solar power installations doubled from 2015 to 2016. As of 2017, there are 1.3 million solar installations across the country, with a cumulative capacity of over 40 gigawatts, enough to power 6.5 million U.S. homes.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-solar-installs"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "Wind power is also a viable renewable energy option. The green dots represent wind power installations over the last 3 decades in the United States. They are most prevalent across the Midwest and the coasts.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-usgs-windturbine"],
+            "Map": "dark-base"
+        },
+        {
+            "Text": "In the United States, over 52,000 wind turbine installations are in place and are producing 84,405 megawatts of power. China and Germany are also leading the way with wind power.",
+            "BoundingBox": {
+                "ne":{"lat":53.631740561890005,"lng":-131.2652514276748},"sw":{"lat":23.64490016755193,"lng":-56.87802621126659}
+            },
+            "Pause": false,
+            "Layers": ["show-usgs-windturbine"],
+            "Map": "dark-base"
+        }
+    ]
+}

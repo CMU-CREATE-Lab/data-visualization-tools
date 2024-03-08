@@ -1,0 +1,405 @@
+.earthlapse-modes-screen.earthlapse-modes-story-container {
+    background: none;
+}
+
+body.earthlapse-modes-story .scaleBarContainer {
+  bottom: 130px !important;
+}
+
+body.earthlapse-modes-story .scaleBarContainer.noTimeline, body.earthlapse-modes-story #layers-legend.noTimeline {
+  bottom: 67px !important;
+}
+
+/*body.earthlapse-modes-story .playbackButton {
+  width: 58px !important;
+  height: 58px !important;
+  bottom: 16px !important;
+}*/
+
+/* Timeline
+-------------------------------------------------- */
+body.earthlapse-modes-story .earthlapse-stories-timeline-hidden {
+  display: none !important;
+}
+
+body.earthlapse-modes-story .earthlapse-modes-story .customPlay {
+    bottom: 23px;
+}
+
+body.earthlapse-modes-story .earthlapse-stories-timeline {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: calc(100% - 160px);
+    height: 2px;
+    padding: 0 5%;
+    box-sizing: border-box;
+    background: #ffffff;
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+    margin-left: 120px;
+}
+
+body.earthlapse-modes-story .earthlapse-modes-story #biodiv_lpi_v1_01-legend {
+  display: none !important;
+}
+
+.earthlapse-stories-timeline-wrap {
+    position: relative;
+    height: 100%;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.earthlapse-stories-timeline-line {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: -12%;
+    right: 100%;
+    background: #4d90fe;
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.65);
+    transition-timing-function: linear;
+}
+
+.cmnh .earthlapse-stories-timeline-line {
+  background: #1BA3B7;
+}
+
+.earthlapse-stories-timeline-labels-item {
+    position: absolute;
+    bottom: 20px;
+    font-size: 24px;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.85);
+    transform: translateY(0);
+    opacity: 1;
+    transition-property: opacity, transform;
+    transition-duration: 3s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.earthlapse-stories-timeline-labels-item:last {
+  margin-right: -214px !important;
+}
+
+.earthlapse-stories-timeline-labels-item.hasfocus {
+    transform: translateY(-20px);
+    opacity: 1;
+    transition-duration: 0.1s;
+}
+
+/* Explain
+-------------------------------------------------- */
+
+.earthlapse-stories-explain {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    max-width: 1000px;
+    width: 50%;
+    text-align: left;
+}
+
+.earthlapse-stories-explain-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transition-duration: 0.5s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    background: rgba(33, 34, 39, 0.70);
+    padding: 22px;
+    padding-bottom: 17px;
+    border-radius: 12px;
+}
+
+.cmnh .earthlapse-stories-explain-content {
+  background: rgba(0,77,88,0.75);
+  border-radius: 12px;
+}
+
+.earthlapse-stories-explain-content-enter,
+.earthlapse-stories-explain-content-exit {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-5%);
+}
+
+.earthlapse-stories-explain-content-enter {
+    transform: translateY(-5%);
+}
+
+.earthlapse-stories-explain-prev .earthlapse-stories-explain-content-enter {
+    transform: translateX(-5%);
+}
+
+.earthlapse-stories-explain-next .earthlapse-stories-explain-content-enter {
+    transform: translateX(5%);
+}
+
+.earthlapse-modes-story .earthlapse-stories-explain-content-exit {
+    transform: none;
+}
+
+.earthlapse-stories-explain-text {
+    font-size: 21px;
+    margin-top: 6px;
+    margin-right: 2px;
+    text-align: justify;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-stories-explain-external-media-video {
+    width: 100%;
+    height: 360px;
+    margin-top: 10px;
+}
+
+.earthlapse-stories-explain-external-media-video-gdrive-popout-block {
+    width: 70px;
+    height: 70px;
+    position: absolute;
+    right: 20px;
+    opacity: 0;
+}
+
+.earthlapse-stories-explain-external-media-image {
+    width: 46%;
+    margin-top: 5px;
+    margin-bottom: 3px;
+    float: left;
+    height: 250px;
+    background-clip: content-box;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding-right: 25px;
+}
+
+.earthlapse-stories-explain-nav {
+    text-align: center;
+    /*transition-delay: 0.5s;
+    transition-duration: 0.5s;*/
+}
+
+.earthlapse-stories-explain-content-enter .earthlapse-stories-explain-nav {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.earthlapse-stories-explain-nav-indicator {
+    font-size: 16px;
+    margin: 0px auto;
+    width: 100%;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+    margin-top: 33px;
+    float: left;
+}
+
+.earthlapse-stories-explain-nav-button {
+    font: inherit;
+    font-size: 22px;
+    vertical-align: middle;
+    background: none;
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    padding: 7px;
+    width: 120px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.50), 3px 3px 10px rgba(0,0,0,0.50) inset;
+    text-shadow: 3px 3px 10px rgba(0,0,0,0.65);
+    outline: none;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 12px;
+    padding-top: 6px;
+}
+
+.earthlapse-stories-explain-nav-keyframe-title {
+    position: absolute;
+    font-size: 26px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: calc(100% - 340px);
+    margin-top: -4px;
+    text-transform: capitalize;
+}
+
+.earthlapse-stories-explain-nav-heading {
+  display: inline-block;
+  padding-left: 150px;
+  padding-right: 150px;
+  width: calc(100% - 300px);
+}
+
+.earthlapse-stories-explain-nav-keyframe-close {
+    display: none;
+    position: absolute;
+    top: -34px;
+    width: 30px;
+    height: 28px;
+    background: rgba(0,0,0,0.52);
+    right: 0px !important;
+    background: rgba(0,0,0,0.52) url(close.png) no-repeat 50% 50%;
+    background-size: 55%;
+    cursor: pointer;
+    padding: 0px !important;
+}
+
+.earthlapse-stories-explain-nav-keyframe-close:before {
+    content: '';
+    display: inline-block;
+    z-index: 1;
+    width: 220%;
+    height: 165%;
+    position: absolute;
+    right: 0px;
+    top: -9px;
+    left: -19px;
+}
+
+.earthlapse-stories-explain-nav-button.hasfocus,
+.earthlapse-stories-explain-nav-button:active {
+    background: #ffffff;
+    color: #000000;
+    text-shadow: 0 0 0 rgba(0,0,0,0);
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.50);
+}
+
+.earthlapse-stories-explain-nav-back {
+    left: 22px;
+    position: absolute;
+    background-image: url(left-arrow2.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 32% 68%;
+    background-position-x: 3px;
+    background-position-y: 7px;
+    padding-left: 35px;
+}
+
+.cmnh .earthlapse-stories-explain-nav-back {
+	background-size: 24% 59%;
+	background-position-y: 9px;
+}
+
+.earthlapse-stories-explain-nav-next {
+    right: 22px;
+    position: absolute;
+    background-image: url(right-arrow2.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 24% 59%;
+    background-position-x: 75px;
+    background-position-y: 9px;
+    padding-right: 43px;
+}
+
+.cmnh .earthlapse-stories-explain-nav-next {
+	background-size: 32% 62%;
+	background-position-y: 10px;
+}
+
+.earthlapse-stories-explain-nav-return {
+    left: 22px;
+    position: absolute;
+}
+
+.earthlapse-stories-explain-nav-done {
+    right: 22px;
+    position: absolute;
+}
+
+.circle {
+  background: white;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+  display: block;
+  top: -4px;
+  box-shadow: 0px 0px 0px 3px #424242;
+  cursor: pointer;
+}
+
+.circle.hasfocus {
+  background: #4d90fe;
+  width: 20px;
+  height: 20px;
+  margin-top: -4px;
+  margin-left: -10px !important;
+  -webkit-transition: width 0.05s, height 0.05s;
+  -ms-transition: width 0.05s, height 0.05s;
+  -moz-transition: width 0.05s, height 0.05s;
+  -khtml-transition: width 0.05s, height 0.05s;
+  transition: width 0.05s, height 0.05s;
+}
+
+.cmnh .circle.hasfocus {
+  background: #1BA3B7;
+}
+
+.circle.hasfocus:before {
+  width: 150%;
+  height: 275%;
+}
+
+.circle.hasfocus:after {
+  width: 150%;
+  height: 275%;
+}
+
+.circle:before {
+  content: '';
+  display: inline-block;
+  z-index: 1;
+  width: 250%;
+  height: 400%;
+  position: absolute;
+  left: 0px;
+  top: -15px;
+}
+
+.circle:after {
+  content: '';
+  display: inline-block;
+  z-index: 1;
+  width: 250%;
+  height: 400%;
+  position: absolute;
+  right: 0px;
+  top: -15px;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 rgba(81, 158, 87, 1);
+  }
+  70% {
+    -webkit-box-shadow: 0 0 0 20px rgba(81, 158, 87, 0);
+  }
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(81, 158, 87, 0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    -moz-box-shadow: 0 0 0 0 rgba(81, 158, 87, 1);
+    box-shadow: 0 0 0 0 rgba(81, 158, 87, 1);
+  }
+  70% {
+    -moz-box-shadow: 0 0 0 20x rgba(81, 158, 87, 0);
+    box-shadow: 0 0 0 20px rgba(77,144,254, 0);
+  }
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(81, 158, 87, 0);
+    box-shadow: 0 0 0 0 rgba(81, 158, 87, 0);
+  }
+}

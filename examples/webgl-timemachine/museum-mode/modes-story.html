@@ -1,0 +1,388 @@
+<script>
+    EarthlapseUI.bind("loadedscreen", function (e) {
+        if (e.mode !== "story") { return; }
+
+        var $screen = $(".earthlapse-modes-screen.earthlapse-modes-story-container");
+        var $explain = $screen.find(".earthlapse-stories-explain");
+
+        function bindTimeline() {
+            var $labelContainer = $(".earthlapse-stories-timeline-labels");
+            var $line = $(".earthlapse-stories-timeline-line");
+            $(".earthlapse-stories-timeline-labels").on("mouseover", ".circle", function() {
+              $(this).removeClass("openHand closedHand").attr("title","");
+              if ($(this).hasClass("hasfocus")) {
+                $(this).addClass("openHand").attr("title", "Drag to go to a different point in time");
+              }
+              if ($("body").hasClass("closedHand")) {
+                $(this).addClass("closedHand");
+              }
+            });
+
+            var timelineLabels = [];
+            var prevFrameNumber = -1;
+
+            EarthlapseUI.bind("storytimeupdate", function (e) {
+                if (timelineLabels.length === 0) { return; }
+
+                $('.circle').removeClass("hasfocus");
+                $(".circle").filter(function() {
+                  if ($(this).data("frame-num") <= e.currentFrameNumber) {
+                    $('.circle').removeClass("hasfocus");
+                    $(this).addClass("hasfocus");
+                  }
+                });
+
+                // Animate timeline labels
+                for (var i = 0; i < timelineLabels.length; i++) {
+                    var minFrameNumber = timelineLabels[i].minFrameNumber;
+                    var maxFrameNumber = timelineLabels[i].maxFrameNumber;
+
+                    if ((prevFrameNumber < minFrameNumber && minFrameNumber <= e.currentFrameNumber)
+                    || (e.currentFrameNumber < prevFrameNumber && prevFrameNumber < minFrameNumber)
+                    || (minFrameNumber <= e.currentFrameNumber && e.currentFrameNumber < prevFrameNumber)) {
+                        timelineLabels[i].animReady = false;
+                        timelineLabels[i].blurRequested = false;
+                        timelineLabels[i].$label.addClass("hasfocus");
+                    }
+
+                    if (e.currentFrameNumber < minFrameNumber || maxFrameNumber < e.currentFrameNumber) {
+                        if (e.currentFrameNumber < prevFrameNumber) {
+                          timelineLabels[i].$label.removeClass("hasfocus");
+                          continue;
+                        }
+                        timelineLabels[i].blur();
+                    }
+                }
+                prevFrameNumber = e.currentFrameNumber;
+
+                // Update line length
+                var lineLength = e.progress;
+                $line.css({
+                    "right": Math.max(-12.5, lineLength) + "%",
+                    "transition-duration": (1 / e.fps) + "s"
+                });
+            });
+
+            EarthlapseUI.bind("storynewtimeline", function (e) {
+                $labelContainer.empty();
+                timelineLabels = [];
+                prevFrameNumber = -1;
+
+                $(".customPlay").show();
+
+                var coalesceLabel = function (frame) {
+                    // Coalesce adjacent frames if they have the same label
+                    if (timelineLabels.length === 0) {
+                        return null;
+                    }
+
+                    var lastLabel = timelineLabels[timelineLabels.length - 1];
+                    if (lastLabel.label !== frame.label) {
+                        return null;
+                    }
+
+                    return lastLabel;
+                };
+
+                var makeLabel = function (frame) {
+                    var timelineLabel = coalesceLabel(frame);
+                    var $label = null;
+                    var $midLabel = null;
+                    var $mainLabel = null;
+
+                    if (timelineLabel !== null) {
+                        // Old label
+                        $label = timelineLabel.$label;
+                        $mainLabel = timelineLabel.$mainLabel;
+                        $midLabel = timelineLabel.$midLabel;
+
+                        // Update frame number associations
+                        timelineLabel.minFrameNumber = Math.min(timelineLabel.minFrameNumber, frame.frameNumber);
+                        timelineLabel.maxFrameNumber = Math.max(timelineLabel.maxFrameNumber, frame.frameNumber);
+                    } else {
+                        // New label
+                        $label = $("<span class=\"earthlapse-stories-timeline-labels-item\" data-frame-num='" + frame.frameNumber + "'>");
+                        $mainLabel = $("<span class=\"circle\" data-frame-num='" + frame.frameNumber + "'></span>");
+                        $midLabel = $("<span class=\"circle\" data-frame-num='" + (frame.frameNumber + 1) + "'></span>");
+
+                        timelineLabel = {
+                            minFrameNumber: frame.frameNumber,
+                            maxFrameNumber: frame.frameNumber,
+                            label: frame.label,
+                            $label: $label,
+                            $mainLabel: $mainLabel,
+                            $midLabel: $midLabel,
+                            animReady: true,
+                            blurRequested: false,
+                            blur: function () {
+                                if (!timelineLabel.animReady) {
+                                    timelineLabel.blurRequested = true;
+                                    return;
+                                }
+                                $label.removeClass("hasfocus");
+                                timelineLabel.blurRequested = false;
+                            }
+                        };
+                        timelineLabels.push(timelineLabel);
+
+                        $label.text(frame.label);
+                        $label.bind("transitionend", function () {
+                            timelineLabel.animReady = true;
+                            if (timelineLabel.blurRequested) {
+                                timelineLabel.blurRequested = false;
+                                timelineLabel.blur();
+                            }
+                        });
+
+                        // Add label to page
+                        $labelContainer.append($label);
+                        $labelContainer.append($mainLabel);
+                        if (e.showMidLabels) {
+                          $labelContainer.append($midLabel);
+                        }
+                        $label.on("click", function() {
+                          timelapse.seekToFrame($(this).data("frame-num"));
+                        });
+                        $mainLabel.on("click", function() {
+                          timelapse.seekToFrame($(this).data("frame-num"));
+                        });
+                    }
+                };
+
+                for (var i = 0; i < e.frames.length; i++) {
+                    makeLabel(e.frames[i]);
+                }
+
+                if (($(".circle").length / 2 > (timelineLabels.length - 1)) && e.showMidLabels) {
+                  $(".circle").last().remove();
+                }
+
+                for (var i = 0; i < timelineLabels.length; i++) {
+                    var width = timelineLabels[i].$label.width();
+                    var rightMargin = -width/2;
+                    if (i == timelineLabels.length - 1) {
+                      rightMargin = -215;
+                    } if (i == timelineLabels.length - 2) {
+                      rightMargin = -90;
+                    }
+                    timelineLabels[i].$label.css({
+                        marginLeft: -width/2,
+                        marginRight: rightMargin,
+                        left: -12 + ((124 / (timelineLabels.length - 1)) * i) + "%",
+                    });
+                    var width = timelineLabels[i].$mainLabel.width();
+                    timelineLabels[i].$mainLabel.css({
+                        marginLeft: -width/2,
+                        marginRight: rightMargin,
+                        left: -12 + ((124 / (timelineLabels.length - 1)) * i) + "%",
+                    });
+                    if (e.showMidLabels && i < timelineLabels.length - 1) {
+                      var width = timelineLabels[i].$midLabel.width();
+                      timelineLabels[i].$midLabel.css({
+                          marginLeft: -width/2,
+                          marginRight: rightMargin,
+                          left: -12 + (((124 / (timelineLabels.length - 1)) * i) + (((124 / (timelineLabels.length - 1)) * 1) / 2)) + "%",
+                      });
+                      timelineLabels[i].$midLabel.on("click", function() {
+                        timelapse.seekToFrame($(this).data("frame-num"));
+                      });
+                      var newFrame;
+                      // if (timelineLabels[i].maxFrameNumber == timelineLabels[i].minFrameNumber) {
+                      //   newFrame = timelineLabels[i].maxFrameNumber + 1;
+                      // } else {
+                        newFrame = Math.ceil((timelineLabels[i].minFrameNumber + timelineLabels[i+1].minFrameNumber) / 2);
+                      //}
+                      timelineLabels[i].$midLabel.data("frame-num", newFrame);
+                    }
+                }
+                $(".earthlapse-stories-timeline-labels").off("mousedown", ".circle", EarthlapseUI.Stories.Timeline.handleTimeTickMousedown);
+                $(".earthlapse-stories-timeline-labels").on("mousedown", ".circle", EarthlapseUI.Stories.Timeline.handleTimeTickMousedown);
+            });
+        }
+
+        function bindExplain() {
+            var expireExplainContent = function () {
+                var $oldContent = $explain.find(".earthlapse-stories-explain-content");
+                $oldContent.addClass("earthlapse-stories-explain-content-exit");
+                setTimeout(function () {
+                    $oldContent.remove();
+                }, 500);
+            };
+
+            var createExplainContent = function (e) {
+                // Explain Text
+                var $text = $("<div class=\"earthlapse-stories-explain-text\" />").text(e.text);
+                var $media = null;
+
+                if (e.media) {
+                  var ROOT_DRIVE_VIDEO_EMBED_URL = "https://drive.google.com/file/d/";
+                  var ROOT_DRIVE_IMAGE_EMBED_URL = "https://drive.google.com/uc?export=view&id=";
+                  var ROOT_YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/";
+
+                  var mediaSrc = e.media.src;
+
+                  if (e.media.type == "video") {
+                    if (mediaSrc.indexOf("drive.google.com") > 0) {
+                      driveId = mediaSrc.match(/d\/(.*)\/|id=(.*)/).filter(Boolean).slice(-1)[0];
+                      mediaSrc = ROOT_DRIVE_VIDEO_EMBED_URL + driveId + "/preview";
+                    } else if (mediaSrc.indexOf("youtu.be") > 0 || mediaSrc.indexOf("youtube.com") > 0) {
+                      var youtubeParamsString = mediaSrc.match(/watch\?v=(.*)|\.be\/(.*)/).filter(Boolean)[1];
+                      var youtubeParams = youtubeParamsString.split(/&|\?/);
+                      var youtubeId = youtubeParams[0];
+                      var youtubeStartTime = 0;
+                      if (youtubeParams[1]) {
+                        var timeString = youtubeParams[1].split("t=")[1];
+                        var timesArray = timeString.split(/s|h|m/).filter(Boolean);
+                        if (timesArray.length == 1) {
+                          youtubeStartTime = parseInt(timesArray[0]);
+                        } else if (timesArray.length == 2) {
+                          youtubeStartTime = parseInt(timesArray[0]) * 60 + parseInt(timesArray[1]);
+                        } else if (timesArray.length == 3) {
+                          youtubeStartTime = parseInt(timesArray[0]) * 3600 + parseInt(timesArray[1]) * 60 + parseInt(timesArray[2]);
+                        }
+                      }
+                      mediaSrc = ROOT_YOUTUBE_EMBED_URL + youtubeId + "?start=" + youtubeStartTime + "&showinfo=0&rel=0&iv_load_policy=3";
+                    }
+                    $media = $("<div class=\"earthlapse-stories-explain-external-media-video-container\"><div class=\"earthlapse-stories-explain-external-media-video-gdrive-popout-block\"></div><iframe class=\"earthlapse-stories-explain-external-media-video\" src='" + mediaSrc + "' frameborder='0' allowfullscreen/></div></div>");
+                  } else if (e.media.type == "image") {
+                    if (mediaSrc.indexOf("drive.google.com") > 0) {
+                      driveId = mediaSrc.match(/d\/(.*)\/|id=(.*)/).filter(Boolean).slice(-1)[0];
+                      mediaSrc = ROOT_DRIVE_IMAGE_EMBED_URL + driveId;
+                    }
+                    $media = $("<div class=\"earthlapse-stories-explain-external-media-image\" src='" + mediaSrc + "'/>");
+                    $media.css('background-image', 'url(' + mediaSrc + ')');
+                  }
+                }
+
+                // Explain Nav
+                var $nav = $("<div class=\"earthlapse-stories-explain-nav\" />");
+                var $heading = $("<div class=\"earthlapse-stories-explain-nav-heading\" />");
+                var $title = $("<div class=\"earthlapse-stories-explain-nav-keyframe-title\">" + e.title + "</div>");
+                var $indicator = $("<div class=\"earthlapse-stories-explain-nav-indicator\" />");
+                $indicator.text((e.index+1) + "/" + e.length);
+                $heading.append($title, $indicator);
+                $nav.append($heading);
+
+                if (!e.isFirstKeyframe) {
+                    $nav.append("<button class=\"ui-button earthlapse-stories-explain-nav-button earthlapse-stories-explain-nav-back\">Back</button>");
+                } else {
+                    $nav.append("<button class=\"ui-button earthlapse-stories-explain-nav-button earthlapse-stories-explain-nav-return earthlapse-stories-explain-nav-done\">Return</button>");
+                }
+
+                if (!e.isLastKeyframe) {
+                    $nav.append("<button class=\"ui-button earthlapse-stories-explain-nav-button earthlapse-stories-explain-nav-next\">Next</button>");
+                } else {
+                    $nav.append("<button class=\"ui-button earthlapse-stories-explain-nav-button earthlapse-stories-explain-nav-done\">Finish</button>");
+                }
+
+                $content = $("<div class=\"earthlapse-stories-explain-content\" />");
+
+                if (e.media && e.media.type == "image") {
+                  var $wrapper = $("<div class=\"earthlapse-stories-explain-media-text-wrapper\" />").append($media, $text);
+                  $content.append($nav, $wrapper);
+                } else {
+                  $content.append($nav, $text, $media);
+                }
+
+                return $content;
+            };
+
+            // Explain Nav Buttons
+            $explain.on("mousedown touchstart", ".earthlapse-stories-explain-nav-button", function () {
+                $(this).addClass("hasfocus");
+            }).on("mouseout touchend touchcancel", ".earthlapse-stories-explain-nav-button", function () {
+                $(this).removeClass("hasfocus");
+            }).on("click", ".earthlapse-stories-explain-nav-button", function (e) {
+                var $this = $(this);
+
+                // If this button had focus, then we should execute an action
+                $this.removeClass("hasfocus");
+                e.preventDefault();
+
+                $explain.removeClass("earthlapse-stories-explain-prev earthlapse-stories-explain-next");
+
+                if ($this.hasClass("earthlapse-stories-explain-nav-done")) {
+                    // First slide let's you exit early, so track that differently
+                    var finishType = $this.hasClass("earthlapse-stories-explain-nav-return") ? 'storymode-story-exit-early' : 'storymode-story-finish';
+                    // Analytics
+                    org.gigapan.Util.addGoogleAnalyticEvent(
+                        'button',
+                        'click',
+                        finishType + '=' + EarthlapseUI.Stories.getStoryId()
+                    );
+
+                    // End story
+                    EarthlapseUI.Stories.finishStory();
+                    return;
+                }
+
+                if ($this.hasClass("earthlapse-stories-explain-nav-back")) {
+                    // Swap out old content for prev keyframe
+                    $explain.addClass("earthlapse-stories-explain-prev");
+                    EarthlapseUI.Stories.prevKeyframe();
+
+                    // Analytics
+                    org.gigapan.Util.addGoogleAnalyticEvent(
+                        'button',
+                        'click',
+                        'storymode-story-paginate=' + EarthlapseUI.Stories.getStoryId() + "/" + (EarthlapseUI.Stories.getKeyframe() + 1)
+                    );
+                    return;
+                }
+
+                if ($this.hasClass("earthlapse-stories-explain-nav-next")) {
+                    // Swap out old content for next keyframe
+                    $explain.addClass("earthlapse-stories-explain-next");
+                    EarthlapseUI.Stories.nextKeyframe();
+
+                    // Analytics
+                    org.gigapan.Util.addGoogleAnalyticEvent(
+                        'button',
+                        'click',
+                        'storymode-story-paginate=' + EarthlapseUI.Stories.getStoryId() + "/" + (EarthlapseUI.Stories.getKeyframe() + 1)
+                    );
+                    return;
+                }
+            });
+
+            EarthlapseUI.bind("storykeyframechanged", function (e) {
+                // Exit old content
+                expireExplainContent();
+
+                // Enter new content
+                $explain.append(createExplainContent(e).addClass("earthlapse-stories-explain-content-enter"));
+            });
+
+            EarthlapseUI.bind("storyenteredview", function (e) {
+                EarthlapseUI.Stories.Timeline.setStartFrame(e.startFrame, null, e.loopRange);
+                $(".earthlapse-stories-explain-content").removeClass("earthlapse-stories-explain-content-enter");
+            });
+
+            EarthlapseUI.bind("storystarted", function () {
+                // Reset UI
+                $explain.removeClass("earthlapse-stories-explain-prev earthlapse-stories-explain-next");
+                $explain.empty();
+            });
+
+            EarthlapseUI.bind("storyfinished", function () {
+                // Exit content
+                expireExplainContent();
+
+                // Return to stories menu
+                EarthlapseUI.Modes.changeModeTo("menu2");
+            });
+        }
+
+        bindTimeline();
+        bindExplain();
+    });
+</script>
+<div class="earthlapse-modes-screen">
+    <div class="earthlapse-stories-explain"></div>
+    <div class="earthlapse-stories-timeline">
+        <div class="earthlapse-stories-timeline-wrap">
+            <span class="earthlapse-stories-timeline-line"></span>
+            <div class="earthlapse-stories-timeline-labels"></div>
+        </div>
+    </div>
+</div>

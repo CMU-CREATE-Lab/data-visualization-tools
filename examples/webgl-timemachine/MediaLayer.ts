@@ -1,7 +1,7 @@
 import { LayerInterface, LayerOptions } from './Layer'
 import { LayerProxy } from './LayerProxy';
 import { Glb } from './Glb';
-import { gEarthTime } from './EarthTime';
+import { availableUIModes, gEarthTime } from './EarthTime';
 
 export class MediaLayer extends LayerOptions implements LayerInterface {
   layerProxy: LayerProxy;
@@ -116,7 +116,8 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       // Fit to window, without title bar
       this.$extrasContentContainerTitleBar.hide();
       this.$extrasContentContainer.addClass("storyFriendlyDialog");
-    } else if (extrasName.indexOf("_storyFriendlyDialog_") > 0 && $(".presentationSlider").is(":visible")) {
+    } else if (extrasName.indexOf("_storyFriendlyDialog_") > 0 &&
+               ($(".presentationSlider").is(":visible") || (gEarthTime.uiMode == availableUIModes.ALT1 && $("#waypointDots").is(":visible") && $("#waypointDots").length))) {
       // Fit to window, without title bar and minus height of waypoint slider
       this.$extrasContentContainerTitleBar.hide();
       $(this.$extrasContentContainer).add(this.$extrasContentComponent).addClass("storyFriendlyDialog");

@@ -259,7 +259,7 @@ export class WebGLVectorTile2 extends Tile {
     this.xhr.send();
   }
   _setWindVectorsData(data: any) {
-    console.log("_setWindVectorsData");
+    //console.log("_setWindVectorsData");
     var that = this;
     this.windData = data;
 
@@ -295,7 +295,7 @@ export class WebGLVectorTile2 extends Tile {
 
   }
   _loadWindVectorsData() {
-    console.log('_loadWindVectorsData');
+    //console.log('_loadWindVectorsData');
     this.fadeOpacity = 0.996; // how fast the particle trails fade on each frame
     this.speedFactor = 0.25; // how fast the particles move
     this.dropRate = 0.003; // how often the particles move to a random place
@@ -1118,7 +1118,6 @@ export class WebGLVectorTile2 extends Tile {
         this._ready = true;
       }.bind(this));
   }
-
   _loadOpenPlanetDateData() {
     // @ts-ignore
     let font = new FontFace("Roboto_medium", "url(../../css/fonts/Roboto/Roboto-Medium.woff2)");
@@ -1285,11 +1284,11 @@ export class WebGLVectorTile2 extends Tile {
         }
         let fill_rgba = fills[0];
         let stroke_rgba = strokes[0];
-        let negative_fill_rgba, negative_stroke_rgba;  
+        let negative_fill_rgba, negative_stroke_rgba;
 
         if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") {
           negative_fill_rgba = negativeFills[0];
-          negative_stroke_rgba = negativeStrokes[0];  
+          negative_stroke_rgba = negativeStrokes[0];
         }
         if (key && feature.properties[key]) {          
           let idx = values.indexOf(feature.properties[key]);
@@ -1298,7 +1297,7 @@ export class WebGLVectorTile2 extends Tile {
           stroke_rgba = strokes[idx];
           if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") {
             negative_fill_rgba = negativeFills[idx];
-            negative_stroke_rgba = negativeStrokes[idx];  
+            negative_stroke_rgba = negativeStrokes[idx];
           }
         }
 
@@ -1334,7 +1333,7 @@ export class WebGLVectorTile2 extends Tile {
                                           'value_1': radius(valueEnd), 
                                           'epoch_1': epochEnd
                                           });
-                  if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") { 
+                  if (typeof negativeFills !== 'undefined' && typeof negativeStrokes != "undefined") {
                     timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_r'] = negative_fill_rgba[0];
                     timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_g'] = negative_fill_rgba[1];
                     timeseriesPoints[timeseriesPoints.length - 1]['negative_fill_b'] = negative_fill_rgba[2];
@@ -2549,11 +2548,11 @@ export class WebGLVectorTile2 extends Tile {
           console.log('Init OP style legend');
           let program = this.glb.programFromSources(
             WebGLVectorTile2Shaders.openPlanetDateVertexShader, WebGLVectorTile2Shaders.openPlanetDateFragmentShader);
-      
-          this._openplanetlegend = new OpenPlanetLegend(this.gl, 
+
+          this._openplanetlegend = new OpenPlanetLegend(this.gl,
               {
-                'max_value': this._maxValue, 
-                'min_value': this._minValue, 
+                'max_value': this._maxValue,
+                'min_value': this._minValue,
                 'units': this._layer.legendKey,
                 'program': program
               })
@@ -2561,7 +2560,7 @@ export class WebGLVectorTile2 extends Tile {
         } else {
           this._openplanetlegend.draw(gl);
         }
-      }       
+      }
     }
   }
 
@@ -4704,10 +4703,10 @@ export class WebGLVectorTile2 extends Tile {
       // TODO: Is this the best way?
       if (typeof drawOptions.bbox == "undefined") {
         var bbox = gEarthTime.timelapse.pixelBoundingBoxToLatLngBoundingBoxView(gEarthTime.timelapse.getBoundingBoxForCurrentView()).bbox;
-        var ne = bbox.ne; // tr
-        var sw = bbox.sw; // bl
-        let tl = { lat: ne.lat, lng: ne.lng };
-        let br = { lat: sw.lat, lng: sw.lng };
+        var nw = bbox.nw; // tr
+        var se = bbox.se; // bl
+        let tl = { lat: nw.lat, lng: nw.lng };
+        let br = { lat: se.lat, lng: se.lng };
         drawOptions.bbox = { tl: tl, br: br };
       }
 
@@ -4940,14 +4939,14 @@ export class WebGLVectorTile2 extends Tile {
   _drawOpenPlanetDate(transform: Float32Array) {
     var gl = this.gl;
     if (this._ready) {
-  
+
       gl.useProgram(this.program);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       var tileTransform = new Float32Array(transform);
       var currentTime = gEarthTime.currentEpochTime();
-      let year = new Date(gEarthTime.currentEpochTime()*1000).getUTCFullYear();      
+      let year = new Date(gEarthTime.currentEpochTime()*1000).getUTCFullYear();
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       canvas.width = 380;
@@ -4964,7 +4963,7 @@ export class WebGLVectorTile2 extends Tile {
       var x2 = x1 + canvas.width;
       var y1 = 92;
       var y2 = y1 + canvas.height;
-    
+
       this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([ x1, y1,
         x2, y1,
         x1, y2,
@@ -4982,7 +4981,7 @@ export class WebGLVectorTile2 extends Tile {
             0.0,  1.0,
             1.0,  0.0,
             1.0,  1.0,
-        ]), gl.STATIC_DRAW);        
+        ]), gl.STATIC_DRAW);
       this._texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
 
@@ -5011,11 +5010,11 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
       gl.enableVertexAttribArray(this.program.a_texcoord);
       gl.vertexAttribPointer(this.program.a_texcoord, 2, gl.FLOAT, false, 0, 0);
-    
+
       // set the resolution
       gl.uniform2f(this.program.u_resolution, gl.canvas.width, gl.canvas.height);
 
-      //this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); 
+      //this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
@@ -5027,6 +5026,7 @@ export class WebGLVectorTile2 extends Tile {
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
   }
+
   _drawMarker(transform: Float32Array) {
     var gl = this.gl;
     var drawOptions = this._layer.drawOptions;
@@ -5085,7 +5085,7 @@ export class WebGLVectorTile2 extends Tile {
 
       if (typeof(setDataOptions.sizeKey) !== 'undefined' && setDataOptions.sizeKey == 'timeseries') {
         gl.uniform1f(this.program.epoch, currentTime);
-        this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); 
+        this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0);
         this.program.setVertexAttrib.fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 8);
         this.program.setVertexAttrib.stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 24);
         this.program.setVertexAttrib.size_start(1, gl.FLOAT, false, this._layer.numAttributes * 4, 40);
@@ -5097,7 +5097,7 @@ export class WebGLVectorTile2 extends Tile {
           this.program.setVertexAttrib.negative_fill(4, gl.FLOAT, false, this._layer.numAttributes * 4, 56); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
           this.program.setVertexAttrib.negative_stroke(4, gl.FLOAT, false, this._layer.numAttributes * 4, 72); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
         }
-  
+
       } else {
         this.program.setVertexAttrib.position(2, gl.FLOAT, false, this._layer.numAttributes * 4, 0); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
         this.program.setVertexAttrib.size(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
@@ -7869,20 +7869,16 @@ attribute vec2 a_texcoord;
 //uniform mat4 u_matrix;
 uniform vec2 u_resolution;
 varying vec2 v_texcoord;
- 
+
 void main() {
   //  gl_Position = vec4(0.0,0.0,0.,1.0);
   //  v_texcoord = vec2(2.*a_position.x-1., 1.0 - 2.*a_position.y);
-
   vec2 zeroToOne = a_position / u_resolution;
   // convert from 0->1 to 0->2
   vec2 zeroToTwo = zeroToOne * 2.0;
-
   // convert from 0->2 to -1->+1 (clipspace)
   vec2 clipSpace = zeroToTwo - 1.0;
-
   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-
   // pass the texCoord to the fragment shader
   // The GPU will interpolate this value between points.
   v_texcoord = a_texcoord;

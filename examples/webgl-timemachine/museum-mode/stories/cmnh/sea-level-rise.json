@@ -1,0 +1,87 @@
+{
+    "title": "Sea Level Rise",
+    "thumbnail": "http://explorables.cmucreatelab.org/earthtime-images/stories/sea-level-rise.png",
+    "timelineLabels": {
+        "0": "0\u2103",
+        "0.5": "0.5\u2103",
+        "1.0": "1.0\u2103",
+        "1.5": "1.5\u2103",
+        "2.0": "2.0\u2103",
+        "2.5": "2.5\u2103",
+        "3.0": "3.0\u2103",
+        "3.5": "3.5\u2103",
+        "4.0": "4.0\u2103"
+    },
+    "showMidLabels" : false,
+    "keyframes": [
+        {
+            "Text": "This data layer shows the projected impact of sea level rise as a result of a 0-4 degree Celsius (0 to 7.2 degree Fahrenheit) rise in global temperature, as indicated by the scale at the bottom of the screen. This predictive model is based on past data.",
+            "BoundingBox": {
+                "ne":{"lat":31.86356432471608,"lng":120.17701830412207},"sw":{"lat":30.33250269142749,"lng":122.82577609515303}
+            },
+            "Pause": true,
+            "StartFrame": "0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice how even a 0.5 degree Celsius rise has notable effects on Shanghai, China and the surrounding region: followed by the devastating effects of a 4 degree rise. What look like little islands are actually the tops of buildings sticking out of the water.",
+            "BoundingBox": {
+                "ne":{"lat":31.86356432471608,"lng":120.17701830412207},"sw":{"lat":30.33250269142749,"lng":122.82577609515303}
+            },
+            "Pause": false,
+            "StartFrame": "0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Here we see a static view of the projected impacts of a 1 degree Celsius rise in temperature on New York City.",
+            "BoundingBox": {
+                "ne":{"lat":41.232659385108015,"lng":-74.62907571458854},"sw":{"lat":40.191167304056705,"lng":-72.5936848685654}
+            },
+            "Pause": true,
+            "StartFrame": "1.0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice the impact of a 0.5 degree Celsius temperature rise on the city to the 4.0 degree temperature rise, which leaves parts of Manhattan underwater.",
+            "BoundingBox": {
+                "ne":{"lat":41.232659385108015,"lng":-74.62907571458854},"sw":{"lat":40.191167304056705,"lng":-72.5936848685654}
+            },
+            "Pause": false,
+            "StartFrame": "0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Florida experiences devastating effects at all projected levels of sea level rise. See how Miami and Fort Lauderdale are completely submerged.",
+            "BoundingBox": {
+                "ne":{"lat":31.84484074194919,"lng":-88.47552485930044},"sw":{"lat":22.20947865198454,"lng":-72.42395445443226}
+            },
+            "Pause": false,
+            "StartFrame": "0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "A sea wall has been suggested as an option to circumvent potential floods, but experts say the limestone ground is too porous to have positive results.",
+            "BoundingBox": {
+                "ne":{"lat":31.84484074194919,"lng":-88.47552485930044},"sw":{"lat":22.20947865198454,"lng":-72.42395445443226}
+            },
+            "Pause": false,
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "The effects are devastating around the globe, as we see the effects on the densely populated coastal areas of Bangladesh. An increase in carbon dioxide in the atmosphere causes temperatures to rise. The year 2016 was the warmest on record.",
+            "BoundingBox": {
+                "ne":{"lat":25.44964899483967,"lng":85.25217484620825},"sw":{"lat":19.098436577591865,"lng":95.4258651537917}
+            },
+            "Pause": false,
+            "StartFrame": "0",
+            "Layers": ["show-sea-level-rise-4p0"],
+            "Map": "landsat-base"
+        }
+    ]
+}

@@ -1,0 +1,315 @@
+@font-face {
+    font-family: "Brandon Grotesque Medium";
+    src: url("../css/fonts/cmnh/BrandonGrotesque-Medium.woff") format('woff');
+}
+
+@font-face {
+    font-family: "Brandon Grotesque Regular";
+    src: url("../css/fonts/cmnh/BrandonGrotesque-Regular.woff") format('woff');
+}
+
+.cmnh .earthlapse-modes-screen h1 {
+  font-family: "Brandon Grotesque Medium", Helvetica, Arial, sans-serif;
+}
+
+.cmnh .earthlapse-modes-container {
+  font-family: "Brandon Grotesque Regular", Helvetica, Arial, sans-serif;
+}
+
+.earthlapse-modes-container {
+    visibility: hidden;
+    opacity: 0;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+}
+
+.earthlapse-modes-explore-container {
+  font-family: inherit;
+}
+
+#layers-legend {
+  visibility: hidden;
+}
+
+.scaleBarContainer {
+  visibility: hidden;
+}
+
+.automode-indicator-message {
+  top: 0px;
+  position: absolute;
+  z-index: 900;
+  margin-left: calc(50% - 319px);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px;
+  font-size: 32px;
+  color: white;
+  display: none;
+}
+
+.captureTime.automode-enabled {
+  position: absolute;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  font-family: Arial, Helvetica, sans-serif;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 38px;
+  padding-right: 6px;
+  color: #656565;
+  font-weight: normal;
+  background-color: white;
+  border: 1px solid #656565;
+  z-index: 9;
+  border-radius: 3px;
+  cursor: default;
+  text-align: left;
+  width: auto;
+  height: 36px;
+  font-size: 25pt;
+  display: block !important;
+  z-index: 100;
+  bottom: 20px;
+  left: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  top: initial;
+  text-shadow: initial;
+}
+
+.captureTime.automode-enabled .currentCaptureTime, .captureTime.automode-enabled .captureTimeMain {
+  display: block;
+  margin-top: -5px;
+}
+
+body.earthlapse-modes-explore .location_search_div {
+  left: 120px !important;
+  right: initial;
+  top: 20px !important;
+}
+
+body.earthlapse-modes-default #layers-legend,
+body.earthlapse-modes-menu #layers-legend,
+body.earthlapse-modes-menu2 #layers-legend,
+body.earthlapse-modes-story #layers-legend {
+    bottom: 150px;
+    top: initial !important;
+}
+
+body.earthlapse-modes-story #layers-legend,
+body.earthlapse-modes-explore #layers-legend {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.earthlapse-modes-story .scaleBarContainer,
+body.earthlapse-modes-explore .scaleBarContainer {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.earthlapse-modes-story .spinnerOverlay,
+body.earthlapse-modes-explore .spinnerOverlay {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.earthlapse-modes-default #controlsContainer,
+body.earthlapse-modes-menu #controlsContainer,
+body.earthlapse-modes-menu2 #controlsContainer,
+body.earthlapse-modes-story #controlsContainer {
+    visibility: hidden;
+    opacity: 0;
+}
+
+body.earthlapse-modes-default .earthlapse-modes-default-container {
+  cursor: pointer;
+}
+
+body.earthlapse-modes-default .earthlapse-modes-default-container,
+body.earthlapse-modes-menu .earthlapse-modes-menu-container,
+body.earthlapse-modes-menu2 .earthlapse-modes-menu2-container,
+body.earthlapse-modes-story .earthlapse-modes-story-container,
+body.earthlapse-modes-explore .earthlapse-modes-explore-container {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.earthlapse-modes-default .earthlapse-modes-screen.earthlapse-modes-default-container,
+body.earthlapse-modes-menu .earthlapse-modes-screen.earthlapse-modes-menu-container,
+body.earthlapse-modes-menu2 .earthlapse-modes-screen.earthlapse-modes-menu2-container,
+body.earthlapse-modes-story .earthlapse-modes-screen.earthlapse-modes-story-container {
+    z-index: 98;
+}
+
+/* Layout CSS
+-------------------------------------------------- */
+
+.earthlapse-modes-screen {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background-color: rgba(0,0,0, 0.5);
+    color: #ffffff;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.earthlapse-modes-screen h1 {
+    font-weight: 300;
+    font-size: 96px;
+    margin: 0;
+}
+
+.earthlapse-modes-screen h2 {
+    font-size: 48px;
+    margin: 1em 0;
+}
+
+.earthlapse-modes-screen a {
+    color: #ffffff;
+}
+
+.earthlapse-modes-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #000000;
+    visibility: hidden;
+    opacity: 0;
+    transition-duration: 0.5s;
+}
+
+.earthlapse-modes-screen.transitioning::before {
+    visibility: visible;
+    opacity: 1;
+}
+
+.earthlapse-modes-screen.transitioning > * {
+    display: none;
+}
+
+/* Adapt Earthlapse UI for different modes
+-------------------------------------------------- */
+
+.earthlapse-ui-globalcontrol {
+    opacity: 0;
+    visibility: hidden;
+    transition-duration: 1s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+body.earthlapse-modes-menu .earthlapse-ui-globalcontrol,
+body.earthlapse-modes-menu2 .earthlapse-ui-globalcontrol,
+body.earthlapse-modes-story .earthlapse-ui-globalcontrol,
+body.earthlapse-modes-explore .earthlapse-ui-globalcontrol {
+    opacity: 1;
+    visibility: visible;
+}
+
+.earthlapse-ui-globalcontrol-item {
+    opacity: 0;
+    pointer-events: none;
+    /*transition-duration: 1s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);*/
+}
+
+body.earthlapse-modes-story .earthlapse-ui-globalcontrol-storymode,
+body.earthlapse-modes-explore .earthlapse-ui-globalcontrol-storymode,
+body.earthlapse-modes-explore .earthlapse-ui-globalcontrol-layermenu{
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* CREATE Lab CSS modifications for exploration mode
+-------------------------------------------------- */
+
+
+
+body.earthlapse-modes-default .player,
+body.earthlapse-modes-menu .player,
+body.earthlapse-modes-menu2 .player,
+body.earthlapse-modes-story .player {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+body.earthlapse-modes-default .presentationSlider,
+body.earthlapse-modes-menu .presentationSlider,
+body.earthlapse-modes-menu2 .presentationSlider,
+body.earthlapse-modes-story .presentationSlider {
+    display:none !important;
+}
+
+body.earthlapse-modes-explore .presentationSlider:not(.automode-enabled, .offscreen) {
+    display: block !important;
+}
+
+body.earthlapse-modes-explore .annotation-nav.automode-enabled {
+  display: none !important;
+}
+
+body.earthlapse-modes-explore .current-location-text-container.automode-enabled {
+  display: block;
+  top: 20px;
+  right: 20px;
+  bottom: initial;
+}
+
+body.earthlapse-modes-explore .current-location-text-title.automode-enabled {
+  font-size: 20px;
+}
+
+body.earthlapse-modes-explore .current-location-text p.automode-enabled {
+  font-size: 16px;
+}
+
+body.earthlapse-modes-explore .scaleBarContainer.automode-enabled {
+  bottom: 100px !important;
+}
+
+body.earthlapse-modes-explore #layers-legend.automode-enabled {
+    bottom: 100px !important;
+    top: initial !important;
+}
+
+.contextMapContainer {
+    width: 270px;
+    height: 200px;
+    border: 0;
+    right: 40px;
+    bottom: 170px;
+}
+
+body.earthlapse-modes-story .contextMapContainer {
+    box-shadow: rgba(0, 0, 0, 0.5) 3px 3px 5px;
+}
+
+body.earthlapse-modes-explore .contextMapContainer {
+    right: 20px;
+    bottom: 223px;
+    box-shadow: rgba(0, 0, 0, 0.298039) 2px 2px 3px;
+}
+
+.contextMapContainer .contextMapResizer,
+.contextMapContainer .toggleContextMapBtn {
+    display: none;
+}
+
+.customHelpLabel {
+    display: none;
+}
+
+.player .controls {
+    z-index: 10;
+}

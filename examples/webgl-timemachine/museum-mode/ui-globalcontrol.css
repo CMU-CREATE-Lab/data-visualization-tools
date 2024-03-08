@@ -1,0 +1,90 @@
+.earthlapse-ui-globalcontrol {
+    position: absolute;
+    z-index: 101;
+    top: 40px;
+    left: 40px;
+}
+
+.earthlapse-ui-globalcontrol-item {
+    background: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80% 80%;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    margin: 0 0 10px 0;
+    display: block;
+    border: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 64px;
+    text-align: center;
+    color: #000;
+    outline: none;
+    text-indent: -999999px;
+}
+
+.earthlapse-ui-globalcontrol-storymode {
+  outline-width: 0;
+  width: 60px !important;
+  height: 60px !important;
+  margin-right: 0px;
+  margin-left: 0px;
+  vertical-align: middle;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  border: 1px solid #656565;
+  z-index: 99;
+  background: white;
+  top: 20px;
+  left: 20px;
+  border-radius: 60px;
+}
+
+.earthlapse-ui-globalcontrol-storymode .ui-icon.earthlapse-ui-globalcontrol-storymodeIcon {
+  background-image: url(home.png);
+  width: 33px;
+  height: 33px;
+  opacity: 0.7;
+  background-size: contain !important;
+  margin-left: -16px;
+  margin-top: -17px
+}
+
+.ui-button.ui-state-hover .ui-icon.earthlapse-ui-globalcontrol-storymodeIcon {
+  opacity: 1;
+}
+
+.earthlapse-ui-globalcontrol-layermenu {
+  outline-width: 0;
+  width: 60px !important;
+  height: 60px !important;
+  margin-right: 0px;
+  margin-left: 0px;
+  vertical-align: middle;
+  box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+  border: 1px solid #656565;
+  z-index: 99;
+  background: white;
+  top: 40px;
+  left: 20px;
+  border-radius: 60px;
+}
+
+.earthlapse-ui-globalcontrol-layermenu .ui-icon.earthlapse-ui-globalcontrol-exploreLayerIcon {
+  background-image: url(layers.png);
+  width: 33px;
+  height: 33px;
+  opacity: 0.7;
+  background-size: contain !important;
+  margin-left: -16px;
+  margin-top: -17px
+}
+
+.ui-button.ui-state-hover .ui-icon.earthlapse-ui-globalcontrol-exploreLayerIcon {
+  opacity: 1;
+}
+
+.earthlapse-ui-globalcontrol-layermenu .ui-button-text {
+  display: none;
+}

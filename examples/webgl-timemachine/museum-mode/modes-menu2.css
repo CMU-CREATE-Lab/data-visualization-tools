@@ -1,0 +1,143 @@
+.earthlapse-modes-menu2-container {
+    text-align: left;
+    padding: 0 16%;
+    overflow-x: auto;
+}
+
+.earthlapse-modes-menu2-container h1 {
+    margin: 1.6em 0 0.8em 0;
+    line-height: 1;
+    font-size: 80px;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-menu2-container h2 {
+    margin: 0 0 0.6em -60px;
+    font-weight: 400;
+    padding: 0 0 0 60px;
+    font-size: 48px;
+    line-height: 1;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-menu2-section {
+    margin: 3.4em 0;
+    padding: 0 0 0 60px;
+    position: relative;
+}
+
+.cmnh .earthlapse-modes-menu2-section {
+    padding: 0 0 0 14px;
+}
+
+.earthlapse-modes-menu2-section::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    background: url(menu-section-arrow.png) no-repeat left;
+    background-size: contain;
+    height: 64px;
+    width: 56px;
+}
+
+.cmnh .earthlapse-modes-menu2-section::before {
+	display: none;
+}
+
+.earthlapse-modes-menu2-section-back::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    background: url(menu-section-arrow-back.png) no-repeat left;
+    background-size: contain;
+    height: 64px;
+    width: 56px;
+}
+
+.earthlapse-modes-menu2-section-stories::before {
+    background-position: 0 0;
+}
+
+.earthlapse-modes-menu2-section-back::before {
+    background-position: 0 16px;
+}
+
+/* Stories Section
+-------------------------------------------------- */
+
+.earthlapse-stories-gallery {
+    display: inline-block;
+    /* TODO */
+    padding-right: 200px;
+}
+
+.earthlapse-modes-menu2-item {
+    margin: 0 25px 25px 0;
+    float: left;
+    position: relative;
+    border: 3px solid #ffffff;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50), 5px 5px 15px rgba(0,0,0,0.50) inset;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.earthlapse-modes-menu2-item img {
+    display: block;
+    width: 242px;
+    height: 187px;
+}
+
+.earthlapse-modes-menu2-item .desc {
+    padding: 8px;
+    text-align: center;
+    font-weight: 300;
+    font-size: 22px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.65);
+    text-transform: capitalize;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.earthlapse-modes-menu2-item.hasfocus .desc {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Explore Section
+-------------------------------------------------- */
+
+.earthlapse-modes-menu2-explore::before {
+    font-size: 36px;
+    display: block;
+    margin: 36px;
+}
+
+.earthlapse-modes-menu2-explorebutton {
+    font: inherit;
+    font-size: 36px;
+    background: none;
+    padding: 15px 25px;
+    border: 3px solid #ffffff;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50), 5px 5px 15px rgba(0,0,0,0.50) inset;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+    color: #ffffff;
+    outline: none;
+    font-weight: 400;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 12px;
+}
+
+.earthlapse-modes-menu2-explorebutton.hasfocus,
+.earthlapse-modes-menu2-explorebutton:active {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.50);
+    text-shadow: 0 0 0 rgba(0,0,0,0);
+}

@@ -1,0 +1,62 @@
+{
+    "title": "Mining",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://storage.googleapis.com/earthengine-timelapse/herwig/earthtime_annual_1984_2016/v05/&boundsLTRB=1910617.2540938265,1099577.5573145477,1913371.1065572915,1101923.1642030536&width=264&height=204&frameTime=3.2&format=png&fps=10&tileFormat=mp4",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "Mountaintop removal is a form of surface mining in which coal seams are extracted from a mountain by removing the land above the seams. Explosives are used to blast as much as 800 to 1,000 feet off the top of a mountain.",
+            "BoundingBox": {
+                "ne":{"lat":38.10321092307195,"lng":-81.83631682147654},"sw":{"lat":37.83912657708396,"lng":-81.34008317852346}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "In West Virginia, notice the green areas turning white as a result of mountaintop removal. The debris that is blown off from the top of mountains often runs into valleys and pollutes watersheds.",
+            "BoundingBox": {
+                "ne":{"lat":38.10321092307195,"lng":-81.83631682147654},"sw":{"lat":37.83912657708396,"lng":-81.34008317852346}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Another viewable extraction is open pit, or surface mining: a process used to extract rock or minerals from the Earth. Notice the progression of the Eagle Downs Coal Mine in Queensland, Australia. The land is being carved out as the mine continues to grow. The expansion is likely to continue, as the mine is in one of the largest coal reserves in the world.",
+            "BoundingBox": {
+                "ne":{"lat":-22.117439070223174,"lng":147.7797714890642},"sw":{"lat":-22.59243107456256,"lng":148.74843343737714}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice the expansion of an open pit mine in Wyoming's Powder River Basin. This is part of the largest coal producing region in the United States.",
+            "BoundingBox": {
+                "ne":{"lat":43.73659986913348,"lng":-105.5415159367336},"sw":{"lat":43.45735114696272,"lng":-104.97033406326639}
+            },
+            "Pause": false,
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

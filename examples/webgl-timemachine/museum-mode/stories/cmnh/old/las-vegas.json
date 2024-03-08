@@ -1,0 +1,91 @@
+{
+    "title": "Las Vegas",
+    "thumbnail": "http://thumbnails.cmucreatelab.org/thumbnail?root=http://earthengine.google.org/timelapse/data/20130507&boundsLTRB=239833.73508091227,522897.15176901396,243314.48721083216,524958.4096709508&width=264&height=204&frameTime=2.1",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "Welcome to Las Vegas. The year is 1984. Total current population of Las Vegas metropolitan area: 539,030.",
+            "BoundingBox": {
+                "ne": {"lat": 36.350295526889646, "lng": -115.50505589698409},
+                "sw": {"lat": 35.88726580637446, "lng": -114.42396383506954}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Over the past 30 years, Las Vegas has undergone rapid growth.",
+            "BoundingBox": {
+                "ne": {"lat": 36.32803442358728, "lng": -115.51621601481068},
+                "sw": {"lat": 35.98838489486827, "lng": -114.72279820198689}
+            },
+            "Pause": false,
+            "StartFrame": null,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "As Las Vegas expands watch how the landscape around and within the city changes.  Specifically, notice all of the small patches of green that appear in and around the city.",
+            "BoundingBox": {
+                "ne": {"lat": 36.32803442358728, "lng": -115.51621601481068},
+                "sw": {"lat": 35.98838489486827, "lng": -114.72279820198689}
+            },
+            "Pause": false,
+            "StartFrame": null,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "These green areas could be parks, golf courses, front lawns, or any place where people are living.  But in all cases, to grow grass and trees in a desert require a lot of water.",
+            "BoundingBox": {
+                "ne": {"lat": 36.32803442358728, "lng": -115.51621601481068},
+                "sw": {"lat": 35.98838489486827, "lng": -114.72279820198689}
+            },
+            "Pause": false,
+            "StartFrame": null,
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "This is Lake Mead. Over a thirty year period, from 1984 to 2015, the city began to require more and more food and water to sustain it. As the population of Las Vegas grew, Lake Mead shrank. Now in 2015, a significant portion of the lake is gone.",
+            "BoundingBox": {
+                "ne": {"lat": 36.17372798562025, "lng": -114.96136624692542},
+                "sw": {"lat": 35.978907099517016, "lng": -114.50674196418177}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "By 2015, the total population of the Las Vegas metropolitan area is 2,147,641, a nearly 400% increase in the span of 30 years.",
+            "BoundingBox": {
+                "ne": {"lat": 36.350295526889646, "lng": -115.50505589698409},
+                "sw": {"lat": 35.88726580637446, "lng": -114.42396383506954}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": [],
+            "Map": "landsat-base"
+        }
+    ]
+}

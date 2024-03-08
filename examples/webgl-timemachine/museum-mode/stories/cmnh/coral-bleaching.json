@@ -1,0 +1,66 @@
+{
+    "title": "Coral Bleaching",
+    "thumbnail": "http://explorables.cmucreatelab.org/earthtime-images/stories/coral-bleaching.png",
+    "timelineLabels": {
+        "1984": "1984",
+        "1986": "1986",
+        "1988": "1988",
+        "1990": "1990",
+        "1992": "1992",
+        "1994": "1994",
+        "1996": "1996",
+        "1998": "1998",
+        "2000": "2000",
+        "2002": "2002",
+        "2004": "2004",
+        "2006": "2006",
+        "2008": "2008",
+        "2010": "2010",
+        "2012": "2012",
+        "2014": "2014",
+        "2016": "2016"
+    },
+    "keyframes": [
+        {
+            "Text": "Corals occupy less than 1% of the ocean floor, but provide a habitat for a quarter of the world's fish. Corals rely on the tiny algae that live in their tissues for food. When water temperatures rise or fall, the coral becomes stressed (turn white) and the algae leave. Coral can recover, but often die after a bleaching event.",
+            "BoundingBox": {
+              "ne":{"lat":69.1404077035789,"lng":-159.88543188513404},"sw":{"lat":-60.841197283825224,"lng":168.5314350813923}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": ["show-coral"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Note the incidents of coral bleaching on the Great Barrier Reef. The largest events were in 1998 and 2002 (shown with bright orange dots). Bleaching events in 2016 and 2017 have affected more than 900 miles (1,448 kilometers) of the reef.",
+            "BoundingBox": {
+              "ne": {"lat": -6.505642791112912, "lng": 128.2760806792298},
+              "sw": {"lat": -28.93582463851454, "lng": 165.97941932077006}
+            },
+            "Pause": false,
+            "StartFrame": "1984",
+            "Layers": ["show-coral"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Florida's coral reef spans 300 miles (482 kilometers) across Florida's coast, and is the only tropical reef in the United States.",
+            "BoundingBox": {
+              "ne":{"lat":31.329311180010958,"lng":-94.62238164418545},"sw":{"lat":14.994994733502,"lng":-60.95781835581454}
+            },
+            "Pause": true,
+            "StartFrame": "1984",
+            "Layers": ["show-coral"],
+            "Map": "landsat-base"
+        },
+        {
+            "Text": "Notice a significant increase in bleaching events in 1999, after back to back bleaching events in 1997 and 1998. There is also another dramatic increase in bleaching events between 2003 and 2005. Scientists attribute bleaching events in Florida and the Caribbean to specific patterns of warm waters on coral reefs.",
+            "BoundingBox": {
+              "ne":{"lat":31.329311180010958,"lng":-94.62238164418545},"sw":{"lat":14.994994733502,"lng":-60.95781835581454}
+            },
+            "Pause": false,
+            "StartFrame": 1984,
+            "Layers": ["show-coral"],
+            "Map": "landsat-base"
+        }
+    ]
+}

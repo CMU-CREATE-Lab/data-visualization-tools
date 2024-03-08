@@ -1,0 +1,19 @@
+.earthlapse-modes-default-container h1 {
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-default-container h2 {
+    font-size: 64px;
+    margin: 0.5em 0;
+    text-shadow: 5px 5px 15px rgba(0,0,0,0.65);
+}
+
+.earthlapse-modes-default-content {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 18.5em;
+    margin: auto;
+}

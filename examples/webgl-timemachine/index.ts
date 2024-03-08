@@ -21,7 +21,7 @@ dbg.LayerProxy = LayerProxy;
 import { LayerDB } from './LayerDB';
 dbg.LayerDB = LayerDB;
 
-import { EarthTime, gEarthTime, setGEarthTime, stdWebMercatorNorth, stdWebMercatorSouth } from './EarthTime';
+import { EarthTime, availableUIModes, gEarthTime, setGEarthTime, stdWebMercatorNorth, stdWebMercatorSouth } from './EarthTime';
 
 import { AltitudeSlider } from './altitudeSlider';
 dbg.AltitudeSlider = AltitudeSlider;
@@ -144,6 +144,8 @@ class EarthTimeImpl implements EarthTime {
   defaultPlaybackRate: number = 0.5;
   layerDB: LayerDB = null;
   layerDBPromise = null;
+  storiesLoadedResolver;
+  storiesLoadedPromise: Promise<void> = new Promise((resolve, reject) => { this.storiesLoadedResolver = resolve});
   timelapse = null;
   snaplapseForPresentationSlider = null;
   snaplapseViewerForPresentationSlider = null;
@@ -159,8 +161,8 @@ class EarthTimeImpl implements EarthTime {
   lastDrawnLayers = [];
   disableMediaLayerTitleBar: boolean = false;
   autoModeBeforeSlideChangeState = {};
-  enableLetterboxMode: boolean = false;
-  updateLetterboxContent(): void {}
+  uiMode: string = "default";
+  updateLetterboxContent(): void {};
   async setDatabaseID(databaseID: GSheet) {
     if (loadedLayersGSheet && databaseID.url() == loadedLayersGSheet.url()) return;
     loadedLayersGSheet = databaseID;
@@ -193,7 +195,11 @@ class EarthTimeImpl implements EarthTime {
   }
   handleStoryToggle(doShow: boolean): void {
     if (doShow) {
-      $("#timeMachine .presentationSlider").removeClass("offscreen");
+      if (uiMode == availableUIModes.ALT1) {
+        $("#annotationContent").show();
+      } else {
+        $("#timeMachine .presentationSlider").removeClass("offscreen");
+      }
       $("#timeMachine .player").removeClass("presentationSliderOffscreen");
       $("#layers-list, #theme-list, .themes-scroll-vertical").addClass("waypoints");
       $("#timeMachine .shareView").css("height", "calc(100% + " + $(".player").css("bottom") + ")");
@@ -260,17 +266,19 @@ class EarthTimeImpl implements EarthTime {
       if ($(".thumbnail_highlight").length == 0) return;
 
       var currentWaypointIdx = snaplapseForPresentationSlider.getSnaplapseViewer().getCurrentWaypointIndex();
-      var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[currentWaypointIdx];
-      var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
-      var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
+      if (currentWaypointIdx) {
+        var currentWaypoint = snaplapseForPresentationSlider.getKeyframes()[currentWaypointIdx];
+        var currentWaypointCenterView = gEarthTime.timelapse.pixelBoundingBoxToLatLngCenterView(currentWaypoint.bounds);
+        var currentCenterView = gEarthTime.timelapse.pixelCenterToLatLngCenterView(gEarthTime.timelapse.getView());
 
-      // We don't want to run this if the user has canceled moving to the waypoint, so check whether we are actually
-      // at the waypoint location. Note that because of screen size, the zoom levels can differ, hency why the zoom
-      // difference chosen here is larger than desired.
-      if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
-          Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
-          Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.5) {
-        return;
+        // We don't want to run this if the user has canceled moving to the waypoint, so check whether we are actually
+        // at the waypoint location. Note that because of screen size, the zoom levels can differ, hency why the zoom
+        // difference chosen here is larger than desired.
+        if (Math.abs(currentWaypointCenterView.center.lat - currentCenterView.center.lat) > 0.001 ||
+            Math.abs(currentWaypointCenterView.center.lng - currentCenterView.center.lng) > 0.001 ||
+            Math.abs(currentWaypointCenterView.zoom - currentCenterView.zoom) > 0.5) {
+          return;
+        }
       }
 
       if (gEarthTime.timelapse.getNumFrames() > 1 && gEarthTime.timelapse.getPlaybackRate() > 0) {
@@ -505,6 +513,11 @@ class EarthTimeImpl implements EarthTime {
       $(".controls, .captureTime, .customControl").hide();
       let $ui = $(".current-location-text-container, .annotations-resume-exit-container, .scaleBarContainer, #logosContainer, .current-location-text, #layers-legend");
       $ui.addClass("noTimeline");
+      // @ts-ignore
+      if (uiMode == availableUIModes.MUSEUM) {
+        // @ts-ignore
+        EarthlapseUI?.Stories?.Timeline?.setTimelineVisibility(true);
+      }
       if (newTimeline) {
         this.timelapse.getVideoset().setFps(newTimeline.fps);
 
@@ -519,6 +532,10 @@ class EarthTimeImpl implements EarthTime {
         // so only run this if start date and end date differ.
         if (newTimeline.startDate != newTimeline.endDate) {
           $ui.removeClass("noTimeline");
+          if (uiMode == availableUIModes.MUSEUM) {
+            // @ts-ignore
+            EarthlapseUI?.Stories?.Timeline?.setTimelineVisibility(false);
+          }
           if (newTimeline.timelineType == "customUI") {
             $(".customControl").show().children().show();
           } else {
@@ -611,16 +628,15 @@ var showLayersButton = parseConfigOption({optionName: "showLayersButton", option
 var showHomeLogo = parseConfigOption({optionName: "showHomeLogo", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var showSearchBox = parseConfigOption({optionName: "showSearchBox", optionDefaultValue: true, exposeOptionToUrlHash: true});
 var letterboxBottomOffset = parseConfigOption({optionName: "letterboxBottomOffset", optionDefaultValue: 312, exposeOptionToUrlHash: false});
-var enableLetterboxMode = parseConfigOption({optionName: "enableLetterboxMode", optionDefaultValue: false, exposeOptionToUrlHash: true});
-gEarthTime.enableLetterboxMode = enableLetterboxMode;
-var disableTopNav = enableLetterboxMode ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
+var uiMode = parseConfigOption({optionName: "uiMode", optionDefaultValue: "default", exposeOptionToUrlHash: false});
+gEarthTime.uiMode = uiMode;
+var disableTopNav = uiMode != availableUIModes.DEFAULT ? true : parseConfigOption({optionName: "disableTopNav", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var disableResumeExitAnnotationPrompt = parseConfigOption({optionName: "disableResumeExitAnnotationPrompt", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var isHyperwall = parseConfigOption({optionName: "isHyperwall", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var useGoogleSearch = parseConfigOption({optionName: "useGoogleSearch", optionDefaultValue: true, exposeOptionToUrlHash: false});
-var enableMuseumMode = parseConfigOption({optionName: "enableMuseumMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
 var enableAutoMode = parseConfigOption({optionName: "enableAutoMode", optionDefaultValue: false, exposeOptionToUrlHash: false});
 // MuseumMode has its own way of doing automode
-enableAutoMode = enableMuseumMode ? false : enableAutoMode;
+enableAutoMode = uiMode == availableUIModes.MUSEUM ? false : enableAutoMode;
 var autoModeCriteria = parseConfigOption({optionName: "autoModeCriteria", optionDefaultValue: {}, exposeOptionToUrlHash: false});
 var showDefaultAutoModeBanner = parseConfigOption({optionName: "showDefaultAutoModeBanner", optionDefaultValue: true, exposeOptionToUrlHash: false});
 var screenTimeoutInMilliseconds = parseConfigOption({optionName: "screenTimeoutInMilliseconds", optionDefaultValue: (8 * 60 * 1000), exposeOptionToUrlHash: false});
@@ -637,6 +653,17 @@ var pauseWhenInitialized = parseConfigOption({optionName: "pauseWhenInitialized"
 var disableAnimation = parseConfigOption({optionName: "disableAnimation", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var preserveDrawingBuffer = parseConfigOption({optionName: "preserveDrawingBuffer", optionDefaultValue: false, exposeOptionToUrlHash: true});
 var initialShareView = parseConfigOption({optionName: "initialShareView", optionDefaultValue: "", exposeOptionToUrlHash: false});
+
+// If doing museum mode, set up the loading screen first
+if (uiMode == availableUIModes.MUSEUM) {
+  var cssFiles = ["museum-mode/startup.css"];
+  var jsFiles = ["museum-mode/earthlapse.js", "museum-mode/startup.js"];
+  Utils.Loader.add({
+    src: [...cssFiles, ...jsFiles],
+    onload: function() {
+    }
+  });
+}
 
 //
 //// App variables ////
@@ -675,7 +702,6 @@ var keysDown:number[] = [];
 var loadedInitialCsvLayers = false;
 var dotmapLayersInitialized = false;
 var csvFileLayersInitialized = false;
-var storiesInitialized = false;
 var timeMachinePlayerInitialized = false;
 var $nextAnnotationLocationButton;
 var $previousAnnotationLocationButton;
@@ -909,7 +935,7 @@ function initLayerToggleUI() {
     open: function(event, ui) {
       $("#timeMachine").removeClass("presentationSliderSelection presentationSliderSelectionOverflow");
       $("#navControls").children().not(".fullScreen").addClass("force-hidden");
-      if (enableLetterboxMode) {
+      if (uiMode == availableUIModes.LETTERBOX) {
         $(".extras-content-dialog").addClass("letterbox");
       }
     },
@@ -1032,7 +1058,7 @@ function initLayerToggleUI() {
     // Quick way to turn on automode
     if (e.keyCode === 76) {
       // @ts-ignore
-      if (typeof(EarthlapseUI) !== "undefined" && enableMuseumMode) {
+      if (typeof(EarthlapseUI) !== "undefined" && uiMode == availableUIModes.MUSEUM) {
         // @ts-ignore
         EarthlapseUI.Modes.revertToDefault();
       } else {
@@ -1140,7 +1166,7 @@ function initLayerToggleUI() {
   });
 
   $('#layers-menu').on("change", "input", function(e) {
-    if (enableLetterboxMode) {
+    if (uiMode == availableUIModes.LETTERBOX) {
       updateLetterboxSelections($(this));
     }
 
@@ -1224,7 +1250,7 @@ function initLayerToggleUI() {
       UTIL.verticalTouchScroll($("#layer-search-results.layers-scroll-vertical"));
       UTIL.verticalTouchScroll($("#theme-list .themes-scroll-vertical"));
       UTIL.verticalTouchScroll($("#csvChartLegend"));
-      if (enableLetterboxMode) {
+      if (uiMode == availableUIModes.LETTERBOX) {
         UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-content"));
         UTIL.touchHorizontalScroll($("#letterbox-bottom-picker-results-content"));
       }
@@ -1258,7 +1284,7 @@ function removeFeaturedTheme() {
 };
 
 function createFeaturedLayersSection() {
-  if (enableLetterboxMode) return;
+  if (uiMode == availableUIModes.LETTERBOX) return;
 
   $("#featured-layers-title, #layers-list-featured").remove();
 
@@ -1425,6 +1451,7 @@ var contentSearch = new ContentSearch();
 
 var waitToLoadWaypointLayersOnPageReadyInterval;
 var timelineUIChangeListeners: any[] = [];
+var earthlapseUIStartupInterval;
 
 
 function modifyWaypointSliderContent(keyframes, theme, story) {
@@ -1487,7 +1514,9 @@ function loadWaypointSliderContentFromCSV(csvdata) {
         if (story_count == 0) {
           theme_html += "<h3 data-enabled='" + themeEnabled + "'>" + themeTitle + "</h3>";
           theme_html += "<table data-enabled='" + themeEnabled + "' id=theme_" + themeId + ">";
-          theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
+          if (uiMode != availableUIModes.ALT1) {
+            theme_html += "<tr id='theme_description'><td colspan='3'><p style='padding-right: 10px; text-transform: none !important;'>" + waypointJSONList[themeId].mainThemeDescription + "</p></td></tr>";
+          }
         }
         var storyEnabled = isStaging || usingCustomWaypoints ? "true" : stories[storyId].enabled;
         if (!storyEnabled) continue;
@@ -1498,10 +1527,12 @@ function loadWaypointSliderContentFromCSV(csvdata) {
           }
         }
         theme_html += "<tr data-enabled='" + storyEnabled + "' id='story_" + storyId + "'>";
-        var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://via.placeholder.com/128x74";
-        theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
-        theme_html += "<td width='10%'><input type='radio'></td>";
-        theme_html += "<td width='40%' style='word-break: break-word;padding-right: 10px;'>" + storyTitle + "</td>";
+        if (uiMode != availableUIModes.ALT1) {
+          var thumbnailURL = gEarthTime.timelapse.getThumbnailOfView(stories[storyId].mainShareView, 128, 74, false) || "https://via.placeholder.com/128x74";
+          theme_html += "<td width='50%'><div style='width: 128px; height: 74px; overflow:hidden; border: 1px solid #232323'><img src='" + thumbnailURL + "'/></div></td>";
+          theme_html += "<td width='10%'><input type='radio'></td>";
+        }
+        theme_html += "<td width='100%' style='word-break: break-word;padding-right: 10px;'> " + storyTitle + "</td>";
         theme_html += "</tr>";
         story_count++;
       }
@@ -1560,11 +1591,11 @@ function loadWaypointSliderContentFromCSV(csvdata) {
     gEarthTime.timelapse.loadSharedDataFromUnsafeURL(waypointSliderContent);
   }
   sortThemes();
-  if (enableLetterboxMode) {
+  if (uiMode == availableUIModes.LETTERBOX) {
     updateLetterboxContent();
     $("#search-content").prependTo("#letterbox-bottom-picker-content-wrapper");
   }
-  storiesInitialized = true;
+  gEarthTime.storiesLoadedResolver(null);
 }
 
 
@@ -1579,7 +1610,7 @@ function loadWaypoints(path:GSheet) {
   // Legacy waypoint format (output of snaplapse editor)
   if (waypointCollection) {
     gEarthTime.timelapse.loadSharedDataFromUnsafeURL(waypointCollection);
-    storiesInitialized = true;
+    gEarthTime.storiesLoadedResolver(null);
   } else {
     UTIL.loadTsvData(waypointsUrl, loadWaypointSliderContentFromCSV, this);
   }
@@ -1637,13 +1668,21 @@ function populateLayerLibrary() {
   $("#layers-list").html(layer_html);
 
   // Turn layer categories into accordion selectables
+  var icons = {}
+  if (uiMode == availableUIModes.ALT1) {
+    icons =  {
+      header: "iconClosed",
+      activeHeader: "iconOpen"
+    }
+  }
   $(".map-layer-div, .themes-div").accordion({
     collapsible: true,
     active: false,
     animate: false,
+    icons: icons,
     heightStyle: 'content',
     create: function() {
-      if (enableLetterboxMode) {
+      if (uiMode == availableUIModes.LETTERBOX) {
         updateLetterboxContent();
       }
     },
@@ -1684,10 +1723,34 @@ function populateLayerLibrary() {
 }
 
 
+async function loadHtml(url) {
+  return $.ajax({
+    url: url,
+    type: 'GET',
+    dataType: "html",
+  });
+}
+
+
 // Run after timelapse.onTimeMachinePlayerReady
 async function setupUIAndOldLayers() {
-  if (!isBrowserSupported) {
-    $("#baseLayerCreditContainer").hide();
+  var templatePrefix = uiMode != availableUIModes.ALT1 ? "default" : availableUIModes.ALT1;
+  var html = await loadHtml(`ui-templates/${templatePrefix}-annotation-controls.html`);
+  $("#annotationContent").html(html);
+
+  // If museum mode, loading screen is already up, now load the rest
+  if (uiMode == availableUIModes.MUSEUM) {
+    var cssFiles = ["museum-mode/ui-chrome-toggle.css", "museum-mode/ui-globalcontrol.css", "museum-mode/modes.css"];
+    var jsFiles = ["museum-mode/ui-chrome-toggle.js", "museum-mode/ui-globalcontrol.js",
+                   "museum-mode/modes.js", "museum-mode/stories-engine.js", "museum-mode/stories-timeline-labels.js", "museum-mode/stories-timeline.js",
+                   "museum-mode/stories-viewport.js"];
+    Utils.Loader.add({
+      src: [...cssFiles, ...jsFiles],
+      onload: function() {
+        // @ts-ignore
+        EarthlapseUI.init();
+      }
+    });
   }
 
   // initialize the canvasLayer
@@ -1719,16 +1782,19 @@ async function setupUIAndOldLayers() {
   legend_html += '</div>';
   $(legend_html).appendTo($("#timeMachine .player"));
 
-  if (enableLetterboxMode) {
+  if (uiMode == availableUIModes.LETTERBOX) {
     $(".presentationSlider, .current-location-text-container, .annotations-resume-exit-container, .annotation-nav, .player, #csvChartContainer").addClass("letterbox");
   } else {
     $nextAnnotationLocationButton = $('.next-annotation-location');
-    $nextAnnotationLocationButton.button({
-      icons: {
-        primary: "ui-icon-right-arrow"
-      },
-      text: false
-    }).click(function() {
+    if (uiMode != availableUIModes.ALT1) {
+      $nextAnnotationLocationButton.button({
+        icons: {
+          primary: "ui-icon-right-arrow"
+        },
+        text: false
+      });
+    }
+    $nextAnnotationLocationButton.click(function() {
       $('.current-location-text').removeClass("allow-pointer-events");
       if ($(this).hasClass("annotation-story-end-button")) {
         $nextAnnotationLocationButton.button("disable");
@@ -1745,12 +1811,15 @@ async function setupUIAndOldLayers() {
     });
 
     $previousAnnotationLocationButton = $('.previous-annotation-location');
-    $previousAnnotationLocationButton.button({
-      icons: {
-        primary: "ui-icon-left-arrow"
-      },
-      text: false
-    }).click(function() {
+    if (uiMode != availableUIModes.ALT1) {
+      $previousAnnotationLocationButton.button({
+        icons: {
+          primary: "ui-icon-left-arrow"
+        },
+        text: false
+      });
+    }
+    $previousAnnotationLocationButton.click(function() {
       $('.current-location-text').removeClass("allow-pointer-events");
       var e = jQuery.Event("keydown");
       e.which = 34;
@@ -1865,7 +1934,6 @@ async function setupUIAndOldLayers() {
   if (snaplapseForPresentationSlider) {
     gEarthTime.snaplapseViewerForPresentationSlider = snaplapseViewerForPresentationSlider = snaplapseForPresentationSlider.getSnaplapseViewer();
   }
-  
 
   if (isMobileDevice) {
     $(".current-location-text-container").addClass("current-location-text-container-touchFriendly");
@@ -1878,14 +1946,42 @@ async function setupUIAndOldLayers() {
     var $elements = $('#layers-legend, #theme-title-container, .current-location-text-container, .annotations-resume-exit-container, .presentationSlider, .customControl, .controls, .captureTime, .scaleBarContainer, .snaplapse_keyframe_container, .keyframeSubtitleBoxForHovering, .snaplapse_keyframe_list_item_presentation, .snaplapse_keyframe_list_item_thumbnail_overlay_presentation');
     if (isHyperwall)
       $elements.addClass('hyperwall');
-    if (enableLetterboxMode)
+    if (uiMode == availableUIModes.LETTERBOX)
       $elements.addClass('letterbox');
 
     snaplapseViewerForPresentationSlider.addEventListener('snaplapse-loaded', function(keyframes, isAutoModeRunning) {
+      if (uiMode == availableUIModes.ALT1) {
+        var numKeyframes = snaplapseForPresentationSlider.getKeyframes().length;
+        $("#numWaypoints").text(numKeyframes);
+        var htmlDots = "<div class='progressLine'><ul>";
+        for (var i = 0; i < numKeyframes; i++) {
+          htmlDots += `<li title="Click to view waypoint">${i+1}</li>`;
+        }
+        htmlDots += "</ul></div>";
+
+        $("#waypointDots").empty().html(htmlDots)
+
+        $("#waypointDots .progressLine li").on("click", function() {
+          $(".snaplapse_keyframe_list_item_thumbnail_overlay_presentation").eq($(this).index()).trigger("click");
+        })
+
+        var posTop;
+        for (var i = 0; i < numKeyframes; i++) {
+          var $waypoint = $("#waypointDots li").eq(i);
+          var currentPosTop = $waypoint.position().top;
+          if (posTop != currentPosTop) {
+            posTop = currentPosTop;
+            if (i != 0) {
+              $waypoint.addClass("hide-line")
+            }
+          }
+        }
+      }
+
       $(".snaplapse_keyframe_container").scrollLeft(0);
       if (isAutoModeRunning) {
         storyLoadedFromRealKeyDown = false;
-        if (enableMuseumMode) {
+        if (uiMode == availableUIModes.MUSEUM) {
           gEarthTime.handleStoryToggle(false);
         }
       }
@@ -1918,6 +2014,12 @@ async function setupUIAndOldLayers() {
       var waypointTitle = waypoint.title;
       var waypointIndex = waypoint.index;
       var waypointBounds = waypoint.bounds;
+
+      if (uiMode == availableUIModes.ALT1) {
+        $("#waypointDots li").removeClass("active");
+        $("#waypointDots li").eq(waypointIndex).addClass("active");
+      }
+
       lastSelectedWaypointIndex = lastSelectedWaypointIndex == -1 ? -1 : waypoint.previousIndex;
 
       var isAutoModeRunning = snaplapseViewerForPresentationSlider.isAutoModeRunning();
@@ -1980,7 +2082,7 @@ async function setupUIAndOldLayers() {
           }
         }
         $nextWaypointCollection.trigger("click");
-        if (enableLetterboxMode) {
+        if (uiMode == availableUIModes.LETTERBOX) {
           $("#letterbox-" + $nextWaypointCollection[0].id).prop("checked", true);
         }
       } else {
@@ -2012,6 +2114,10 @@ async function setupUIAndOldLayers() {
       var waypointIndex = waypoint.index;
       var waypointBounds = waypoint.bounds;
       var waypointLayers = waypoint.layers || [];
+
+      if (uiMode == availableUIModes.ALT1) {
+        $("#currentWaypointNum").text(waypointIndex + 1);
+      }
 
       var lastAvailableWaypointIdx = $(".snaplapse_keyframe_list").children().last().index();
       var selectedWaypointIdx = snaplapseViewerForPresentationSlider.getCurrentWaypointIndex();
@@ -2103,8 +2209,10 @@ async function setupUIAndOldLayers() {
               var currentView = gEarthTime.timelapse.getView();
               var previousWaypointBounds = previousWaypoint.bounds;
               if (((previousWaypoint.scale * 3.0 < currentView.scale && !gEarthTime.timelapse.isMovingToWaypoint()) || (previousWaypoint.scale / 2.5 > currentView.scale && !gEarthTime.timelapse.isMovingToWaypoint()) || !(currentView.x >= previousWaypointBounds.xmin && currentView.x <= previousWaypointBounds.xmax && currentView.y >= previousWaypointBounds.ymin && currentView.y <= previousWaypointBounds.ymax))) {
-                if ($(".thumbnail_highlight").length || $(".current-location-text-container").is(":visible")) {
-                  showAnnotationResumeExit();
+                if (uiMode != availableUIModes.ALT1) {
+                  if ($(".thumbnail_highlight").length || $(".current-location-text-container").is(":visible")) {
+                    showAnnotationResumeExit();
+                  }
                 }
                 gEarthTime.timelapse.removeViewChangeListener(hideWaypointListener);
                 gEarthTime.timelapse.clearShareViewTimeLoop();
@@ -2116,89 +2224,26 @@ async function setupUIAndOldLayers() {
         };
         gEarthTime.timelapse.addViewChangeListener(waypointViewChangeListener);
 
-        parabolicMotionStoppedListener = function() {
-          gEarthTime.timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
-          gEarthTime.timelapse.removeViewChangeListener(waypointViewChangeListener);
-          var waypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
-          var currentView = gEarthTime.timelapse.getView();
-          if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
-            showAnnotationResumeExit();
-          }
-        };
-        gEarthTime.timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+        if (uiMode != availableUIModes.ALT1) {
+          parabolicMotionStoppedListener = function() {
+            gEarthTime.timelapse.removeParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+            gEarthTime.timelapse.removeViewChangeListener(waypointViewChangeListener);
+            var waypointScale = gEarthTime.timelapse.pixelBoundingBoxToPixelCenter(waypointBounds).scale;
+            var currentView = gEarthTime.timelapse.getView();
+            if ((waypointScale / 2.5 > currentView.scale || !(currentView.x >= waypointBounds.xmin && currentView.x <= waypointBounds.xmax && currentView.y >= waypointBounds.ymin && currentView.y <= waypointBounds.ymax))) {
+              showAnnotationResumeExit();
+            }
+          };
+          gEarthTime.timelapse.addParabolicMotionStoppedListener(parabolicMotionStoppedListener);
+        }
       }
     });
     // End snaplapseViewerForPresentationSlider check
   }
-
-  // Location search box, with autocomplete.
-  if (showSearchBox) {
-    var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><span id="location_search_clear_icon" class="clear-search-icon" title="Clear location search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
-    if (enableLetterboxMode) {
-      $locationSearchDiv.addClass("top-panel letterbox").prependTo($("#letterbox-bottom-controls"));
-      $(".location_search_div").addClass("letterbox");
-    } else {
-      if (disableTopNav) {
-        $locationSearchDiv.appendTo("#viewerContainer");
-      } else {
-        $locationSearchDiv.appendTo("#top-nav");
-      }
-    }
-  }
-
   $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
 
-  // Note: Google's service gives much better results, but for locations where Google APIs cannot be used, we fallback to this.
-  if (!useGoogleSearch) {
-    var locationList = [];
-    $("#location_search").autocomplete({
-      minLength: 5,
-      source: function(request, response) {
-        locationList = [];
-        //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
-        $.getJSON("https://photon.komoot.de/api/?limit=5", {
-          q: request.term
-        }, function(data, status, xhr) {
-          response(data.features);
-        });
-      },
-      select: function(event, ui) {
-        var view;
-        //if (ui.item.properties.extent) {
-        //  view = {bbox: {"ne": {"lat": ui.item.properties.extent[1], "lng": ui.item.properties.extent[2]}, "sw": {"lat" : ui.item.properties.extent[3], "lng": ui.item.properties.extent[0]}}};
-        //} else {
-        view = {
-          center: {
-            "lat": ui.item.geometry.coordinates[1],
-            "lng": ui.item.geometry.coordinates[0]
-          },
-          "zoom": 12
-        };
-        //}
-        gEarthTime.timelapse.setNewView(view);
-        if (ui.item.properties) {
-          UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + ui.item.properties.name + "," + ui.item.properties.country);
-        }
-      }
-    }).on("keydown", function(e) {
-      if (e.keyCode == 13) {
-        $(e.target).trigger("focus");
-        // TODO: jQuery seems to not have a unique identifier to this. So what happens if we have more than one autocomplete element on the page?
-        $('.ui-autocomplete').find("li").first().trigger("click");
-      }
-      // @ts-ignore
-    }).autocomplete("instance")._renderItem = function(ul, item) {
-      var tmpLocationString = (item.properties.name || "") + ", " + (item.properties.state || "") + item.properties.country;
-      if (item.properties.osm_value == "hamlet" || !item.properties.country || locationList.indexOf(tmpLocationString) >= 0) return $("<li>");
-      locationList.push(tmpLocationString);
-      return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "") + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
-    };
-  } else {
-    UTIL.loadGoogleAPIs(googleMapsLoadedCallback, gEarthTime.timelapse.getSettings().apiKeys);
-  }
-
   // Set the letterbox mode
-  if (enableLetterboxMode) {
+  if (uiMode == availableUIModes.LETTERBOX) {
     // Move the presentation slider out
     var $presentationSlider = $("#" + gEarthTime.timelapse.getTimeMachineDivId() + " .presentationSlider");
     $presentationSlider.prependTo("#letterbox-bottom");
@@ -2212,7 +2257,11 @@ async function setupUIAndOldLayers() {
   var hashChange = function() {
     var vals = UTIL.getUnsafeHashVars();
 
-    if (initialShareView && Object.keys(vals).length == 0) {
+    var hasHashParams = !!Object.keys(vals).length;
+    // Note that stories can be ?story=NAME (detected above) or /story/NAME
+    var hasStory = window.location.href.match(/stories\/(\w*)\/?/);
+
+    if (initialShareView && !hasHashParams && !hasStory) {
       var initialUrl = window.location.protocol + "//" + window.location.host + getUrlPathName() + initialShareView;
       window.history.replaceState('onload', 'Title', initialUrl);
       vals = UTIL.getUnsafeHashVars();
@@ -2347,6 +2396,10 @@ async function setupUIAndOldLayers() {
   });
 
   $("#theme-menu").on("click", "[id^=story_]", function(e) {
+    if (uiMode == availableUIModes.ALT1) {
+      $(this).parents(".themes-div").find("tr").removeClass("selected");
+      $(this).addClass("selected");
+    }
     // Note that a story can also be a theme (old way)
     var $selectedStoryElement = $(e.currentTarget);
     storyLoadedFromRealKeyDown = typeof(e.originalEvent) != "undefined" && e.originalEvent.isTrusted;
@@ -2399,7 +2452,16 @@ async function setupUIAndOldLayers() {
 
     $themeHeading.append("<span class='ui-icon ui-icon-bullet active-story-in-theme' style='float:right;'>");
 
-    if (!enableMuseumMode) {
+    if (uiMode == availableUIModes.ALT1) {
+      var $activeStoryMenu = $("#theme-menu").find("h3").children(".ui-icon-bullet");
+      if ($activeStoryMenu.length) {
+          if (!$activeStoryMenu.closest("h3").hasClass("ui-accordion-header-active")) {
+              $activeStoryMenu.click();
+          }
+      }
+    }
+
+    if (uiMode != availableUIModes.MUSEUM) {
       setNewStoryAndThemeUrl(currentWaypointTheme, currentWaypointStory);
     }
 
@@ -2444,7 +2506,7 @@ async function setupUIAndOldLayers() {
     $("#contributors").html("Carnegie Mellon University | CREATE Lab");
   }
 
-  if ((extraContributors || extraContributorsLogoPath) && extraContributorTakesPrecedence) {
+  if (uiMode == availableUIModes.ALT1 || ((extraContributors || extraContributorsLogoPath) && (extraContributorTakesPrecedence))) {
     var $labAndCMULogoDiv = $("<div id='labAndCMULogo'></div>");
     var $contributors = $("#contributors");
     var $logosContainerParent = $("#logosContainer");
@@ -2470,6 +2532,8 @@ async function setupUIAndOldLayers() {
     }
     var separator = extraContributorTakesPrecedence ? "" : " | ";
     $("#contributors").html($("#contributors").html() + separator + extraContributors);
+  } else if (uiMode == availableUIModes.ALT1) {
+    $("#contributors").html("<div id='menu-logo'>EarthTime</div>");
   }
 
   $("#datepicker-ui").appendTo($("#timeMachine .player"));
@@ -2539,7 +2603,7 @@ async function setupUIAndOldLayers() {
     $('#theme-title').attr('data-theme-id', '');
   });
 
-  if (enableLetterboxMode) {
+  if (uiMode == availableUIModes.LETTERBOX) {
     $("#letterbox-list-themes-button").on("click", function() {
       updateLetterboxContent("themes");
     });
@@ -2562,11 +2626,13 @@ async function setupUIAndOldLayers() {
     if (showSearchBox) {
       $("#layers-legend").addClass("topNavDisabled");
     }
+  } else {
+    $("#top-nav").show();
   }
 
   if (disableAnnotations) {
     var selectorsToRemove = [".annotation-nav", ".annotations-resume-exit-container"];
-    if (!enableMuseumMode) {
+    if (uiMode != availableUIModes.MUSEUM) {
       selectorsToRemove.push(".current-location-text-container");
     }
     $(selectorsToRemove.join(",")).remove();
@@ -2635,11 +2701,6 @@ async function setupUIAndOldLayers() {
     $(this).off("mouseleave");
   });
 
-  if (enableMuseumMode) {
-    // @ts-ignore
-    EarthlapseUI.init();
-  }
-
   initialTopNavWrapperElm = {};
   initialTopNavWrapperElm.outerWidth = $("#top-nav-wrapper").outerWidth();
 
@@ -2667,6 +2728,21 @@ async function setupUIAndOldLayers() {
 
   $mapboxLogoContainer = $("#mapboxLogoContainer");
 
+  if (uiMode == availableUIModes.ALT1) {
+    $(".player").append($(".customControl, .controls, .extras-content-dialog"));
+    $("#timeMachine").append($("#logosContainer"));
+    $(".extras-content-dialog").addClass("storyFriendlyDialog")
+    $("#viewerContainer").prepend($contributors);
+  }
+
+  if (uiMode != availableUIModes.MUSEUM) {
+    $("#logosContainer").show();
+  }
+
+  $("#baseLayerCreditContainer").show();
+
+  setupSearchBox();
+
   // Keep this last
 
   // Note that hash change events are run in reverse order of them being added when handled
@@ -2678,6 +2754,73 @@ async function setupUIAndOldLayers() {
   timeMachinePlayerInitialized = true;
 
   // End of onTimeMachinePlayerReady
+}
+
+
+var setupSearchBox = function() {
+  if (!showSearchBox) return;
+
+  // Location search box, with autocomplete.
+  var $locationSearchDiv = $('<div class="location_search_div"><span id="location_search_icon"></span><span id="location_search_clear_icon" class="clear-search-icon" title="Clear location search"></span><input id="location_search" type="text" placeholder="Search for a location...">');
+  if (uiMode == availableUIModes.LETTERBOX) {
+    $locationSearchDiv.addClass("top-panel letterbox").prependTo($("#letterbox-bottom-controls"));
+  } else {
+    if (disableTopNav) {
+      $locationSearchDiv.appendTo("#viewerContainer");
+    } else {
+      $locationSearchDiv.appendTo("#top-nav");
+    }
+  }
+  $locationSearchDiv.show();
+
+  // Note: Google's service gives much better results, but for  where Google APIs cannot be used, we fallback to this.
+  if (useGoogleSearch) {
+    UTIL.loadGoogleAPIs(googleMapsLoadedCallback, gEarthTime.timelapse.getSettings().apiKeys);
+  } else {
+    var locationList: string[] = [];
+    $("#location_search").autocomplete({
+      minLength: 5,
+      source: function(request, response) {
+        locationList = [];
+        //http://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1
+        $.getJSON("https://photon.komoot.de/api/?limit=5", {
+          q: request.term
+        }, function(data, status, xhr) {
+          response(data.features);
+        });
+      },
+      select: function(event, ui) {
+        var view;
+        //if (ui.item.properties.extent) {
+        //  view = {bbox: {"ne": {"lat": ui.item.properties.extent[1], "lng": ui.item.properties.extent[2]}, "sw": {"lat" : ui.item.properties.extent[3], "lng": ui.item.properties.extent[0]}}};
+        //} else {
+        view = {
+          center: {
+            "lat": ui.item.geometry.coordinates[1],
+            "lng": ui.item.geometry.coordinates[0]
+          },
+          "zoom": 12
+        };
+        //}
+        gEarthTime.timelapse.setNewView(view);
+        if (ui.item.properties) {
+          UTIL.addGoogleAnalyticEvent('textbox', 'search', 'go-to-searched-place=' + ui.item.properties.name + "," + ui.item.properties.country);
+        }
+      }
+    }).on("keydown", function(e) {
+      if (e.keyCode == 13) {
+        $(e.target).trigger("focus");
+        // TODO: jQuery seems to not have a unique identifier to this. So what happens if we have more than one autocomplete element on the page?
+        $('.ui-autocomplete').find("li").first().trigger("click");
+      }
+      // @ts-ignore
+    }).autocomplete("instance")._renderItem = function(ul, item) {
+      var tmpLocationString = (item.properties.name || "") + ", " + (item.properties.state || "") + item.properties.country;
+      if (item.properties.osm_value == "hamlet" || !item.properties.country || locationList.indexOf(tmpLocationString) >= 0) return $("<li>");
+      locationList.push(tmpLocationString);
+      return $("<li style='z-index:9999'>").append("<a>" + (item.properties.name || "") + ", " + (item.properties.state || "") + "<br>" + item.properties.country + "</a>").appendTo(ul);
+    };
+  }
 }
 
 var sortLayerCategories = function() {
@@ -3297,6 +3440,28 @@ function resize() {
   if (csvDataGrapher.activeLayer.id) {
     csvDataGrapher.chart.render();
   }
+
+  if (uiMode == availableUIModes.ALT1) {
+    resizeWaypointDots()
+  }
+}
+
+function resizeWaypointDots() {
+  var numKeyframes = snaplapseForPresentationSlider.getKeyframes().length;
+  var posTop;
+  for (var i = 0; i < numKeyframes; i++) {
+    var $waypoint = $("#waypointDots li").eq(i);
+    if ($waypoint.length == 0) continue;
+    var currentPosTop = $waypoint.position().top;
+    if (posTop != currentPosTop) {
+      posTop = currentPosTop;
+      if (i != 0) {
+        $waypoint.addClass("hide-line");
+      }
+    } else {
+      $waypoint.removeClass("hide-line");
+    }
+  }
 }
 
 function resizeLayersMenu() {
@@ -3451,7 +3616,6 @@ function getLegendHTML() {
 async function init() {
   await gEarthTime.LayerDBLoaded();
   if (ETNotSupported) {
-    $("#baseLayerCreditContainer, #logosContainer, #top-nav").hide();
     $("#browser_not_supported").show();
     return;
   }
@@ -3490,7 +3654,7 @@ async function init() {
       waypointDelayTime: waypointDelayInMilliseconds,
       height: 94
     },
-    useTouchFriendlyUI: isHyperwall || isMobileDevice,
+    useTouchFriendlyUI: isHyperwall || isMobileDevice || uiMode == availableUIModes.MUSEUM,
     datasetType: "landsat",
     playOnLoad: !pauseWhenInitialized,
     mediaType: ".mp4",
@@ -3506,7 +3670,9 @@ async function init() {
     startEditorFromPresentationMode: true
   };
 
-  if (enableLetterboxMode) {
+  if (uiMode == availableUIModes.ALT1) {
+    $("body").addClass("alt1");
+  } else if (uiMode == availableUIModes.LETTERBOX) {
     $("#letterbox-content").show();
     $("#timeMachine").addClass("letterbox");
     $("#letterbox-main").replaceWith($("#timeMachine"));
