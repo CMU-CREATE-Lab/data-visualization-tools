@@ -23,6 +23,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   nextFrameNeedsRedraw = true;
   iframeClickHandler: () => void;
   lastAutoModeStateBeforeManualSet: boolean;
+  sandboxIframe: boolean;
 
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
@@ -43,6 +44,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     this.loop = this.extrasOptions['loop'] ?? true;
     this.muted = this.extrasOptions['muted'] ?? true;
     this.playbackControls = this.extrasOptions['controls'] ?? false;
+    this.sandboxIframe = this.extrasOptions['sandbox-iframe'] ?? false;
 
     this.$extrasContentContainerTitleBar = $(".extras-content-dialog .ui-dialog-titlebar");
     this.$extrasContentContainer = $("#extras-content-container");
@@ -108,6 +110,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     var muteVideoAudio = this.muted;
     var enableVideoPlaybackControls = this.playbackControls;
     var objectFit = this.objectFit;
+    var sandboxIframe = this.sandboxIframe;
 
     this.$extrasContentContainer.empty();
 
@@ -174,7 +177,12 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       if (match) {
         filePath = this.mediaPath;
       }
-      extrasHtml = '<iframe id="extras-iframe" scrolling="yes"></iframe>';
+      var extra_params = "";
+      // Prevent external links inside an iframe from navigating the page away.
+      if (sandboxIframe) {
+        extra_params += " sandbox='allow-scripts allow-same-origin allow-modals allow-pointer-lock allow-forms allow-top-navigation'";
+      }
+      extrasHtml = `<iframe id="extras-iframe" scrolling="yes" ${extra_params}></iframe>`;
       this.$extrasContentContainer.html(extrasHtml).dialog("open");
       var iframe = document.getElementById("extras-iframe") as HTMLIFrameElement;
       $(iframe).one('load', function() {
