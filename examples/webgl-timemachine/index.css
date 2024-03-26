@@ -2076,10 +2076,6 @@ a:focus { outline:0; }
   bottom: 260px;
 }
 
-#layers-legend:not(.letterbox).topNavDisabled {
-  top: 72px;
-}
-
 .unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
