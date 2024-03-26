@@ -182,6 +182,9 @@ class EarthTimeImpl implements EarthTime {
   async LayerDBLoaded() {
     if (!this.layerDB) await this.layerDBPromise;
   }
+  isLayerWithActiveTimelineATimeMachine(): boolean {
+    return this.layerDB?.layerById[this.timeline()?.associatedLayerId]?.layer?.mapType == "timemachine";
+  }
   // Compute standard Google Maps zoom level -- 0 means world fits inside 256 pixels across, 1 means 512, 2: 1024 etc
   // Assumes timelapse.getPanoWidth() represents 360 degrees of longitude
   gmapsZoomLevel(): number {
@@ -2242,6 +2245,8 @@ async function setupUIAndOldLayers() {
   }
   $(".current-location-text-container, .annotations-resume-exit-container").appendTo($("#timeMachine .player"));
 
+  setupSearchBox();
+
   // Set the letterbox mode
   if (uiMode == availableUIModes.LETTERBOX) {
     // Move the presentation slider out
@@ -2740,8 +2745,6 @@ async function setupUIAndOldLayers() {
   }
 
   $("#baseLayerCreditContainer").show();
-
-  setupSearchBox();
 
   // Keep this last
 

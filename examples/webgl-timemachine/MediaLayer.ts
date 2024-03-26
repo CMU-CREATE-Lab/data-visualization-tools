@@ -205,7 +205,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     if (gEarthTime.snaplapseViewerForPresentationSlider && gEarthTime.autoModeBeforeSlideChangeState.isAutoModeEnabled) {
       var extrasMediaType = "";
       gEarthTime.layerDB.visibleLayers.forEach(function(layerProxy) {
-        if (layerProxy.layer.mapType.startsWith("extras-")) {
+        if (layerProxy?.layer.mapType.startsWith("extras-")) {
           extrasMediaType = layerProxy.layer.mediaType;
           return;
         }

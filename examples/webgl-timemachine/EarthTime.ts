@@ -50,6 +50,7 @@ export interface EarthTime {
   waypointTimelineUIChangeListener(info: {[key: string]: any}): void;
   uiMode: string;
   updateLetterboxContent(selectionChoice:string): void;
+  isLayerWithActiveTimelineATimeMachine(): boolean;
 };
 
 export const availableUIModes = {
