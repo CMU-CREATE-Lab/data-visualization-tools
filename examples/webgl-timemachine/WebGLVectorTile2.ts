@@ -1273,6 +1273,7 @@ export class WebGLVectorTile2 extends Tile {
       var radius = eval(this.scalingFunction);
       this._radius = radius;
       this._layer.radius = radius;
+
   }
 
     if (typeof data.features != "undefined") {      
@@ -1312,8 +1313,11 @@ export class WebGLVectorTile2 extends Tile {
                 let epochStart = parseDateStr(timeseries.dates[i-1]);
                 let valueEnd = parseFloat(timeseries.values[i]);
                 let epochEnd = parseDateStr(timeseries.dates[i]);
-                if (isNaN(epochStart as number) || isNaN(epochEnd as number) ||  isNaN(valueStart as number)) {
+                if (isNaN(epochStart as number) || isNaN(epochEnd as number)) {
+                  console.log('Bad date');
                   break;
+                } else if (isNaN(valueStart as number)) {
+                  continue;
                 } else {
                   if (isNaN(valueEnd as number)) {
                     valueEnd = valueStart;                    
@@ -2554,6 +2558,7 @@ export class WebGLVectorTile2 extends Tile {
                 'max_value': this._maxValue,
                 'min_value': this._minValue,
                 'units': this._layer.legendKey,
+                'title': this._layer.name,
                 'program': program
               })
 
@@ -4952,6 +4957,7 @@ export class WebGLVectorTile2 extends Tile {
       canvas.width = 380;
       canvas.height = 180;
       ctx.fillStyle = "#f8355c";
+      ctx.fillStyle = "#323232";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = "150px Roboto_medium, monospace";
       ctx.fillStyle = "#faf2e8";
@@ -5107,7 +5113,26 @@ export class WebGLVectorTile2 extends Tile {
 //      this.program.setVertexAttrib.packedcolor(1, gl.FLOAT, false, this._layer.numAttributes * 4, 8); // tell webgl how buffer is laid out (lat, lon, time--4 bytes each)
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
+      if (this._layer.legendContent == 'openplanet') {
+        if (typeof(this._openplanetlegend) === "undefined") {
+          console.log('Init OP style legend');
+          let program = this.glb.programFromSources(
+            WebGLVectorTile2Shaders.openPlanetDateVertexShader, WebGLVectorTile2Shaders.openPlanetDateFragmentShader);
+      
+          this._openplanetlegend = new OpenPlanetLegend(this.gl, 
+              {
+                'max_value': this._maxValue, 
+                'min_value': this._minValue, 
+                'units': this._layer.legendKey,
+                'title': this._layer.name,
+                'program': program,
+                'scaleFunction': this._layer.radius
+              })
 
+        } else {
+          this._openplanetlegend.draw(gl);
+        }
+      }
       gl.disable(gl.BLEND);
     }
   }

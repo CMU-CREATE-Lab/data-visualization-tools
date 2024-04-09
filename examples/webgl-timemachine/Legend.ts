@@ -236,6 +236,8 @@ export class OpenPlanetLegend {
     program: any;
     opts: any;
     ready: any;
+    title: any;
+    domain: any;
 
     constructor(gl, opts) {
         this.opts = opts;
@@ -252,12 +254,14 @@ export class OpenPlanetLegend {
         this.max_value = opts.max_value;
         this.min_value = opts.min_value;
         this.program = opts.program;
+        this.domain = (typeof opts.domain === 'undefined') ? [this.min_value, this.max_value] : opts.domain;
         this.max_bubble_size = (typeof opts.max_bubble_size === 'undefined') ? 300 : opts.max_bubble_size;
         this.min_bubble_size = (typeof opts.min_bubble_size === 'undefined') ? 0 : opts.min_bubble_size;
-        this.scaleFunction =  d3.scaleSqrt()
-            .domain([this.min_value, this.max_value])
-            .range([this.min_bubble_size, this.max_bubble_size])
-            .clamp(true);
+        this.scaleFunction = opts.scaleFunction; 
+        // d3.scaleSqrt()
+        //     .domain(this.domain)
+        //     .range([this.min_bubble_size, this.max_bubble_size])
+        //     .clamp(true);
         this.legend_values = [
             Math.floor(0.25 * this.max_bubble_size),
             Math.floor(0.50 * this.max_bubble_size),
@@ -265,19 +269,20 @@ export class OpenPlanetLegend {
             this.max_bubble_size
         ];
 
-        this.canvas_width = (typeof opts.canvas_width === 'undefined') ? 800 : opts.canvas_width;
-        this.canvas_height = (typeof opts.canvas_height === 'undefined') ? 330 : opts.canvas_height;
+        this.title = (typeof opts.title === 'undefined') ? "" : opts.title;
+
+        this.canvas_width = (typeof opts.canvas_width === 'undefined') ? 1920 : opts.canvas_width;
+        this.canvas_height = (typeof opts.canvas_height === 'undefined') ? 430 : opts.canvas_height;
         this.ctx_fillStyle = (typeof opts.ctx_fillStyle === 'undefined') ? '#faf2eb' : opts.ctx_fillStyle;
         this.ctx_strokeStyle = (typeof opts.ctx_strokeStyle === 'undefined') ? '#faf2eb' : opts.ctx_strokeStyle;
         this.ctx_lineWidth = (typeof opts.ctx_lineWidth === 'undefined') ? 4 : opts.ctx_lineWidth;
-        this.ctx_font = (typeof opts.ctx_font === 'undefined') ? "45px Roboto_regular, monospace" : opts.ctx_font;
+        this.ctx_font = (typeof opts.ctx_font === 'undefined') ? "40px Roboto_regular, monospace" : opts.ctx_font;
         this.units = (typeof opts.units === 'undefined') ? "" : opts.units;
 
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.canvas_width;
         this.canvas.height = this.canvas_height;
         this.ctx = this.canvas.getContext("2d");
-        this.ctx.font = this.ctx_font;
         // this.ctx.fillStyle = "#f8355c";
         // this.ctx.fillRect(0, 0, 800, this.canvas.height);
 
@@ -285,8 +290,12 @@ export class OpenPlanetLegend {
         this.ctx.strokeStyle = this.ctx_strokeStyle;
         this.ctx.lineWidth = this.ctx_lineWidth;
 
+        this.ctx.font = "50px Roboto_regular, monospace, sans-serif";
+        this.ctx.fillText(this.title, 2, 60);
+        this.ctx.font = this.ctx_font;
+
         let x = this.max_bubble_size/2. + 5;
-        let y = this.max_bubble_size + 20;
+        let y = this.max_bubble_size + 20 + 100;
 
         for (var i = 0; i < this.legend_values.length; i++) {
             this.ctx.beginPath();
