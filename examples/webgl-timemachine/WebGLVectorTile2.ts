@@ -7732,7 +7732,7 @@ varying float v_size;
 varying float orig_size;
 varying vec4 fg_color, bg_color;
 void main (void) {
-  if (epoch_start > epoch || epoch_end < epoch) {
+  if (epoch_start > epoch || epoch_end <= epoch) {
     gl_Position = vec4(-1,-1,-1,-1);
   } else {
     gl_Position = ortho * vec4(position, 1.0);
