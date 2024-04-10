@@ -238,6 +238,7 @@ export class OpenPlanetLegend {
     ready: any;
     title: any;
     domain: any;
+    readyResolver: any;
 
     constructor(gl, opts) {
         this.opts = opts;
@@ -344,6 +345,9 @@ export class OpenPlanetLegend {
         // Upload the image into the texture.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.ctx.canvas);
         gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this.readyResolver(null);
+
         this.ready = true;
     }
 
@@ -381,4 +385,7 @@ export class OpenPlanetLegend {
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
     }
+
+    readyPromise = new Promise((resolve, reject) => { this.readyResolver = resolve});
+
 }

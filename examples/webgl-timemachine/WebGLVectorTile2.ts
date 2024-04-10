@@ -1207,7 +1207,7 @@ export class WebGLVectorTile2 extends Tile {
     }
   }
 
-  _setMarkerData(data: { features: string | any[]; }) { 
+async  _setMarkerData(data: { features: string | any[]; }) {
     // Assumes GeoJSON data
     var points = [];
     var timeseriesPoints:any[] = [];
@@ -1392,6 +1392,26 @@ export class WebGLVectorTile2 extends Tile {
             points.push(timeseriesPoints[k].negative_stroke_b);
             points.push(timeseriesPoints[k].negative_stroke_a);
           }
+        }
+      }
+
+      if (this._layer.legendContent == 'openplanet') {
+        if (typeof(this._openplanetlegend) === "undefined") {
+          var vertex = WebGLVectorTile2Shaders.openPlanetDateVertexShader;
+          var fragment = WebGLVectorTile2Shaders.openPlanetDateFragmentShader;
+          let program = this.glb.programFromSources(vertex, fragment);
+
+          this._openplanetlegend = new OpenPlanetLegend(this.gl,
+              {
+                'max_value': this._maxValue,
+                'min_value': this._minValue,
+                'units': this._layer.legendKey,
+                'title': this._layer.name,
+                'program': program,
+                'scaleFunction': this._layer.radius
+              })
+          await this._openplanetlegend.readyPromise;
+
         }
       }
       this._setBufferData(new Float32Array(points));
@@ -2546,26 +2566,6 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       gl.disable(gl.BLEND);
-
-      if (this._layer.legendContent == 'openplanet') {
-        if (typeof(this._openplanetlegend) === "undefined") {
-          console.log('Init OP style legend');
-          let program = this.glb.programFromSources(
-            WebGLVectorTile2Shaders.openPlanetDateVertexShader, WebGLVectorTile2Shaders.openPlanetDateFragmentShader);
-
-          this._openplanetlegend = new OpenPlanetLegend(this.gl,
-              {
-                'max_value': this._maxValue,
-                'min_value': this._minValue,
-                'units': this._layer.legendKey,
-                'title': this._layer.name,
-                'program': program
-              })
-
-        } else {
-          this._openplanetlegend.draw(gl);
-        }
-      }
     }
   }
 
@@ -5114,24 +5114,7 @@ export class WebGLVectorTile2 extends Tile {
 
       gl.drawArrays(gl.POINTS, 0, this._pointCount);
       if (this._layer.legendContent == 'openplanet') {
-        if (typeof(this._openplanetlegend) === "undefined") {
-          console.log('Init OP style legend');
-          let program = this.glb.programFromSources(
-            WebGLVectorTile2Shaders.openPlanetDateVertexShader, WebGLVectorTile2Shaders.openPlanetDateFragmentShader);
-      
-          this._openplanetlegend = new OpenPlanetLegend(this.gl, 
-              {
-                'max_value': this._maxValue, 
-                'min_value': this._minValue, 
-                'units': this._layer.legendKey,
-                'title': this._layer.name,
-                'program': program,
-                'scaleFunction': this._layer.radius
-              })
-
-        } else {
           this._openplanetlegend.draw(gl);
-        }
       }
       gl.disable(gl.BLEND);
     }
