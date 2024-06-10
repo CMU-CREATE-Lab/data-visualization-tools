@@ -3148,6 +3148,8 @@ async  _setMarkerData(data: { features: string | any[]; }) {
     for(var i = 0, length = unscaledColor.length; i < length; i++){
         if (unscaledColor[i] > 1 ) {
           color[i] = unscaledColor[i] / 255.0;
+        } else {
+          color[i] = unscaledColor[i];
         }
     }
 
