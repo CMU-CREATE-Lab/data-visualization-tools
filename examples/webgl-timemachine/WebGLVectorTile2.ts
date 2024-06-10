@@ -3120,7 +3120,7 @@ async  _setMarkerData(data: { features: string | any[]; }) {
     }
   }
 
-  _drawViirs(transform: Float32Array, options: DrawOptions) {
+  _drawViirs(transform: Float32Array) {
     var gl = this.gl;
     var _minTime = new Date('2014-03-14').getTime();
     var _maxTime = new Date('2014-04-13').getTime();
@@ -3130,7 +3130,8 @@ async  _setMarkerData(data: { features: string | any[]; }) {
     var _first = 0;
     var _count = this._pointCount;
 
-    var opts = options || {};
+    var opts = this._layer.drawOptions ||  {};
+
     var showTemp = opts.showTemp || _showTemp;
     var minTemp = opts.minTemp || _minTemp;
     var maxTemp = opts.maxTemp || _maxTemp;
@@ -3138,8 +3139,17 @@ async  _setMarkerData(data: { features: string | any[]; }) {
     var first = opts.first || _first;
     var count = opts.count || _count;
 
-    var maxTime = gEarthTime.currentEpochTime();
-    var minTime = maxTime - 28 * 24 * 60 * 60;
+    var maxTime = opts.maxTime || gEarthTime.currentEpochTime();
+    var span  = opts.span || 28 * 24 * 60 * 60;
+    var minTime = maxTime - span;
+
+    var unscaledColor = opts.color || [209, 56, 18];
+    var color = Array(unscaledColor.length);
+    for(var i = 0, length = unscaledColor.length; i < length; i++){
+        if (unscaledColor[i] > 1 ) {
+          color[i] = unscaledColor[i] / 255.0;
+        }
+    }
 
     var viirsIndex = {
       '201408': { 'count': 115909, 'first': 0 },
@@ -3226,6 +3236,7 @@ async  _setMarkerData(data: { features: string | any[]; }) {
       gl.uniform1f(this.program.maxTime, maxTime);
       gl.uniform1f(this.program.minTime, minTime);
       gl.uniform1f(this.program.pointSize, pointSize);
+      gl.uniform3fv(this.program.color, color);
 
       gl.drawArrays(gl.POINTS, first, count);
 
@@ -5577,9 +5588,8 @@ void main() {
 
 WebGLVectorTile2Shaders.viirsFragmentShader = `
 /*precision mediump float;*/
+uniform vec3 color;
 void main() {
-  vec3 color;
-  color = vec3(.82, .22, .07);
   float dist = length(gl_PointCoord.xy - vec2(.5, .5));
   dist = 1. - (dist * 2.);
   dist = max(0., dist);
