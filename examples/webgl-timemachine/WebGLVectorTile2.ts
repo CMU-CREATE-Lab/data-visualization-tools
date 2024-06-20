@@ -1365,7 +1365,7 @@ async  _setMarkerData(data: { features: string | any[]; }) {
       }
       if (timeseriesPoints.length > 0) {
         timeseriesPoints.sort(function (a, b) {
-          return b.value_1 - a.value_1;
+          return Math.abs(b.value_1) - Math.abs(a.value_1);
         });
         for (var k = 0; k < timeseriesPoints.length; k++) {
           points.push(timeseriesPoints[k].x);
