@@ -1,2 +1,2 @@
 all:
-	tsc -p tsconfig-main.json --listEmittedFiles
+	npx tsc -p tsconfig-main.json --listEmittedFiles
