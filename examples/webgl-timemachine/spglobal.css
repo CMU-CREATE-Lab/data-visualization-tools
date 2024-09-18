@@ -329,25 +329,29 @@ body.alt1 {
 }
 
 .alt1 .current-location-text-toggle.minimize-icon {
-    background-image: url(../../images/expand_less_black.png);
+    background-image: url(../../images/expand_less_gold.png);
+    -webkit-filter: invert(0%);
+    filter: invert(0%);
     top: 0px;
 }
 
 .alt1 .current-location-text-toggle.minimize-icon:hover {
-    background-image: url(../../images/expand_less_gold.png);
-    -webkit-filter: invert(0%);
-    filter: invert(0%);
+    background-image: url(../../images/expand_less_black.png);
+    -webkit-filter: invert(55%);
+    filter: invert(55%);
 }
   
 .alt1 .current-location-text-toggle.maximize-icon {
-    background-image: url(../../images/expand_more_black.png);
+    background-image: url(../../images/expand_more_gold.png);
+    -webkit-filter: invert(0%);
+    filter: invert(0%);
     top: 0px;
 }
 
 .alt1 .current-location-text-toggle.maximize-icon:hover {
-    background-image: url(../../images/expand_more_gold.png);
-    -webkit-filter: invert(0%);
-    filter: invert(0%);
+    background-image: url(../../images/expand_more_black.png);
+    -webkit-filter: invert(55%);
+    filter: invert(55%);
 }
 
 .alt1 #layers-legend.noTimeline, #layers-legend.noTimelineForced {
@@ -368,9 +372,18 @@ body.alt1 {
     margin-top: 10px;
 }
 
+.alt1 #waypointDots .progressLine .current-location-text-title {
+    margin-left:55px;
+    color:white;
+    font-size: 15px;
+    font-weight:100;
+    margin-top: -13px;
+    position: absolute;
+}
+
 .alt1 #waypointDots li {
-    width: 2em;
-    height: 2em;
+    width: 13px;
+    height: 13px;
     text-align: center;
     line-height: 2em;
     border-radius: 1em;
@@ -387,9 +400,9 @@ body.alt1 {
 .alt1 #waypointDots li::before{
     content: '';
     position: absolute;
-    top: .9em;
-    left: -4em;
-    width: 4em;
+    top: 5px;
+    left: -2em;
+    width: 2em;
     height: .2em;
     background: #edf86f;
     z-index: -1;
@@ -408,12 +421,14 @@ body.alt1 {
 }
 
 .alt1 #waypointDots .active ~ li {
-    background: white;
+    background: #3d3c3c;
+    /*background: white;*/
     color: #2b2525;
 }
 
 .alt1 #waypointDots .active ~ li::before {
-    background: white;
+    background: #3d3c3c;
+    /*background: white;*/
     color: #2b2525;
 }
 

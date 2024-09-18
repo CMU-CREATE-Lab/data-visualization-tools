@@ -1956,9 +1956,10 @@ async function setupUIAndOldLayers() {
       if (uiMode == availableUIModes.ALT1) {
         var numKeyframes = snaplapseForPresentationSlider.getKeyframes().length;
         $("#numWaypoints").text(numKeyframes);
-        var htmlDots = "<div class='progressLine'><ul>";
+        var htmlDots = "<div class='progressLine'><div class='current-location-text-title'></div><ul>";
         for (var i = 0; i < numKeyframes; i++) {
-          htmlDots += `<li title="Click to view waypoint">${i+1}</li>`;
+          //htmlDots += `<li title="Click to view waypoint">${i+1}</li>`;
+          htmlDots += `<li title="Click to view waypoint"></li>`;
         }
         htmlDots += "</ul></div>";
 
@@ -2159,9 +2160,9 @@ async function setupUIAndOldLayers() {
           showAnnotations();
           $(".snaplapse_keyframe_list .snaplapse_keyframe_list_item_thumbnail_overlay_presentation").eq(selectedWaypointIdx).addClass("thumbnail_highlight");
           if (waypoint.annotationBoxTitle) {
-            $current_location_text.find(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
+            $(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
           } else {
-            $current_location_text.find(".current-location-text-title").empty().hide();
+            $(".current-location-text-title").empty().hide();
           }
           var $current_location_text_picture = $("#current-location-text-picture");
           if (Object.keys(annotationPicturePaths).length) {
