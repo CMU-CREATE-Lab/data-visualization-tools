@@ -368,17 +368,11 @@ body.alt1 {
     display: flex;
 }
 
-.alt1 #waypointDots .progressLine {
-    margin-top: 10px;
-}
-
 .alt1 #waypointDots .progressLine .current-location-text-title {
     margin-left:55px;
     color:white;
     font-size: 15px;
     font-weight:100;
-    margin-top: -13px;
-    position: absolute;
 }
 
 .alt1 #waypointDots li {
@@ -454,6 +448,7 @@ body.alt1 {
     align-items: center;
     margin-top: 30px;
     -webkit-user-select: none;
+    margin-top: 28px;
 }
 
 .alt1 .current-location-text {

@@ -2162,7 +2162,10 @@ async function setupUIAndOldLayers() {
           if (waypoint.annotationBoxTitle) {
             $(".current-location-text-title").show().text(waypoint.annotationBoxTitle);
           } else {
-            $(".current-location-text-title").empty().hide();
+            $(".current-location-text-title").empty();
+            if (uiMode != "alt1") {
+              $(".current-location-text-title").hide();
+            }
           }
           var $current_location_text_picture = $("#current-location-text-picture");
           if (Object.keys(annotationPicturePaths).length) {
