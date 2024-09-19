@@ -24,6 +24,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
   iframeClickHandler: () => void;
   lastAutoModeStateBeforeManualSet: boolean;
   sandboxIframe: boolean;
+  subtitles: string;
 
   constructor(layerProxy: LayerProxy, glb: Glb, canvasLayer, tileUrl: string, layerOptions: LayerOptions) {
     super(layerOptions);
@@ -42,6 +43,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     }
     this.objectFit = this.extrasOptions['object-fit'] ?? "";
     this.loop = this.extrasOptions['loop'] ?? true;
+    this.subtitles = this.extrasOptions['subtitles'];
     this.muted = this.extrasOptions['muted'] ?? true;
     this.playbackControls = this.extrasOptions['controls'] ?? false;
     this.sandboxIframe = this.extrasOptions['sandbox-iframe'] ?? false;
@@ -99,7 +101,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
 
   isLoaded(): boolean { return this.ready; }
 
-  handleEnable() {
+  async handleEnable() {
     var that = this;
     var relativePath = "../../../extras/";
     var filePath = relativePath + this.mediaPath;
@@ -111,6 +113,7 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
     var enableVideoPlaybackControls = this.playbackControls;
     var objectFit = this.objectFit;
     var sandboxIframe = this.sandboxIframe;
+    var subtitles = this.subtitles;
 
     this.$extrasContentContainer.empty();
 
@@ -148,6 +151,13 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
       var video = $video[0] as HTMLVideoElement;
       if (loopVideoPlayback) {
         video.loop = true;
+      }
+      if (subtitles) {
+        let blob = await fetch(subtitles).then(r => r.blob());
+        let track = document.createElement('track');
+        track.src = URL.createObjectURL(blob);
+        video.appendChild(track);
+        video.textTracks[0].mode = "showing";
       }
       if (muteVideoAudio) {
         video.muted = true;
