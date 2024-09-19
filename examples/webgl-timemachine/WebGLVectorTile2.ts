@@ -1349,6 +1349,19 @@ async  _setMarkerData(data: { features: string | any[]; }) {
                   }
                 }
               }
+              if (timeseriesPoints.length > 0) {
+                var fencePostPoint = {};
+                var obj = timeseriesPoints.slice(-1)[0];
+                for (var attr in obj) {
+                  if (obj.hasOwnProperty(attr)) fencePostPoint[attr] = obj[attr];
+                }
+                            
+                var span  = fencePostPoint['epoch_1'] - fencePostPoint['epoch_0'];
+                fencePostPoint['epoch_0'] = fencePostPoint['epoch_1'];
+                fencePostPoint['epoch_1'] = fencePostPoint['epoch_1'] + span;
+                fencePostPoint['value_0'] = fencePostPoint['value_1'];
+                timeseriesPoints.push(fencePostPoint);
+              }
             }
           }
           else {
@@ -1363,7 +1376,7 @@ async  _setMarkerData(data: { features: string | any[]; }) {
           }
         }
       }
-      if (timeseriesPoints.length > 0) {
+      if (timeseriesPoints.length > 0) {        
         timeseriesPoints.sort(function (a, b) {
           return Math.abs(b.value_1) - Math.abs(a.value_1);
         });
