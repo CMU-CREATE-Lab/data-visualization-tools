@@ -226,6 +226,9 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
           if (gEarthTime.autoModeBeforeSlideChangeState.isAutoModeRunning) {
             gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout(1500);
           } else {
+            if ($videoExtra[0].loop) {
+              $videoExtra[0].play();
+            }
             gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeIdleTimeout();
           }
         });
