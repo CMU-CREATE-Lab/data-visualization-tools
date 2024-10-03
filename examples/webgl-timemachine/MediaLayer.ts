@@ -227,13 +227,17 @@ export class MediaLayer extends LayerOptions implements LayerInterface {
         // @ts-ignore
         $videoExtra[0].originalLoop = $videoExtra[0].loop;
         $videoExtra[0].loop = false;
+        gEarthTime.autoModeBeforeSlideChangeState.isAutoModeEnabled = gEarthTime.snaplapseViewerForPresentationSlider.isAutoModeEnabled();
+        that.lastAutoModeStateBeforeManualSet = gEarthTime.autoModeBeforeSlideChangeState.isAutoModeEnabled;
         gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(false);
-
         $videoExtra.one('ended', function() {
           // @ts-ignore
           $videoExtra[0].loop = $videoExtra[0].originalLoop;
           gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(gEarthTime.autoModeBeforeSlideChangeState.isAutoModeEnabled);
           if (gEarthTime.autoModeBeforeSlideChangeState.isAutoModeRunning) {
+            if (!gEarthTime.snaplapseViewerForPresentationSlider.isAutoModeEnabled() && that.lastAutoModeStateBeforeManualSet) {
+              gEarthTime.snaplapseViewerForPresentationSlider.setAutoModeEnableState(true);
+            }
             gEarthTime.snaplapseViewerForPresentationSlider.startAutoModeWaypointTimeout(1500);
           } else {
             if ($videoExtra[0].loop) {
