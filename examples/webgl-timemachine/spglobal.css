@@ -77,8 +77,8 @@ body.alt1 {
 }
 
 .alt1 .themes-div table {
-    border-spacing: 0px 25px;
-    margin-top: -30px;
+    border-spacing: 0px 15px;
+    margin-top: -20px;
     margin-left: 13px;
 }
 
@@ -279,15 +279,12 @@ body.alt1 {
     text-indent: initial !important;
 }
 
-.alt1 .themes-div table tr:after {
+.alt1 .themes-div table td:after {
     content: '';
-    position: absolute;
+    position: relative;
     left: 0px;
-    right: 0px;
-    width: auto;
-    left: 30px;
-    height: 46px; 
-    margin-top: -15px;
+    display: block;
+    height: 10px;
 }
 
 .alt1 .ui-accordion-header .ui-icon.iconClosed:after {
