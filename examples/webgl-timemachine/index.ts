@@ -399,8 +399,17 @@ class EarthTimeImpl implements EarthTime {
 
   private getTimelapseDates(): number[] {
     var dates = [];
-    for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
-      dates.push(this.timelapse.getFrameEpochTime(i));
+
+    var customSliderInfo = this.layerDB.layerById[this.timeline()?.associatedLayerId]?.layer?.customSliderInfo || {};
+    var customTimeTicks = Object.values(customSliderInfo);
+    if (customTimeTicks.length) {
+      for (var i = 0; i < customTimeTicks.length; i++) {
+        dates.push(this.timelapse.sanitizedParseTimeEpoch(customTimeTicks[i], null));
+      }
+    } else {
+      for (var i = 0; i < this.timelapse.getNumFrames(); i++) {
+        dates.push(this.timelapse.getFrameEpochTime(i));
+      }
     }
     return dates;
   }
