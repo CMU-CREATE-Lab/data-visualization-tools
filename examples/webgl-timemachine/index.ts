@@ -2189,7 +2189,7 @@ async function setupUIAndOldLayers() {
           if (waypoint.description) {
             var waypointBoxText = waypoint.description;
             var $current_location_text_p = $(".current-location-text p");
-            if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && $previousAnnotationLocationButton && waypointJSONList[currentWaypointTheme]) {
+            if (Object.keys(waypointJSONList).length && selectedWaypointIdx == 0 && waypointJSONList[currentWaypointTheme]) {
               var story = waypointJSONList[currentWaypointTheme].stories[currentWaypointStory];
               if (story && story.storyDescription && story.storyAuthor) {
                 var storyAuthorText = story.storyAuthor;
